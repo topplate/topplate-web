@@ -1,0 +1,413 @@
+$black: #000;
+$grey-darkest: #111;
+$grey-dark: #666;
+$white: #fff;
+
+$cyan: #87f8cf;
+$cyan-dark: #69e0b5;
+$cyan-darkest: #467d68;
+$google-red: #de4c2f;
+$google-red-dark: #c5432b;
+$facebook-blue: #264285;
+$facebook-blue-dark: #253b75;
+$email-grey: #384346;
+$email-grey-dark: #2e383b;
+$yellow-faint: #f9ff49;
+$yellow: #fded17;
+$yellow-bright: #ffe400;
+$nav-grey-dark: #253b39;
+$nav-grey-light: #385553;
+
+
+$half-transparent: rgba(0,0,0,.5);
+$transparent-white: rgba(255, 255, 255, .1);
+$transparent: rgba(0,0,0,0);
+
+$half-opacity: .7;
+
+$full-size: 100%;
+$half-size: 50%;
+
+$immediate: 0ms;
+$fast: 100ms;
+$normal: 500ms;
+$slow: 1000ms;
+$very-slow: 5000ms;
+
+$z-lowest: -100;
+$z-lower: -1;
+$z-low: 0;
+$z-high: 100;
+$z-higher: 1000;
+$z-highest: 5000;
+
+$page-width: 1290px;
+$nav-height: 100px;
+$nav-logo-width: 240px;
+$nav-logo-height: 60px;
+$nav-logo-margin: 20px;
+$nav-z-index: $z-high;
+
+$secondary-nav-height: 58px;
+
+$letter-spacing-small: 1px;
+$letter-spacing-big: 5px;
+
+$btn-padding: 10px 20px;
+$btn-font-size: 14px;
+$btn-margin: 28px;
+
+$form-elem-height: 42px;
+$form-elem-padding: $btn-padding;
+$form-elem-margin: 14px;
+$form-element-default-color: $grey-dark;
+
+
+@mixin top-plate_page () {
+  padding-top: $nav-height;
+}
+
+@mixin linear-gradient ($position: left, $from: $half-transparent, $to: $black) {
+  background: $to;
+  background: -moz-linear-gradient($position, $from 0%, $to 100%);
+  background: -webkit-gradient(linear, $position, color-stop(0%,$from), color-stop(100%,$to));
+  background: -webkit-linear-gradient($position, $from 0%,$to 100%);
+  background: -o-linear-gradient($position, $from 0%,$to 100%);
+  background: linear-gradient($position, $from 0%, $to 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#{$from}, endColorstr=#{$to});
+}
+
+@mixin linear-gradient-left ($from: $half-transparent, $to: $black) {
+  background: $to;
+  background: -moz-linear-gradient(left, $from 0%, $to 100%);
+  background: -webkit-gradient(linear, left, color-stop(0%,$from), color-stop(100%,$to));
+  background: -webkit-linear-gradient(left, $from 0%,$to 100%);
+  background: -o-linear-gradient(left, $from 0%,$to 100%);
+  background: linear-gradient(to right, $from 0%, $to 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#{$from}, endColorstr=#{$to});
+}
+
+@mixin linear-gradient-right ($from: $half-transparent, $to: $black) {
+  background: $to;
+  background: -moz-linear-gradient(right, $from 0%, $to 100%);
+  background: -webkit-gradient(linear, right, color-stop(0%,$from), color-stop(100%,$to));
+  background: -webkit-linear-gradient(right, $from 0%,$to 100%);
+  background: -o-linear-gradient(right, $from 0%,$to 100%);
+  background: linear-gradient(to left, $from 0%, $to 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#{$to}, endColorstr=#{$from});
+}
+
+@mixin linear-gradient-top ($from: $half-transparent, $to: $black) {
+  background: $to;
+  background: -moz-linear-gradient(top, $from 0%, $to 100%);
+  background: -webkit-gradient(linear, top, color-stop(0%,$from), color-stop(100%,$to));
+  background: -webkit-linear-gradient(top, $from 0%,$to 100%);
+  background: -o-linear-gradient(top, $from 0%,$to 100%);
+  background: linear-gradient(to bottom, $from 0%, $to 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#{$to}, endColorstr=#{$from});
+}
+
+@mixin use-transition ($speed: $normal) {
+  -webkit-transition: $speed;
+  -moz-transition: $speed;
+  -ms-transition: $speed;
+  -o-transition: $speed;
+  transition: $speed;
+}
+
+@mixin transformed ($transformation) {
+  -moz-transform: $transformation;
+  -o-transform: $transformation;
+  -ms-transform: $transformation;
+  -webkit-transform: $transformation;
+  transform: $transformation;
+}
+
+@mixin transformed-origin ($x: 50%, $y: 50%) {
+  moz-transform-origin: $x $y;
+  -o-transform-origin: $x $y;
+  -ms-transform-origin: $x $y;
+  -webkit-transform-origin: $x $y;
+  transform-origin: $x $y;
+}
+
+@mixin no-select {
+  -webkit-touch-callout: none!important;
+  -webkit-user-select: none!important;
+  -khtml-user-select: none!important;
+  -moz-user-select: none!important;
+  -ms-user-select: none!important;
+  user-select: none!important;
+}
+
+body {
+  &.no-select {
+    & * {
+      @include no-select();
+    }
+  }
+
+  &.ns-resize {
+    &, & * {
+      cursor: ns-resize!important;
+    }
+  }
+}
+
+.top-plate_main {
+  display: block;
+  min-width: $page-width;
+}
+
+.top-plate_globalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: $full-size;
+  height: $full-size;
+  background: rgba(0,0,0,.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: $white;
+  z-index: 10001;
+
+  .top-plate_globalOverlayIcon {
+    display: block;
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+  }
+}
+
+.top-plate_signInModal {
+
+  .top-plate_signInModal_content {
+    width: 290px;
+    color: white;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .top-plate_signInModal_environmentSelectorButtons {
+
+    height: $form-elem-height;
+    width: $full-size;
+    margin-bottom: $form-elem-margin;
+
+    .top-plate_signInModal_environmentSelectorButton {
+      display: inline-block;
+      height: $full-size;
+      width: $half-size;
+      line-height: $form-elem-height;
+      background: $form-element-default-color;
+      opacity: $half-opacity;
+      color: $white;
+      cursor: pointer;
+      @include use-transition($normal);
+
+      &.isSelected {
+        background: $cyan-dark;
+        opacity: 1;
+      }
+    }
+  }
+
+  .top-plate_signInModal_logInMethods {
+    .top-plate_signInModal_logInMethod {
+      display: block;
+      position: relative;
+      width: $full-size;
+      height: $form-elem-height;
+      line-height: $form-elem-height;
+      margin-bottom: $form-elem-margin;
+      cursor: pointer;
+      opacity: .8;
+      @include use-transition($normal);
+
+      .top-plate_signInModal_logInMethod_icon {
+        display: inline-block;
+        position: absolute;
+        text-align: center;
+        line-height: $form-elem-height;
+        top: 0;
+        left: 0;
+        width: $form-elem-height;
+        height: $form-elem-height;
+      }
+
+      &:hover {
+        opacity: 1;
+      }
+
+      &.signIn-google {
+        background: $google-red;
+        .top-plate_signInModal_logInMethod_icon {
+          background: $google-red-dark;
+        }
+      }
+
+      &.signIn-facebook {
+        background: $facebook-blue;
+        .top-plate_signInModal_logInMethod_icon {
+          background: $facebook-blue-dark;
+        }
+      }
+
+      &.signIn-email {
+        background: $email-grey;
+        .top-plate_signInModal_logInMethod_icon {
+          background: $email-grey-dark;
+        }
+      }
+    }
+  }
+
+  .top-plate_signInModal_bottomBlock {
+
+    text-align: left;
+
+    .top-plate_signInModal_termsAndPrivacy {
+      margin: 20px 0;
+
+      a {
+        border-bottom: 1px solid $cyan;
+        cursor:pointer;
+      }
+    }
+
+    .top-plate_signInModal_subscribe {
+      margin-bottom: 20px;
+      cursor: pointer;
+
+      .top-plate_signInModal_subscribeCheckbox {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 1px solid $cyan;
+        text-align: center;
+        font-size: 10px;
+        color: $transparent;
+        @include use-transition($normal);
+
+        &.isChecked {
+          color: $white;
+        }
+      }
+    }
+
+    .top-plate_signInModal_close {
+      font-size: 12px;
+      cursor: pointer;
+      opacity: .7;
+      @include use-transition($normal);
+
+      &:hover {
+        opacity: .9;
+      }
+    }
+  }
+}
+
+/** Plate uploader modal */
+
+.top-plate_plateUploadModal {
+  display: block;
+  position: fixed;
+  top: -$full-size;
+  left: 0;
+  width: $full-size;
+  height: $full-size;
+  background: $half-transparent;
+  z-index: $z-highest;
+
+  @include use-transition($normal);
+
+  &.is-opened {
+    top: 0;
+  }
+
+  .plate-uploader_content {
+    width: 572px;
+    background: rgba(43, 43, 43, .5);
+    border: 1px solid $cyan;
+    padding: 34px 68px;
+    color: $white;
+    text-align: center;
+
+    .plate-uploader_textInput {
+      position: relative;
+      display: block;
+      font-size: 14px;
+      margin-top: $btn-margin;
+
+      input, textarea {
+        padding: 0 20px;
+        display: block;
+        background: transparent;
+        width: $full-size;
+        line-height: $form-elem-height - 2;
+        border: 1px solid $cyan-darkest;
+        outline: none;
+        color: $white;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      textarea {
+        padding: 10px 20px;
+        line-height: 20px;
+      }
+    }
+
+    .plate-uploader_textInputComment {
+      font-size: 7px;
+      position: absolute;
+      bottom: -12px;
+      left: 0;
+    }
+
+    .plate-uploader_imageInput {
+      width: $full-size;
+      height: 250px;
+      margin-top: $btn-margin;
+    }
+
+    .plate-uploader_button {
+      display: block;
+      width: $full-size;
+      background: $transparent;
+      border: 1px solid $cyan;
+      color: $white;
+      font-size: 14px;
+      margin-top: $btn-margin;
+      line-height: $form-elem-height - 2;
+      opacity: .7;
+      cursor: not-allowed;
+
+      &.isReady {
+        opacity: 1;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+.tp-header_spacer {
+  height: $nav-height;
+}
+//
+//.cooking-icon {
+//  width: 50px;
+//  height: 50px;
+//  background-size: cover;
+//  background-image: url(../assets/icons/cooking.png);
+//}
+
+//
+//.submit-photo {
+//  width: 200px;
+//  height: 50px;
+//  background-size: cover;
+//  background-image: url(../assets/submit-photo.png);
+//}

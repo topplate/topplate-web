@@ -1,0 +1,31 @@
+<div class="home-page">
+
+  <app-animated-background [source]="restaurantEnvBackground" class="home-page_panel panel-left">
+
+    <div class="home-page_linkOuter">
+
+      <a routerLink="" (click)="setEnvironment('restaurant')" class="home-page_link">
+
+        <span class="oswald-light">RESTAURANT</span>
+
+      </a>
+
+    </div>
+
+  </app-animated-background>
+
+  <app-animated-background [source]="homemadeEnvBackground" class="home-page_panel panel-right">
+
+    <div class="home-page_linkOuter">
+
+      <a routerLink="" (click)="setEnvironment('homemade')" class="home-page_link">
+
+        <span class="oswald-light">HOMEMADE</span>
+
+      </a>
+
+    </div>
+
+  </app-animated-background>
+
+</div>

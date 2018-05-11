@@ -1,0 +1,216 @@
+import { Component, OnInit, DoCheck, OnDestroy, AfterViewInit, Input, ElementRef, ViewEncapsulation } from '@angular/core';
+import {Route, ActivatedRoute, ActivationEnd, NavigationEnd, Router} from '@angular/router';
+import 'rxjs/add/operator/filter';
+import { AppD3Service } from '../../services/d3.service';
+import { ConstantsService } from '../../services/constants.service';
+import { AuthorizationService } from '../../services/authorization.service';
+import { SharedService } from '../../services/shared.service';
+import { AccessPointService } from '../../services/access-point.service';
+import { EnvironmentService } from '../../services/environment.service';
+
+const
+  CONSTANTS = ConstantsService.getConstants(),
+  ROUTES = CONSTANTS.ROUTES,
+  TYPES = CONSTANTS.TYPES,
+  ENVIRONMENTS = CONSTANTS.ENVIRONMENTS,
+  ROOT_ELEM_CLASS = 'tp-header',
+  d3 = AppD3Service.getD3();
+
+@Component({
+  selector: 'app-tp-header',
+  templateUrl: './tp-header.component.html',
+  styleUrls: ['./tp-header.component.scss'],
+  encapsulation: ViewEncapsulation.None
+})
+export class TpHeaderComponent implements OnInit, OnDestroy {
+
+  constructor (
+    private reference: ElementRef,
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+    private authorizationService: AuthorizationService,
+    private accessPointService: AccessPointService,
+    private environmentService: EnvironmentService
+  ) {}
+
+  @Input() public items: Object[];
+
+  @Input() public events: Object;
+
+  public links: Object[] = [];
+
+  public menuItems: Object[] = [
+    {
+      label: 'contact us',
+      link: [ROUTES.CONTACTS]
+    },
+    {
+      label: 'privacy term'
+    },
+    {
+      label: 'copyright'
+    },
+    {
+      label: 'log out',
+      action: 'onSignOutButtonClick'
+    }
+  ];
+
+  public profileMenuItems: Object[] = [
+    {
+      label: 'my profile'
+    },
+    {
+      label: 'log out'
+    }
+  ];
+
+  public switchObserver: any;
+
+  public switchItems: Object[] = this.environmentService.getAvailableEnvironments().map(str => {
+    return {
+      label: str + ' plates',
+      name: str
+    };
+  });
+
+  public switchEvents: Object = {
+    onClick: () => {
+      let
+        self = this,
+        selectedOne = null;
+
+      self.switchItems.forEach(item => {
+        item['isSelected'] = !item['isSelected'];
+        item['isSelected'] && (selectedOne = item['name']);
+      });
+
+      self.environmentService.setCurrent(selectedOne);
+    }
+  };
+
+  public currentUser: any;
+
+  public currentStateData: any;
+
+  public isAuthorized: Boolean = false;
+
+  private elements: Object;
+
+  private refreshDOM () {
+
+    let
+      self = this,
+      rootElem = d3.select(self.reference.nativeElement).classed(ROOT_ELEM_CLASS, true);
+
+    self.elements = {
+      root: rootElem,
+      content: rootElem.select('.tp-header_content'),
+      leftBlock: rootElem.select('.tp-header_leftBlock'),
+      rightBlock: rootElem.select('.tp-header_rightBlock')
+    };
+  }
+
+  private refreshView () {
+
+    let
+      self = this,
+      links = self.links = [];
+
+    self.items.forEach(item => {
+      item['_label'] = getSplittedString(item['label'], 2);
+      links.push(item);
+    });
+
+    function getSplittedString (value, numberOfRows) {
+      let
+        words = value.split(' '),
+        rows = [],
+        n = numberOfRows || 2;
+
+      d3.range(n).forEach(i => {
+        let isLastRow = (i + 1) === n;
+        if (isLastRow) rows.push(words.join(' '));
+        else rows.push(words.splice(0, 1)[0] || '');
+      });
+
+      return rows;
+    }
+  }
+
+  private refreshWatchers () {
+    let
+      self = this,
+      linksToObserve = self.items.filter(item => item.hasOwnProperty('showWhen'));
+
+    self.authorizationService.getState()
+      .subscribe(
+        res => {
+          self.currentUser = self.authorizationService.getCurrentUser();
+          self.isAuthorized = !!res;
+        },
+        err => console.log(err)
+      );
+
+    self.switchObserver = self.environmentService.getSubscription(env => {
+      self.switchItems.forEach(item => item['isSelected'] = item['name'] === env);
+    });
+
+    self.router.events.subscribe( (event) => {
+      if (event instanceof NavigationEnd) {
+        self.currentStateData = self.activatedRoute.root.firstChild.snapshot.data;
+        linksToObserve.forEach(link => link['isHidden'] = !self.currentStateData['showHomeButton']);
+      }
+    });
+  }
+
+  public goHome () {
+    this.router.navigate([ROUTES.PLATES]);
+  }
+
+  public onLinkClick (link) {
+    let self = this;
+    if (link['navigateTo']) self.router.navigate([ROUTES.EMPTY])
+      .then(() => self.router.navigate(link['navigateTo']));
+    else if (link['onClick']) link['onClick']();
+  }
+
+  public onMenuItemClick (clickedItem) {
+    let
+      self = this,
+      events = self.events || {};
+
+    if (clickedItem.link) self.router.navigate(clickedItem.link);
+    else if (clickedItem.action) typeof events[clickedItem.action] === 'function' && events[clickedItem.action].call();
+  }
+
+  public onSignInButtonClick () {
+    let
+      self = this,
+      events = self.events || {};
+
+    typeof events['onSignInButtonClick'] === 'function' && events['onSignInButtonClick'].call();
+  }
+
+  public onProfileButtonClick () {
+    let
+      self = this,
+      router = self.router,
+      currentUser = self.authorizationService.getCurrentUser();
+
+    router.navigate([ROUTES.EMPTY])
+      .then(() => router.navigate([ROUTES.PROFILE + '/', currentUser['_id']]));
+  }
+
+  ngOnInit () {
+    let
+      self = this;
+
+    self.refreshDOM();
+    self.refreshView();
+    self.refreshWatchers();
+  }
+
+  ngOnDestroy () {}
+
+}

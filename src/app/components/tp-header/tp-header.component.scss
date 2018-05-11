@@ -1,0 +1,218 @@
+@import "../../app.component";
+
+$nav-aside-block-width: 400px;
+
+.tp-header {
+
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: $full-size;
+  height: $nav-height;
+  background: #111111;
+  padding: 0 20px 0 $nav-aside-block-width;
+  z-index: $z-highest;
+
+  @include use-transition($normal);
+
+  .tp-header_content {
+    position: relative;
+    height: inherit;
+    text-align: right;
+
+    .tp-header_envSwitch {
+      position: absolute;
+      top: $nav-height;
+      right: 10px;
+      width: 300px;
+      height: 25px;
+    }
+
+    .tp-header_links {
+      height: inherit;
+      text-align: right;
+      display: inline-block;
+      vertical-align: top;
+
+      .tp-header_link {
+        height: inherit;
+        width: 90px;
+        display: inline-block;
+        cursor: pointer;
+
+        .tp-header_linkIcon {
+          width: 30px;
+          height: 30px;
+          margin: 12px auto;
+          background-size: cover;
+
+          &.home {
+            background-image: url(../../../assets/icons/home_icon.png);
+          }
+
+          &.restaurant-plate {
+            background-image: url(../../../assets/icons/restaurant_icon.png);
+          }
+
+          &.homemade-plate {
+            background-image: url(../../../assets/icons/homemade_icon.png);
+          }
+
+          &.how-it-works {
+            background-image: url(../../../assets/icons/how_it_works.png);
+          }
+
+          &.plate-of-week {
+            background-image: url(../../../assets/icons/plate_of_the_week_icon.png);
+          }
+
+          &.plate-of-month {
+            background-image: url(../../../assets/icons/plate_of_the_month_icon.png);
+          }
+
+          &.monthly-prize {
+            background-image: url(../../../assets/icons/monthly_prizes_icon.png);
+          }
+
+          &.charity-choice {
+            background-image: url(../../../assets/icons/charity_choice_icon.png);
+          }
+
+          &.upload-photo {
+            background-image: url(../../../assets/icons/submit_photo_icon.png);
+          }
+
+          &.search-plate {
+            background-image: url(../../../assets/icons/search_icon.png);
+          }
+        }
+
+        .tp-header_linkLabel {
+          text-align: center;
+          font-size: 10px;
+          line-height: 12px;
+          min-height: 12px;
+          color:$white;
+          white-space: nowrap;
+          @include use-transition();
+        }
+
+        &:hover {
+          .tp-header_linkLabel {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+
+    .tp-header_profile {
+      display: inline-block;
+      height: inherit;
+      position: relative;
+      vertical-align: top;
+
+      .tp-header_signInButton,
+      .tp-header_profileButton {
+        color: $white;
+        position: relative;
+        cursor: pointer;
+        display: inline-block;
+        vertical-align: top;
+        padding: 0 20px;
+
+        @include use-transition($normal);
+
+        & * {
+          line-height: $nav-height;
+          vertical-align: middle;
+        }
+
+        &:hover {
+          background: $cyan;
+          color: $black;
+        }
+      }
+
+      .tp-header_profileButton:hover .tp-header_menuItems {
+        display: block;
+      }
+
+      .tp-header_profile-userIcon {
+        display: inline-block;
+        width: 50px;
+        height: 50px;
+        background-size: cover;
+        border-radius: 25px;
+        margin-right: 10px;
+      }
+    }
+
+    .tp-header_menu {
+      color: $white;
+      display: inline-block;
+      vertical-align: top;
+      padding: 0 30px;
+      font-size: 28px;
+      position: relative;
+
+      @include use-transition($normal);
+
+      & * {
+        line-height: $nav-height;
+        vertical-align: middle;
+      }
+
+      &:hover {
+        background: $cyan;
+        color: $black;
+        .tp-header_menuItems {
+          display: block;
+        }
+      }
+    }
+
+    .tp-header_logo {
+      position: absolute;
+      width: $nav-logo-width;
+      height: $nav-logo-height;
+      margin-left: 20px;
+      background-size: cover;
+      background-image: url(../../../assets/top_plate_approved.png);
+      top: $nav-logo-margin;
+      left: -$nav-aside-block-width;
+      cursor: pointer;
+    }
+
+    .tp-header_menuItems {
+      text-align: center;
+      display: none;
+      position: absolute;
+      top: $nav-height;
+      right: 0;
+      background: $cyan;
+      z-index: $z-highest;
+      padding: 20px 40px;
+      color: $black;
+      font-size: 12px;
+      min-width: $full-size;
+      @include use-transition($normal);
+
+      .tp-header_menuItem {
+        list-style: none;
+        cursor: pointer;
+        white-space: nowrap;
+        &, & * {
+          line-height: 30px;
+        }
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  &.isVisible {
+    top: 0;
+  }
+}

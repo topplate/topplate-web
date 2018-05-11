@@ -1,0 +1,113 @@
+<!--<app-header [events]="appHeaderEvents"></app-header>-->
+
+<app-tp-header [items]="headerLinks" [events]="headerEvents"></app-tp-header>
+
+<div class="tp-header_spacer"></div>
+
+<!--<div class="tp-page_content" style="min-height: 500px">-->
+  <!---->
+<!--</div>-->
+
+<app-tp-scrollable>
+  <div class="tp-page-content"><router-outlet></router-outlet></div>
+  <app-tp-footer [banner]="banner"></app-tp-footer>
+</app-tp-scrollable>
+
+<app-modal class="top-plate_signInModal" [(model)]="signInModal">
+
+  <div class="top-plate_signInModal_content roboto-light">
+    <div class="welcome-banner"></div>
+    <p class="top-plate_signInModal_environmentSelectorLabel">Choose your environment</p>
+
+    <div class="top-plate_signInModal_environmentSelectorButtons">
+      <a class="top-plate_signInModal_environmentSelectorButton"
+         *ngFor="let env of environments"
+         [ngClass]="{'isSelected': env.isSelected}"
+         (click)="selectEnvironment(env)">
+        <span>{{env.label}}</span>
+      </a>
+    </div>
+
+    <div class="top-plate_signInModal_logInMethods">
+      <div class="top-plate_signInModal_logInMethod btn-{{method.className}}"
+         *ngFor="let method of logInMethods"
+         (click)="method.onClick && method.onClick()"
+         [ngClass]="method.className">
+        <span class="top-plate_signInModal_logInMethod_label">{{method.label}}</span>
+        <i class="top-plate_signInModal_logInMethod_icon fa fa-{{method.icon}}"></i>
+      </div>
+    </div>
+
+    <div class="top-plate_signInModal_bottomBlock">
+      <div class="top-plate_signInModal_termsAndPrivacy">
+        <small class="roboto-light">By using our service, you agree to our<br><a>Privacy Police</a> and <a>Terms of Service</a></small>
+      </div>
+
+      <div class="top-plate_signInModal_subscribe">
+        <label (click)="signInModal.wantToSubscribe = !signInModal.wantToSubscribe">
+          <span class="top-plate_signInModal_subscribeCheckbox"
+            [ngClass]="{'isChecked': signInModal.wantToSubscribe}">
+            <i class="fa fa-check"></i>
+          </span>
+          <small class="roboto-light">Subscribe for updates</small>
+        </label>
+      </div>
+
+      <a class="top-plate_signInModal_close roboto-light"
+         (click)="signInModal.isOpened = false">SKIP TO TRY WITHOUT PERSONALIZATION</a>
+    </div>
+
+
+  </div>
+
+</app-modal>
+
+<app-modal class="top-plate_plateUploadModal" (ngSubmit)="onPlateSubmit()" [(model)]="plateUploadModal">
+  <div class="plate-uploader_content roboto-light uppercase">
+    <form [formGroup]="plateUploadModal.plateUploadForm" class="plate-uploader_form">
+      <div class="plate-uploader_contentHeader">
+        <div class="cooking-icon"></div>
+        <div class="submit-photo"></div>
+        <!--<p class="plate-uploader_contentHeader_label uppercase">submit photo</p>-->
+      </div>
+      <fieldset>
+        <div class="plate-uploader_textInput">
+          <input type="text" formControlName="name" placeholder="NAME OR ALIAS*">
+        </div>
+        <div class="plate-uploader_textInput" [hidden]="!plateUploadModal.showEmailField">
+          <input type="email" formControlName="email" placeholder="EMAIL ADDRESS*">
+          <span class="plate-uploader_textInputComment uppercase">topplate.com will not share your address but we need to be able to contact you if you win!</span>
+        </div>
+        <div class="plate-uploader_textInput">
+          <input type="text" formControlName="address" placeholder="CITY, STATE*">
+        </div>
+      </fieldset>
+      <fieldset>
+        <app-image-uploader class="plate-uploader_imageInput" [(model)]="plateUploadModal.uploadedImage">
+          <input type="checkbox" formControlName="image" title="if image is uploaded">
+        </app-image-uploader>
+      </fieldset>
+      <fieldset>
+        <div class="plate-uploader_recipe">
+          <div class="plate-uploader_textInput plate-uploader_recipeInput">
+            <textarea formControlName="recipe" cols="30" rows="5" placeholder="ADD RECIPE"></textarea>
+          </div>
+        </div>
+        <div class="plate-uploader_textInput" [hidden]="!plateUploadModal.showRestaurantNameField">
+          <input type="text" formControlName="restaurantName" placeholder="RESTAURANT NAME*">
+        </div>
+      </fieldset>
+      <button type="submit" class="plate-uploader_button"
+              [ngClass]="{'isReady': plateUploadModal.isReadyToSubmit}"
+              (click)="onPlateSubmit()">SUBMIT</button>
+    </form>
+  </div>
+
+</app-modal>
+
+<div class="top-plate_globalOverlay" [hidden]="isReadyToBeShown">
+  <i class="top-plate_globalOverlayIcon fa fa-circle-o-notch fa-spin"></i>
+</div>
+
+
+

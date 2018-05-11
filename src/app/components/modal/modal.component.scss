@@ -1,0 +1,41 @@
+@import "../../app.component";
+
+.top-plate_modal {
+  display: block;
+  position: fixed;
+  top: -$full-size;
+  left: 0;
+  width: $full-size;
+  height: $full-size;
+  background: $half-transparent;
+  z-index: $z-highest;
+
+  .top-plate_modalContent {
+    display: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+    width: max-content;
+    height: max-content;
+    max-height: $full-size;
+  }
+
+  @include use-transition($normal);
+
+  &.is-opened {
+    top: 0;
+    .top-plate_modalContent {
+      display: block;
+    }
+  }
+
+  .top-plate_modalOverlay {
+
+    height: $full-size;
+    width: $full-size;
+    display: flex;
+    justify-content:center;
+    align-items: center;
+    background: rgba(0,0,0,.8);
+  }
+}
+

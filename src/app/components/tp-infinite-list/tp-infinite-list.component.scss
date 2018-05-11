@@ -1,0 +1,68 @@
+@import "../../app.component";
+
+.tp-infinite-list {
+
+  display: block;
+  text-align: center;
+
+  .tp-infinite-list_content {
+    display: block;
+    vertical-align: top;
+    margin: 0 auto;
+
+    .tp-infinite-list_item {
+      display: inline-block;
+      vertical-align: top;
+
+      &.isNewOne {
+        opacity: 0;
+        @include transformed(translate(0, 100px));
+      }
+    }
+  }
+
+  .tp-infinite-list_preload {
+    min-height: 300px;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background: #363636;
+
+    .fa-circle-o-notch {
+      display: block;
+      color: $white;
+      font-size: 40px;
+      width: 40px;
+      height: 40px;
+    }
+
+    &.isVisible {
+      display: flex;
+    }
+  }
+
+  .tp-infinite-list_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: $full-size;
+    height: $full-size;
+    background: rgba(0,0,0,.9);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    color: $white;
+    z-index: 10001;
+
+    .fa-circle-o-notch {
+      display: block;
+      font-size: 40px;
+      width: 40px;
+      height: 40px;
+    }
+
+    .isVisible {
+      display: flex;
+    }
+  }
+}

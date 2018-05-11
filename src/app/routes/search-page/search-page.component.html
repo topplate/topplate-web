@@ -1,0 +1,19 @@
+<div class="search-plate_spacer"></div>
+
+<div class="search-plate_items">
+  <div class="search-plate_item"
+       *ngFor="let item of items"
+       [ngStyle]="{'width': itemSettings['width'] + 'px', 'height': itemSettings['height'] + 'px'}">
+    <app-plate-preview [model]="item" [settings]="itemSettings"></app-plate-preview>
+  </div>
+</div>
+
+<div class="search-plate_input">
+  <div class="search-plate_inputInner">
+    <div class="search-plate_inputIcon"></div>
+    <input type="text"
+           class="uppercase roboto-light"
+           (keyup)="onKeyPressed($event)"
+           placeholder="SEARCH PLATES">
+  </div>
+</div>

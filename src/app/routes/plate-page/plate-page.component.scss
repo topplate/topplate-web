@@ -1,0 +1,76 @@
+@import "../../app.component";
+
+.plate-page_content {
+  width: $page-width;
+  min-height: 500px;
+  margin: 0 auto;
+
+  .plate-page_selectedOne {
+    display: inline-block;
+    width: 70%;
+    height: 600px;
+    vertical-align: top;
+  }
+
+  .plate-page_selectedOne_details {
+    display: inline-block;
+    width: 29%;
+    vertical-align: top;
+  }
+}
+
+.plate-page_selectedOne_details {
+  padding: 20px;
+  color: $white;
+
+  .plate-page_selectedOne_detailsMeta {
+    font-size: 14px;
+
+    .plate-page_selectedOne_detailsMeta_author {
+      margin-right: 20px;
+    }
+
+    .plate-page_selectedOne_detailsMeta_geo .fa {
+      color: $yellow;
+    }
+  }
+
+  .plate-page_selectedOne_detailsLabel {
+    font-size: 26px;
+  }
+
+  .plate-page_selectedOne_ingredientsHeader {
+    font-size: 16px;
+  }
+
+  .plate-page_selectedOne_ingredients {
+    padding: 0;
+
+    .plate-page_selectedOne_ingredient {
+      list-style: none;
+    }
+  }
+}
+
+.plate-page_relatedPlatesHeader {
+  width: $page-width;
+  margin: 0 auto;
+
+  .plate-page_relatedPlatesHeader_label {
+    padding: 0 70px;
+    line-height: $secondary-nav-height;
+    color: $white;
+  }
+}
+
+.plate-page_relatedPlates {
+  width: $page-width;
+  margin: 0 auto;
+
+  .plate-page_relatedPlates_item {
+    display: inline-block;
+    vertical-align: top;
+    width: 33%;
+    height: 370px;
+  }
+}

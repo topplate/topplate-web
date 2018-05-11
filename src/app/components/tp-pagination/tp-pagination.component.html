@@ -1,0 +1,14 @@
+<ul class="tp-pagination_list">
+  <li class="tp-pagination_item btn-left" (click)="doStep(-1)">
+    <span>&lt;&lt;</span>
+  </li>
+  <li class="tp-pagination_item btn-num"
+      *ngFor="let page of pages; let i = index;"
+      (click)="selectPage(i + 1)"
+      [ngClass]="{'isSelected': page['isSelected'] }">
+    <span>{{i + 1}}</span>
+  </li>
+  <li class="tp-pagination_item btn-right" (click)="doStep(1)">
+    <span>&gt;&gt;</span>
+  </li>
+</ul>

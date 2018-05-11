@@ -1,0 +1,62 @@
+<nav class="top-plate_mainHeader">
+  <div class="top-plate_mainHeaderContent">
+    <a [routerLink]="" (click)="goHome()" class="top-plate_headerLogo {{logoPosition}}"></a>
+    <ul class="top-plate_mainHeaderLinks" *ngIf="showMainNavigation">
+      <li class="top-plate_mainHeaderLink"
+          *ngFor="let link of mainHeaderLinks"
+          (click)="link.onClick()"
+          [ngClass]="{'isSelected': link.isSelected}">
+        <span class="top-plate_mainHeaderLinkLabel roboto-light uppercase">{{link.label}}</span>
+      </li>
+    </ul>
+    <ul class="top-plate_mainHeaderButtons">
+      <li class="top-plate_mainHeaderProfile-btn"
+          *ngIf="!isAuthorized"
+          (click)="events && events.onSignInButtonClick && events.onSignInButtonClick()">
+        <span class="top-plate_mainHeaderLinkLabel roboto-light uppercase">sign up / log in</span>
+      </li>
+      <li class="top-plate_mainHeaderProfile-user"
+          *ngIf="isAuthorized"
+          (click)="events && events.onSignOutButtonClick && events.onSignOutButtonClick()">
+        <div class="top-plate_mainHeaderProfile-userIcon"
+             [ngStyle]="{'background-image': 'url(' + currentUser['image'] + ')'}"></div>
+        <span class="top-plate_mainHeaderLinkLabel roboto-light uppercase">{{currentUser['name']}}</span>
+      </li>
+      <li class="top-plate_mainHeaderProfile-btn"
+          *ngIf="showMainNavigation"
+          (click)="mainHeaderMenuModel.isOpened = !mainHeaderMenuModel.isOpened">
+        <i class="fa fa-bars"></i>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<nav class="top-plate_secondaryHeader" *ngIf="showSecondaryNavigation">
+  <div class="top-plate_secondaryHeaderContent">
+    <ul class="top-plate_secondaryHeaderLinks">
+      <li class="top-plate_secondaryHeaderLink"
+          *ngFor="let link of secondaryNavigationLinks"
+          (click)="link.onClick && link.onClick()">
+        <div class="top-plate_secondaryHeaderLink_icon {{link.icon}}"></div>
+        <b class="top-plate_secondaryHeaderLink_label uppercase roboto-bold">{{link.label}}</b>
+      </li>
+      <li class="top-plate_secondaryHeaderSearch uppercase">
+        <input type="text" class="top-plate_secondaryHeaderSearch_input uppercase"
+               title="search-recipes"
+               placeholder="search recipes">
+        <div class="search-icon"></div>
+      </li>
+    </ul>
+    <div class="top-plate_mainHeaderChevron" *ngIf="showMainNavigation">
+      <div class="top-plate_mainHeaderChevron_content roboto-light">
+        <p class="top-plate_mainHeaderChevron_text uppercase">a percentage of our profis will be donated to the charity with the most votes.</p>
+        <p class="top-plate_mainHeaderChevron_voteLink roboto-bold uppercase">
+          <b>vote here</b>
+        </p>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<app-menu [links]="mainHeaderHiddenLinks" [(model)]="mainHeaderMenuModel"></app-menu>
+

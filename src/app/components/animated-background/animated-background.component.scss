@@ -1,0 +1,51 @@
+@import "../../app.component";
+
+.animated-background {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  height: 100%;
+
+  .animated-background_image,
+  .animated-background_overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .animated-background_overlay {
+    @include transformed(scale(1.1));
+  }
+
+  .animated-background_image {
+    background-size: cover;
+    @include use-transition($very-slow);
+    @include transformed(scale(1.1));
+  }
+
+  .animated-background_overlay {
+    @include linear-gradient-left($transparent-white, $black);
+  }
+
+  &.panel-left .animated-background_overlay {
+    @include linear-gradient-right($transparent-white, $black);
+  }
+
+  &.panel-bottom .animated-background_overlay {
+    @include linear-gradient-top($transparent, rgba(0,0,0,.9));
+  }
+
+  &.panel-transparent {
+
+
+  }
+
+  &:hover .animated-background_image {
+    @include transformed(scale(1));
+  }
+}
+

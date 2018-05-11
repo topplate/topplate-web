@@ -1,0 +1,237 @@
+@import "../../app.component";
+
+$chevron-width: 210px;
+
+.top-plate_mainHeader {
+  position: relative;
+  z-index: $nav-z-index;
+  min-width: $page-width;
+  width: $full-size;
+  margin: 0 auto;
+  height: $nav-height;
+  background-color: $grey-darkest;
+  text-align: right;
+
+
+  .top-plate_mainHeaderContent {
+    position: relative;
+    width: $page-width;
+    margin: 0 auto;
+    padding-right: $chevron-width;
+  }
+
+  .top-plate_headerLogo {
+    position: absolute;
+    width: $nav-logo-width;
+    height: $nav-logo-height;
+    background-size: cover;
+    background-image: url(../../../assets/logo-header.png);
+    top: $nav-logo-margin;
+
+    &.left {
+      left: 0;
+      @include transformed(translate(0, 0));
+    }
+
+    &.center {
+      left: 50%;
+      @include transformed(translate(-50%, 0));
+    }
+  }
+
+  &, & * {
+    vertical-align: middle;
+  }
+}
+
+.top-plate_mainHeaderLinks {
+  margin: 0;
+  padding: 0;
+  display: inline-block;
+  text-align: right;
+  color: $white;
+
+  .top-plate_mainHeaderLink {
+    display: inline;
+    margin: 0 10px;
+    cursor: pointer;
+
+    &:hover .top-plate_mainHeaderLinkLabel {
+      border-bottom: 1px solid $cyan;
+    }
+
+    .top-plate_mainHeaderLinkLabel {
+      font-size: 14px;
+      letter-spacing: 2px;
+      line-height: $nav-height;
+    }
+  }
+}
+
+.top-plate_mainHeaderButtons {
+  padding: 0;
+  margin: 28px 0;
+  font-size: 14px;
+  display: inline-block;
+
+  .top-plate_mainHeaderProfile-btn {
+    color: $white;
+    margin: 0 20px 0 10px;
+    display: inline-block;
+    border: 1px solid $cyan;
+    padding: 10px 20px;
+    cursor: pointer;
+    @include use-transition($normal);
+
+    &:hover {
+      color: $black;
+      background: $cyan;
+    }
+  }
+
+  .top-plate_mainHeaderProfile-user {
+    color: $white;
+    margin: 0 10px;
+    display: inline-block;
+    padding: 0 20px;
+    cursor: pointer;
+    line-height: 42px;
+    @include use-transition($normal);
+
+    & * {
+      vertical-align: middle;
+    }
+
+    .top-plate_mainHeaderProfile-userIcon {
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      background-size: cover;
+      border-radius: 15px;
+    }
+
+    &:hover {
+      color: $black;
+      background: $cyan;
+    }
+  }
+}
+
+.top-plate_mainHeaderChevron {
+  display: inline-block;
+  position: absolute;
+  width: $chevron-width;
+  height: $nav-height + $secondary-nav-height;
+  bottom: 0;
+  right: 0;
+  padding: 20px 10px;
+  z-index: $nav-z-index + 100;
+  color: $black;
+  text-align: center;
+
+  @include linear-gradient-top($yellow-faint, $yellow-bright);
+
+  .top-plate_mainHeaderChevron_content {
+    width: $full-size;
+    height: $full-size;
+
+    .top-plate_mainHeaderChevron_text {
+      font-size: 14px;
+    }
+
+    .top-plate_mainHeaderChevron_voteLink {
+      font-size: 16px;
+
+      b { border-bottom: 2px solid $white; }
+
+    }
+  }
+}
+
+.top-plate_secondaryHeader {
+  position: relative;
+  z-index: $nav-z-index;
+  min-width: $page-width;
+  width: $full-size;
+  margin: 0 auto;
+  height: $secondary-nav-height;
+  background-color: $nav-grey-dark;
+  color: $white;
+
+  .top-plate_secondaryHeaderContent {
+    position: relative;
+    width: $page-width;
+    margin: 0 auto;
+    padding-right: $chevron-width;
+  }
+
+  .top-plate_secondaryHeaderLinks {
+    padding: 0;
+    margin: 0;
+    text-align: right;
+
+    .top-plate_secondaryHeaderLink {
+      display: inline;
+      line-height: $secondary-nav-height;
+      margin-right: 20px;
+      font-size: 14px;
+      cursor: pointer;
+
+      .top-plate_secondaryHeaderLink_label {
+        @include use-transition($normal);
+      }
+
+      &:hover .top-plate_secondaryHeaderLink_label {
+        color: $cyan;
+      }
+
+      .top-plate_secondaryHeaderLink_icon {
+        width: 23px;
+        height: 23px;
+        display: inline-block;
+        background-size: cover;
+        @include transformed(translate(0, 5px));
+
+        &.plate-of-the-week {
+          background-image: url(../../../assets/icons/week.png);
+        }
+
+        &.plate-of-the-month {
+          background-image: url(../../../assets/icons/month.png);
+        }
+
+        &.monthly-prize {
+          background-image: url(../../../assets/icons/prize.png);
+        }
+      }
+    }
+
+    .top-plate_secondaryHeaderSearch {
+      display: inline-block;
+      position: relative;
+      margin-right: 20px;
+
+      .top-plate_secondaryHeaderSearch_input {
+        background: $transparent;
+        display: inline-block;
+        background: $nav-grey-light;
+        height: $secondary-nav-height;
+        line-height: $secondary-nav-height;
+        border: none;
+        outline: none;
+        padding: 0 40px 0 20px;
+        color: $white;
+      }
+
+      .search-icon {
+        position: absolute;
+        width: 23px;
+        height: 23px;
+        top: 15px;
+        right: 15px;
+        background-size: cover;
+        background-image: url(../../../assets/icons/search.png);
+      }
+    }
+  }
+}

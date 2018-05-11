@@ -1,0 +1,119 @@
+@import "../../app.component";
+
+$footer-background: #242424;
+$footer-height: 185px;
+$floating-block-width: 180px;
+$banner-size: 70px;
+
+.tp-footer {
+  display: block;
+  width: $full-size;
+  height: $footer-height + $banner-size;
+  background: $footer-background;
+  font-size: 12px;
+  color: $white;
+
+  .tp-footer_content {
+    height: $footer-height;
+    margin: 0 auto;
+    position: relative;
+
+    .tp-footer_leftStatic {
+      position: absolute;
+      width: $floating-block-width;
+      height: $full-size;
+      top: 0;
+      left: 0;
+      padding: 60px 30px;
+
+      .tp-footer_logo {
+        width: 130px;
+        height: 45px;
+        background-size: cover;
+        background-image: url(../../../assets/logo-header.png);
+      }
+    }
+
+    .tp-footer_rightStatic {
+      position: absolute;
+      width: $floating-block-width;
+      height: $full-size;
+      top: 0;
+      right: 0;
+      padding: 55px 30px;
+
+      .tp-footer_appleBtn {
+        width: 135px;
+        height: 40px;
+        background-size: cover;
+        background-image: url(../../../assets/icons/app_store.png);
+      }
+
+      .tp-footer_googleBtn {
+        width: 135px;
+        height: 40px;
+        background-size: cover;
+        background-image: url(../../../assets/icons/google_play.png);
+      }
+    }
+  }
+
+  .tp-footer_main {
+    margin: 0 auto;
+    width: max-content;
+    padding: 65px 30px;
+
+    .tp-footer_navLinks {
+      padding: 0 40px 0 0;
+      margin: 0;
+      display: inline-block;
+
+      .tp-footer_navLink {
+        list-style: none;
+      }
+
+      &.with-opacity {
+        opacity: .7;
+      }
+    }
+  }
+
+  .tp-footer_banner {
+    width: $full-size;
+    height: $banner-size;
+    background-color: #253b39;
+    text-align: center;
+
+    .tp-footer_bannerIcon {
+      display: inline-block;
+      vertical-align: middle;
+      width: $banner-size;
+      height: $banner-size;
+      background-size: cover;
+      margin-right: 20px;
+    }
+
+    .tp-footer_bannerLabel {
+      display: inline-block;
+      vertical-align: middle;
+      line-height: $banner-size;
+      font-size: 18px;
+    }
+
+    &.tp-footer_bannerFixed {
+      position: fixed;
+      bottom: -$banner-size;
+      left: 0;
+
+      &.isVisible {
+        bottom: 0;
+      }
+    }
+  }
+
+  //&.fixedToBottom {
+  //  position: fixed;
+  //  bottom: 0;
+  //  left: 0;
+  //}
+}

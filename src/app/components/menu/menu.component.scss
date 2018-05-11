@@ -1,0 +1,29 @@
+@import "../../app.component";
+
+.top-plate_menuOverlay {
+  position: fixed;
+  top: 0;
+  right: -$full-size;
+  width: $full-size;
+  height: $full-size;
+  background: rgba(0,0,0,.9);
+  z-index: $z-highest;
+}
+
+.top-plate_menuItems {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  display: block;
+  width: 300px;
+  height: $full-size;
+  background: $nav-grey-dark;
+  color: $white;
+  font-size: 16px;
+  padding: $nav-height + $secondary-nav-height 40px;
+  z-index: $z-highest;
+
+  .top-plate_menuItem {
+    list-style: none;
+  }
+}

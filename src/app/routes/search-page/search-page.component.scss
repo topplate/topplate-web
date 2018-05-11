@@ -1,0 +1,52 @@
+@import "../../app.component";
+
+$search-field-height: 56px;
+
+.search-plate_input {
+  position: fixed;
+  top: $nav-height;
+  width: $full-size;
+  height: $search-field-height;
+  padding: 0 330px 0 30px;
+  background: #253b39;
+
+  .search-plate_inputInner {
+    position: relative;
+    height: inherit;
+
+    .search-plate_inputIcon {
+      position: absolute;
+      top: 13px;
+      right: 20px;
+      width: 30px;
+      height: 30px;
+      background-size: cover;
+      background-image: url(../../../assets/icons/search_icon_silver.png);
+    }
+
+    input {
+      display: block;
+      color: $white;
+      padding: 0 50px 0 20px;
+      width: $full-size;
+      height: inherit;
+      background: #385553;
+      border: none;
+      outline: none;
+    }
+  }
+}
+
+.search-plate_spacer {
+  height: $search-field-height;
+}
+
+.search-plate_items {
+  text-align: center;
+
+  .search-plate_item {
+    display: inline-block;
+    vertical-align: top;
+  }
+}
+

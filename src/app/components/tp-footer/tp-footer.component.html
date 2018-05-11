@@ -1,0 +1,28 @@
+<div class="tp-footer_spacer"></div>
+<div class="tp-footer_banner tp-footer_bannerStatic">
+  <div class="tp-footer_bannerIcon"></div>
+  <div class="tp-footer_bannerLabel uppercase roboto-light"></div>
+</div>
+<div class="tp-footer_banner tp-footer_bannerFixed">
+  <div class="tp-footer_bannerIcon"></div>
+  <div class="tp-footer_bannerLabel uppercase roboto-light"></div>
+</div>
+<div class="tp-footer_content">
+  <div class="tp-footer_leftStatic">
+    <div class="tp-footer_logo"></div>
+    <div class="tp-footer_copyright roboto-light">&copy;2018</div>
+  </div>
+  <div class="tp-footer_main roboto-light uppercase">
+    <ul class="tp-footer_navLinks"
+        *ngFor="let list of [linksA, linksB, linksC]; let i = index;"
+        [ngClass]="{'with-opacity': i === 2}">
+      <li class="tp-footer_navLink" *ngFor="let link of list">
+        <span class="roboto-light" (click)="onLinkClick(link)">{{link.label}}</span>
+      </li>
+    </ul>
+  </div>
+  <div class="tp-footer_rightStatic">
+    <div class="tp-footer_appleBtn"></div>
+    <div class="tp-footer_googleBtn"></div>
+  </div>
+</div>

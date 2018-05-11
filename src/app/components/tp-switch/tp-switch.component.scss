@@ -1,0 +1,31 @@
+@import "../../app.component";
+
+$tp-switch-size: 30px;
+$tp-switch-background: #363636;
+$tp-switch-color: #fdf016;
+
+.tp-switch {
+
+  display: block;
+  width: $full-size;
+  text-align: center;
+  font-size: 10px;
+  line-height: 12px;
+  color:$white;
+  background: #090e0d;
+  white-space: nowrap;
+
+  .tp-switch_item {
+    display: inline-block;
+    width: $full-size * .5;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    line-height: 25px;
+
+    &.isSelected {
+      cursor: default;
+      background: #1f2e2d;
+    }
+  }
+}

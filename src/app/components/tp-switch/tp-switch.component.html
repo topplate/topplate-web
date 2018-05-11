@@ -1,0 +1,6 @@
+<div class="tp-switch_item uppercase roboto-light"
+   *ngFor="let item of items"
+   (click)="!item['isSelected'] && toggle()"
+   [ngClass]="{'isSelected': item['isSelected']}
+">{{item['name']}}</div>
+

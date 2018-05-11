@@ -1,0 +1,15 @@
+{
+  "REST_API": {
+    "INDEX": "/",
+    "INDEX_ADMIN": "/admin",
+    "LOGIN": "/login",
+    "LOGOUT": "/logout",
+    "REGISTER": "/register",
+    "RESET_PWD": "/reset-pwd",
+    "RETRIEVE_PWD": "/retrieve-pwd",
+    "LOGIN_FB": "/login-fb",
+    "LOGIN_IG": "/login-ig"
+  },
+
+  "AUTH_TOKEN": "auth-token"
+}

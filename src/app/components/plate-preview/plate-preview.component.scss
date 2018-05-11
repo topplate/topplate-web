@@ -1,0 +1,162 @@
+@import "../../app.component";
+
+$plate-content-padding: 20px;
+$plate-likes-block-outer-size: 100px;
+$plate-likes-block-inner-size: 60px;
+
+$has-recipe-banner-width: 96px;
+$has-recipe-banner-height: 32px;
+
+.top-plate_platePreview {
+
+  position: relative;
+  display: block;
+  width: $full-size;
+  height: $full-size;
+
+  .plate-preview {
+    margin: 0!important;
+    width: $full-size;
+    height: $full-size;
+    border: 2px solid $black;
+
+    .plate-preview_content {
+      position: relative;
+      width: $full-size;
+      height: $full-size;
+
+      .plate-preview_contentInner {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        padding: $plate-content-padding $plate-likes-block-outer-size $plate-content-padding $plate-content-padding;
+        max-width: 100%;
+
+        .plate-preview_contentLabel, .plate-preview_contentMeta {
+          margin: 0!important;
+
+          &, & * {
+            color: $white!important;
+          }
+        }
+
+        .plate-preview_contentLabel {
+          padding-bottom: $plate-content-padding;
+          padding-right: 20px;
+          line-height: 20px;
+          overflow: hidden;
+          white-space: normal;
+          font-size: 16px;
+          letter-spacing: $letter-spacing-small;
+          cursor: pointer;
+          text-align: left;
+        }
+
+        .plate-preview_contentMeta {
+          font-size: 10px;
+          padding-right: 20px;
+          overflow: hidden;
+          letter-spacing: $letter-spacing-small;
+          white-space: nowrap;
+          text-align: left;
+        }
+
+        .plate-preview_contentAuthor {
+          cursor: pointer;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+
+        .plate-preview_contentGeo {
+          cursor: pointer;
+          &, & * {
+            white-space: nowrap;
+          }
+          &:hover .plate-preview_contentGeoLabel {
+            text-decoration: underline;
+          }
+          .fa {
+            color: $yellow!important;
+          }
+        }
+      }
+
+      .plate-preview_contentLikes {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: $plate-likes-block-outer-size;
+        padding: 0 $plate-content-padding;
+        font-size: 16px;
+        margin-bottom: 20px;
+
+        .plate-preview_likeItNumber {
+          color: $white;
+          white-space: nowrap;
+          text-align: center;
+        }
+
+        .plate-preview_likeItIcon {
+          display: inline-block;
+          background-size: cover;
+          width: $plate-likes-block-inner-size;
+          height: $plate-likes-block-inner-size;
+          cursor: pointer;
+
+          &.likeItIcon-golden {
+            background-image: url(../../../assets/icons/like_icon.png);
+          }
+
+          &.likeItIcon-silver {
+            background-image: url(../../../assets/like-it-silver.png);
+          }
+
+          &.likeItIcon-transparent {
+            background-image: url(../../../assets/icons/unlike_icon.png);
+          }
+        }
+
+        &.isFinalized {
+          .plate-preview_likeItNumber {
+            right: 20px;
+            bottom: -20px;
+
+            .plate-preview_likeItNumber_span {
+              color: $yellow;
+            }
+          }
+          .plate-preview_likeItIcon {
+            display: none;
+          }
+        }
+      }
+
+      .plate-preview_hasRecipe {
+        position: absolute;
+        top: 20px;
+        left: 0;
+        width: $has-recipe-banner-width;
+        height: $has-recipe-banner-height;
+        background-size: cover;
+        background-image: url(../../../assets/icons/Recipe.png);
+      }
+
+      .plate-preview_winnerRibbon {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 160px;
+        height: 160px;
+        background-size: cover;
+        &.winner-week {
+          background-image: url(../../../assets/icons/plate_of_the_week.png);
+        }
+        &.winner-month {
+          background-image: url(../../../assets/icons/plate_of_the_month.png);
+        }
+      }
+    }
+  }
+}

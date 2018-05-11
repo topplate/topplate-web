@@ -1,0 +1,35 @@
+<app-animated-background [source]="model.images" class="plate-preview panel-bottom panel-square">
+  <div class="plate-preview_content">
+    <div class="plate-preview_contentInner">
+      <p class="plate-preview_contentLabel"
+         *ngIf="settings.showLabel"
+         (click)="model.onLinkClick && model.onLinkClick()">
+        <span class="uppercase roboto-light">{{model.name}}</span>
+      </p>
+      <p class="plate-preview_contentMeta uppercase">
+        <span class="plate-preview_contentAuthor roboto-light"
+          (click)="model.onProfileLinkClick && model.onProfileLinkClick()"
+          *ngIf="settings.showAuthor">{{model.author.name}}</span>
+        <br><br>
+        <span class="plate-preview_contentGeo" *ngIf="settings.showGeo">
+          <i class="fa fa-map-marker"></i>
+          <span class="plate-preview_contentGeoLabel roboto-light">{{model.address}}</span>
+        </span>
+      </p>
+    </div>
+    <div class="plate-preview_contentLikes" [ngClass]="{'isFinalized': model.isFinalized}">
+      <div class="plate-preview_likeItIcon"
+         *ngIf="model.canLike"
+         (click)="!model.isFinalized && model.onLikeClick && model.onLikeClick()"
+         [ngClass]="{'likeItIcon-golden' : model.liked, 'likeItIcon-transparent' : !model.liked}"
+      ></div>
+      <div class="plate-preview_likeItNumber roboto-light">
+        <span class="plate-preview_likeItNumber_span">{{model.likes | bigNumber}}</span>
+        <span>{{model.isFinalized ? 'likes' : ''}}</span>
+      </div>
+    </div>
+    <div class="plate-preview_hasRecipe" *ngIf="model.hasRecipe && settings.showRecipeBanner"></div>
+    <div class="plate-preview_winnerRibbon winner-{{model.winner}}" *ngIf="model.winner"></div>
+  </div>
+  <ng-content></ng-content>
+</app-animated-background>

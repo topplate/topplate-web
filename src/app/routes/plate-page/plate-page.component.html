@@ -1,0 +1,39 @@
+<div class="plate-page_content">
+  <div class="plate-page_selectedOne">
+    <app-plate-preview [model]="selectedPlate"></app-plate-preview>
+  </div>
+  <div class="plate-page_selectedOne_details uppercase">
+    <p class="plate-page_selectedOne_detailsMeta">
+      <span class="plate-page_selectedOne_detailsMeta_author roboto-light">{{selectedPlate.author.name}}</span>
+      <span class="plate-page_selectedOne_detailsMeta_geo">
+          <i class="fa fa-map-marker"></i>
+          <span class="roboto-light">{{selectedPlate.address}}</span>
+        </span>
+    </p>
+    <p class="plate-page_selectedOne_detailsLabel roboto-bold">
+      <span>{{selectedPlate.name}}</span>
+    </p>
+    <div class="plate-page_selectedOne_detailsIngredients roboto-light uppercase" *ngIf="selectedPlate.hasRecipe">
+      <p class="plate-page_selectedOne_recipe">{{selectedPlate.recipe}}</p>
+      <p class="plate-page_selectedOne_ingredientsHeader roboto-bold" *ngIf="selectedPlate.ingredients">ingredients:</p>
+      <ul class="plate-page_selectedOne_ingredients">
+        <li class="plate-page_selectedOne_ingredient" *ngFor="let ingredient of selectedPlate.ingredients">
+          <span class="roboto-light uppercase">{{ingredient}}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="plate-page_relatedPlatesHeader">
+  <span
+    *ngIf="relatedPlates && relatedPlates.length"
+    class="plate-page_relatedPlatesHeader_label roboto-bold uppercase">more recipes from {{selectedPlate.author.name}}</span>
+</div>
+
+<div class="plate-page_relatedPlates">
+  <div class="plate-page_relatedPlates_item" *ngFor="let plate of relatedPlates">
+    <app-plate-preview [model]="plate" [settings]="relatedPlatesSettings"></app-plate-preview>
+  </div>
+</div>
+

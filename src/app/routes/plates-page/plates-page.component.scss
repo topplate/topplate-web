@@ -1,0 +1,18 @@
+@import "../../app.component";
+
+.plates-page_content {
+  width: $page-width;
+  min-height: 500px;
+  margin: 0 auto;
+  text-align: left;
+
+  .plates-page_item {
+    display: inline-block;
+    vertical-align: top;
+    width: 322px;
+    height: 250px;
+    margin: 0!important;
+    padding: 0!important;
+  }
+}
+

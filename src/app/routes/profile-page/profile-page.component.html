@@ -1,0 +1,10 @@
+<div class="profile-page_header">
+  <div class="profile-page_headerContent">
+    <div class="profile-page_icon"
+         *ngIf="profile['user']['image']"
+         [ngStyle]="{'background-image': 'url(' + profile['user']['image'] + ')'}"
+    ></div>
+    <div class="profile-page_name uppercase roboto-light">{{profile['user']['name']}}</div>
+  </div>
+</div>
+<app-tp-infinite-list [customSettings]="settings" [events]="infiniteScrollEvents"></app-tp-infinite-list>

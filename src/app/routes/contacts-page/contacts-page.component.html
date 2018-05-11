@@ -1,0 +1,36 @@
+<div class="contacts-page_content">
+  <form class="contacts-page_form" [formGroup]="contactForm">
+    <fieldset>
+      <div class="contacts-page_formInput">
+        <input type="text" formControlName="name" placeholder="YOUR NAME">
+      </div>
+      <div class="contacts-page_formInput">
+        <input type="email" formControlName="email" placeholder="EMAIL ADDRESS*">
+      </div>
+      <div class="contacts-page_textInput">
+        <textarea formControlName="message" cols="30" rows="5" placeholder="YOUR MESSAGE"></textarea>
+      </div>
+      <div class="contacts-page_button">
+        <button type="submit" (click)="sendRequest()">SEND</button>
+      </div>
+    </fieldset>
+  </form>
+  <div class="contacts-page_details uppercase roboto-light">
+    <p class="contacts-page_details_header">contact us</p>
+    <p class="contacts-page_details_phone">
+      <span>local phone</span><br>
+      <span>{{contactsData['phone']}}</span>
+    </p>
+    <p class="contacts-page_details_fax">
+      <span>fax</span><br>
+      <span>{{contactsData['fax']}}</span>
+    </p>
+    <p class="contacts-page_details_address">
+      <span>{{contactsData['address']}}</span>
+    </p>
+    <!--<p class="contacts-page_details_social">-->
+      <!--<span>follow us</span><br>-->
+      <!--<span>{{contactsData['address']}}</span>-->
+    <!--</p>-->
+  </div>
+</div>

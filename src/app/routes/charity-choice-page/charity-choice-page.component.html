@@ -1,0 +1,15 @@
+<div class="charity-choice-page_content">
+  <div class="charity-choice-page_advertisingBanners"></div>
+  <div class="charity-choice-page_charityItems">
+    <div class="charity-choice-page_charityItem" *ngFor="let item of charityItems">
+      <div class="charity-choice-page_charityItem_bg" [ngStyle]="{'background-image': 'url(' + item['image'] +')'}"></div>
+      <div class="charity-choice-page_charityItem_content roboto-light uppercase">
+        <p class="charity-choice-page_charityItem_numberOfVotes">{{item['numberOfVotes'] | bigNumber}}</p>
+        <div class="charity-choice-page_charityItem_contentBottom">
+          <p class="charity-choice-page_charityItem_description">{{item['description']}}</p>
+          <div class="charity-choice-page_charityItem_vote" (click)="voteForItem(item)">VOTE</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

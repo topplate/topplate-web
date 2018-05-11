@@ -1,0 +1,51 @@
+* {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+}
+
+body {
+  background: #081413;
+  min-width: 1170px;
+}
+
+.roboto-light {
+  font-weight: 300;
+  letter-spacing: 1px;
+}
+
+.roboto-bold {
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.roboto-black {
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.oswald-light {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 300;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.cooking-icon {
+  width: 50px;
+  height: 50px;
+  background-size: cover;
+  background-image: url(/assets/icons/cooking.png);
+  margin: 10px auto;
+}
+
+.submit-photo {
+  width: 200px;
+  height: 50px;
+  background-size: cover;
+  background-image: url(/assets/submit-photo.png);
+  margin: 10px auto;
+}
+
+

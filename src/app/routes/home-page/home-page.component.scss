@@ -1,0 +1,60 @@
+@import "../../app.component";
+
+$link-size: 50px;
+$panel-padding: 0 112px;
+$link-padding: 10px 50px;
+
+$welcome-banner-width: 250px;
+$welcome-banner-height: 60px;
+
+
+.home-page {
+
+  .home-page_panel {
+    position: fixed;
+    top: 0;
+    height: $full-size;
+    width: $half-size;
+    padding: 0 100px;
+    z-index: $z-highest + 1;
+
+    &.panel-left {
+      left: 0;
+      text-align: right;
+
+      .home-page_linkOuter {
+        justify-content: flex-end;
+      }
+    }
+
+    &.panel-right {
+      right: 0;
+      text-align: left;
+    }
+
+    .home-page_linkOuter {
+      position: relative;
+      font-size: $link-size;
+      height: $full-size;
+      display: flex;
+      align-items: center;
+
+      .home-page_link {
+        cursor: pointer;
+        display: inline-block;
+        padding: $link-padding;
+        border: 1px solid $transparent;
+        color: $white;
+        letter-spacing: $letter-spacing-big;
+        @include use-transition($normal);
+      }
+    }
+
+    &:hover .home-page_linkOuter .home-page_link {
+      text-decoration: none!important;
+      border: 1px solid $cyan;
+      background: $half-transparent;
+    }
+  }
+}
+

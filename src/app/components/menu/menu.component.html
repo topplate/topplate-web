@@ -1,0 +1,11 @@
+<div class="top-plate_menu">
+  <div class="top-plate_menuOverlay" (click)="model.isOpened = false"></div>
+  <ul class="top-plate_menuItems">
+    <li class="top-plate_menuItem" *ngFor="let link of links">
+      <a routerLink="" (click)="link.onClick && link.onClick()">
+        <span>{{link.label}}</span>
+      </a>
+    </li>
+  </ul>
+</div>
+

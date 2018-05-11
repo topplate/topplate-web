@@ -1,0 +1,13 @@
+@import "../../app.component";
+
+.top-plate_winnersPageContent {
+
+  width: $page-width;
+  margin: 0 auto;
+
+  .top-plate_winner {
+    width: $page-width;
+    height: 380px;
+  }
+}
+
