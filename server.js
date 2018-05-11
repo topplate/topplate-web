@@ -11,7 +11,14 @@ const
   connectFlash = require('connect-flash'),
   https = require('https'),
   fs = require('fs'),
+  dotenv = require('dotenv'),
   app = express();
+
+dotenv.load();
+
+const
+  USE_BOTS = process.env.USE_BOTS === 'true',
+  USE_LOCAL_CERT = process.env.USE_LOCAL_CERT === 'true';
 
 app.set('dbHost', 'localhost');
 app.set('dbPort', '27017');
@@ -59,25 +66,23 @@ function refreshModules () {
 
 }
 
-function runServer (refreshPlates) {
+function runServer (refreshSchemas) {
 
   let
     logger = global.logModule.getLogger(),
     port = process.env.PORT || 8081,
     indexPage = app.get('indexPage'),
     dbModule = global.dbModule,
-    botsModule = global.botsModule,
     certOptions = {
       key: fs.readFileSync(__dirname + '/cert/privatekey.key'),
       cert: fs.readFileSync(__dirname + '/cert/certificate.crt'),
       requestCert: false,
       rejectUnauthorized: false
     },
-    isRealServer = process.env.GOOGLE_CLIENT_ID && process.env.FACEBOOK_CLIENT_ID,
+    keepMeAlive = false,
     server;
 
   app.get(CONSTANTS.REST_API.INDEX, (req, res) => {
-
     res.sendFile(indexPage);
   });
 
@@ -85,14 +90,14 @@ function runServer (refreshPlates) {
     .then(connection => {
       console.log('db connection established');
 
-      dbModule.refreshSchemas();
-      refreshPlates && dbModule.refreshPlates()
+      refreshSchemas && dbModule.refreshSchemas();
+      refreshSchemas && dbModule.refreshPlates()
         .then(refreshResult => console.log('all plates were checked'))
         .catch(err => console.log(err));
       console.log('now running server...');
-      server = isRealServer ?
-        app.listen(port, () => onServerRun(server)) :
-        https.createServer(certOptions, app).listen(port, () => onServerRun(server));
+      server = USE_LOCAL_CERT ?
+        https.createServer(certOptions, app).listen(port, () => onServerRun(server)) :
+        app.listen(port, () => onServerRun(server));
     })
     .catch(err => console.log(err));
 
@@ -102,8 +107,18 @@ function runServer (refreshPlates) {
   );
 
   process.on('SIGTERM', () => {
-    refreshModules();
-    runServer();
+    server.close(() => {
+      keepMeAlive = true;
+      process.exit(0);
+    });
+  });
+
+  process.on('exit', () => {
+    if (keepMeAlive) {
+      keepMeAlive = false;
+      refreshModules();
+      runServer();
+    }
   });
 }
 
@@ -122,7 +137,7 @@ function onServerRun (server) {
   global.apiModule.refreshRoutes();
   global.authModule.refreshAuthorization();
   global.awsModule.refreshAWS();
-  global.botsModule.refreshBots()
+  USE_BOTS && global.botsModule.refreshBots()
     .then(refreshResult => console.log(refreshResult))
     .catch(err => console.log(err));
 
@@ -132,7 +147,7 @@ function onServerRun (server) {
     });
   }, 1000 * 20); /** Call self api every ten minutes to avoid server down with 431 err code */
 
-  console.log('Server is listening on port ' + app.get('port'));
+  console.log('Server is listening on ' + host + ':' + app.get('port'));
 }
 
 
