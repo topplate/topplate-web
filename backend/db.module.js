@@ -26,6 +26,7 @@ module.exports.refreshSchemas = () => {
   refreshUserSchema();
   refreshPlateSchema();
   refreshCharitySchema();
+  refreshWinnerSchema();
 };
 
 module.exports.createUser = userData => {
@@ -93,7 +94,7 @@ module.exports.updateUserData = (id, data) => {
   return deferred.promise;
 };
 
-module.exports.createPlate = (plateData) => {
+module.exports.createPlate = (plateData, authorId) => {
 
   let
     Plate = models.Plate,
@@ -104,7 +105,7 @@ module.exports.createPlate = (plateData) => {
       email: plateData.email,
       imageSource: 'plate' + (new Date()).getTime(),
       imageBinaryData: typeof plateData.image === 'string' ? new Buffer(plateData.image, 'binary') : plateData.image,
-      imageExtension: plateData.extension,
+      imageExtension: plateData.extension || getFileExtension(plateData.contentType),
       imageContentType: plateData.contentType,
       geo: plateData.geo,
       country: plateData.country,
@@ -118,7 +119,7 @@ module.exports.createPlate = (plateData) => {
       canLike: true
     };
 
-  models.User.findOne({_id: plateData.author})
+  models.User.findOne({_id: authorId})
     .then(plateAuthor => {
       let
         lastLoggedProvider = plateAuthor.lastLogged.provider,
@@ -147,6 +148,14 @@ module.exports.createPlate = (plateData) => {
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
+
+  function getFileExtension (contentType) {
+    return {
+      'image/png': 'png',
+      'image/gif': 'gif',
+      'image/jpeg': 'jpg'
+    }[contentType];
+  }
 };
 
 module.exports.updatePlate = (userId, plateId, fields) => {
@@ -601,10 +610,7 @@ function refreshPlateSchema () {
       type: String,
       required: true
     },
-    email: {
-      type: String,
-      required: true
-    },
+    email: String,
     imageSource: {
       type: String,
       required: true
@@ -843,5 +849,25 @@ function refreshCharitySchema () {
       }
     ]))
     .catch(err => console.log(err));
+}
+
+function refreshWinnerSchema () {
+
+  const winnerSchema = new mongoose.Schema({
+    name: {
+      type: String,
+      unique: true
+    },
+    year: String,
+    month: String,
+    week: String,
+    likes: Number,
+    plate: String
+  }, {
+    collection: 'winners',
+    timestamp: true
+  });
+
+  models.Winner = mongoose.model('Winner', winnerSchema);
 }
 

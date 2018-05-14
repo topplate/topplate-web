@@ -13,6 +13,13 @@ module.exports.clearAuthToken = clearAuthToken;
 
 module.exports.getAuthorizedUser = getAuthorizedUser;
 
+module.exports.getAuthorizedUsers = () => {
+  return {
+    authEmails: authEmails,
+    authTokens: authTokens
+  };
+};
+
 function saveAuthToken (userData, token) {
   clearAuthToken(userData.email);
   authEmails[userData.email] = token;
@@ -30,6 +37,8 @@ function getAuthorizedUser (token) {
   let
     userData = authTokens[token],
     registeredToken = userData && userData.email && authEmails[userData.email];
+
+  console.log(userData);
 
   return token && registeredToken === token && userData;
 }

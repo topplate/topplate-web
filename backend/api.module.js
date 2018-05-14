@@ -98,6 +98,10 @@ function refreshRoutes () {
     res.send({message: 'logged out'});
   });
 
+  app.get('/get_authorized_users', (req, res) => {
+    res.send(global.authModule.getAuthorizedUsers());
+  });
+
 
   /** Misc */
   app.get('/get_environments', (req, res) => {
@@ -164,11 +168,17 @@ function refreshRoutes () {
   );
 
   /** Plates */
-  app.post('/add_plate', (req, res) => {
-    dbModule.createPlate(req.body)
-      .then(creationRes => res.send(creationRes))
-      .catch(err => sendError(res, err));
-  });
+  app.post('/add_plate', (req, res) => checkAuthorization(req)
+    .then(user => {
+      console.log('--- ADD PLATE REQUEST ---');
+      console.log(req.body);
+      console.log('---------- END ----------');
+      dbModule.createPlate(req.body, user._id)
+        .then(creationRes => res.send(creationRes))
+        .catch(err => sendError(res, err));
+    })
+    .catch(err => sendError(res, err))
+  );
 
   app.get('/get_plate', (req, res) => {
     let

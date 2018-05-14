@@ -2,9 +2,13 @@ const
   Q = require('q'),
   https = require('https'),
   fs = require('fs'),
-  jimp = require('jimp');
+  jimp = require('jimp'),
+  cron = require('node-cron'),
+  moment = require('moment');
 
 module.exports.refreshBots = refreshBots;
+
+module.exports.setAppSchedules = setAppSchedules;
 
 function refreshBots () {
 
@@ -16,7 +20,7 @@ function refreshBots () {
     charityModel = dbModule.getModels().Charity;
 
   userModel.find({isRobot: true})
-    .then(bots => bots.length ? setSchedules(bots) : createBots())
+    .then(bots => bots.length ? setBotsSchedules(bots) : createBots())
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
@@ -44,13 +48,13 @@ function refreshBots () {
           .then(() => {
             createdBots += 1;
             if (createdBots === len) userModel.find({isRobot: true})
-              .then(newBots => setSchedules(newBots))
+              .then(newBots => setBotsSchedules(newBots))
               .catch(err => deferred.reject(err));
           });
       });
   }
 
-  function setSchedules (bots) {
+  function setBotsSchedules (bots) {
     bots.forEach(bot => {
       bot.lastLogged = {provider: 'google'};
       bot.save(err => {
@@ -111,11 +115,10 @@ function refreshBots () {
               'salt',
               'pepper'
             ] : [],
-            restaurantName: environment === 'homemade' ? '' : 'some restaurant',
-            author: bot['_id']
+            restaurantName: environment === 'homemade' ? '' : 'some restaurant'
           };
 
-        dbModule.createPlate(randomPlate)
+        dbModule.createPlate(randomPlate, bot['_id'])
           .then(res => loopPlateCreation())
           .catch(err => {
             console.log(err);
@@ -187,5 +190,17 @@ function refreshBots () {
 
     return token;
   }
+}
+
+function setAppSchedules () {
+
+  // let
+  //   currentMoment = moment.utc(),
+  //   startOfWeek = moment.utc(currentMoment),
+  //   currentYear = currentMoment.year(),
+  //   currentMonth = currentMoment.month(),
+  //   currentDay = currentMoment.date();
+  //
+  // console.log(startOfWeek.day());
 }
 

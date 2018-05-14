@@ -18,7 +18,9 @@ dotenv.load();
 
 const
   USE_BOTS = process.env.USE_BOTS === 'true',
-  USE_LOCAL_CERT = process.env.USE_LOCAL_CERT === 'true';
+  USE_LOCAL_CERT = process.env.USE_LOCAL_CERT === 'true',
+  CHECK_PLATES_BEFORE_RUNNING = process.env.CHECK_PLATES_BEFORE_RUNNING === 'true',
+  PING_URL = process.env.PING_URL;
 
 app.set('dbHost', 'localhost');
 app.set('dbPort', '27017');
@@ -79,7 +81,6 @@ function runServer (refreshSchemas) {
       requestCert: false,
       rejectUnauthorized: false
     },
-    keepMeAlive = false,
     server;
 
   app.get(CONSTANTS.REST_API.INDEX, (req, res) => {
@@ -91,7 +92,7 @@ function runServer (refreshSchemas) {
       console.log('db connection established');
 
       refreshSchemas && dbModule.refreshSchemas();
-      refreshSchemas && dbModule.refreshPlates()
+      CHECK_PLATES_BEFORE_RUNNING && refreshSchemas && dbModule.refreshPlates()
         .then(refreshResult => console.log('all plates were checked'))
         .catch(err => console.log(err));
       console.log('now running server...');
@@ -108,17 +109,8 @@ function runServer (refreshSchemas) {
 
   process.on('SIGTERM', () => {
     server.close(() => {
-      keepMeAlive = true;
       process.exit(0);
     });
-  });
-
-  process.on('exit', () => {
-    if (keepMeAlive) {
-      keepMeAlive = false;
-      refreshModules();
-      runServer();
-    }
   });
 }
 
@@ -137,17 +129,23 @@ function onServerRun (server) {
   global.apiModule.refreshRoutes();
   global.authModule.refreshAuthorization();
   global.awsModule.refreshAWS();
+  global.botsModule.setAppSchedules();
   USE_BOTS && global.botsModule.refreshBots()
     .then(refreshResult => console.log(refreshResult))
     .catch(err => console.log(err));
 
-  setInterval(() => {
-    request.get('https://' + app.get('host') + ':' + app.get('port') + '/test-api', function (err, resp, body) {
-      console.log('wake up, please');
+  PING_URL && setInterval(() => {
+    request.get(PING_URL, function (err, resp, body) {
+      if (err) {
+        console.log(PING_URL);
+        console.log(err);
+      }
+      else {
+        console.log(body);
+      }
     });
-  }, 1000 * 20); /** Call self api every ten minutes to avoid server down with 431 err code */
+  }, 1000 * 60 * 10); /** Call self api every ten minutes to avoid server down with 143 err code */
 
   console.log('Server is listening on ' + host + ':' + app.get('port'));
 }
-
 

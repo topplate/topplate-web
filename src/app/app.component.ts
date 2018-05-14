@@ -117,7 +117,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     self.isReadyToBeShown = false;
 
     fReader.readAsBinaryString(plateUploadedImage['originalImage']);
-
   }
 
   ngOnInit () {
