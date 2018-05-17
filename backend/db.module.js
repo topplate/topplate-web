@@ -3,6 +3,7 @@ const
   fs = require('fs'),
   jimp = require('jimp'),
   mongoose = require('mongoose'),
+  isBuffer = require('is-buffer'),
   models = {},
   methods = {
     connect: (dbPath, dbName) => {
@@ -104,7 +105,7 @@ module.exports.createPlate = (plateData, authorId) => {
       environment: plateData.environment,
       email: plateData.email,
       imageSource: 'plate' + (new Date()).getTime(),
-      imageBinaryData: typeof plateData.image === 'string' ? new Buffer(plateData.image, 'binary') : plateData.image,
+      imageBinaryData: isBuffer(plateData.image) ? plateData.image : new Buffer(plateData.image, 'binary'),
       imageExtension: plateData.extension || getFileExtension(plateData.contentType),
       imageContentType: plateData.contentType,
       geo: plateData.geo,
@@ -127,14 +128,14 @@ module.exports.createPlate = (plateData, authorId) => {
         newPlate = new Plate(creationData);
 
       newPlate.author = {
-        id: plateData.author,
+        id: authorId,
         name: profileData.name,
         image: profileData.image
       };
 
       newPlate.save(err => {
         if (err) deferred.reject(err);
-        else newPlate.refreshFiles(plateData.image)
+        else newPlate.refreshFiles(' by ' + newPlate.author.name)
           .then(res => {
             plateAuthor.uploadedPlates.push(newPlate._id);
             plateAuthor.save(err => {
@@ -297,11 +298,13 @@ module.exports.searchPlates = (property = 'name', string = null, env, size = 'me
 module.exports.refreshPlates = () => {
   let
     deferred = Q.defer(),
+    len = 0,
     plates;
 
   models.Plate.find({})
     .then(res => {
       plates = res;
+      len = plates.length;
       refreshPlate(0);
     })
     .catch(err => deferred.reject(err));
@@ -311,9 +314,9 @@ module.exports.refreshPlates = () => {
   function refreshPlate (i) {
     let plateToCheck = plates[i];
     if (!plateToCheck) deferred.resolve({message: 'all plates were checked'});
-    else plateToCheck.refreshFiles()
+    else plateToCheck.refreshFiles(' (' + (i + 1) + ' of ' + len + ')')
       .then(res => refreshPlate(i + 1))
-      .catch(err => deferred.reject(err));
+      .catch(err => deferred.reject(err))
   }
 };
 
@@ -357,6 +360,32 @@ module.exports.getContactsData = () => {
   return deferred.promise;
 };
 
+module.exports.getWinners = () => {
+  let deferred = Q.defer();
+
+  models.Winner.find({})
+    .then(winnersList => {
+      let
+        lenA = winnersList.length,
+        lenB = 0,
+        plates = [];
+
+      if (!lenA) deferred.resolve([]);
+      else winnersList.forEach(item => {
+        models.Plate.findOne({_id: item.plate})
+          .then(plate => {
+            lenB += 1;
+            plates.push(plate.getNormalized('big'));
+            lenA === lenB && deferred.resolve(plates);
+          })
+          .catch(err => deferred.reject(err));
+      });
+    })
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+};
+
 module.exports.connect = () => methods.connect();
 
 module.exports.disconnect = () => methods.disconnect();
@@ -376,7 +405,9 @@ function refreshBaseSchema () {
     phone: String,
     fax: String,
     address: String,
-    email: String
+    email: String,
+    hasWinners: Boolean,
+    platesRestored: Boolean
   }, {
     collection: 'base'
   });
@@ -644,7 +675,8 @@ function refreshPlateSchema () {
       image: String
     },
     isReady: Boolean,
-    canLike: Boolean
+    canLike: Boolean,
+    isFixed: Boolean
   }, {
     collection: 'plates',
     timestamps: true
@@ -671,7 +703,7 @@ function refreshPlateSchema () {
     return deferred.promise;
   };
 
-  plateSchema.methods.refreshFiles = function () {
+  plateSchema.methods.refreshFiles = function (additionalMessage) {
 
     let
       thisOne = this,
@@ -696,10 +728,9 @@ function refreshPlateSchema () {
           name: 'small',
           scale: .4
         }
-      ],
-      originalImage;
+      ];
 
-    console.log('processing ' + thisOne.imageSource);
+    console.log('processing ' + thisOne.imageSource + (additionalMessage || ''));
 
     if (!fs.existsSync(rootDir)) fs.mkdirSync(rootDir);
     if (!fs.existsSync(plateDir)) fs.mkdirSync(plateDir);
@@ -707,32 +738,31 @@ function refreshPlateSchema () {
       console.log('is up to date');
       deferred.resolve({message: 'up to date'});
     }
-    else {
-      jimp.read(thisOne.imageBinaryData)
-        .then(res => {
-          originalImage = res;
-          createSizedFile(0);
-        })
-        .catch(err => {
-          console.log(err);
-          deferred.reject(err);
-        });
-    }
+    else jimp.read(thisOne.imageBinaryData)
+      .then(res => createSizedFiles(res))
+      .catch(err => {
+        console.log(err);
+        deferred.reject(err);
+      });
 
     return deferred.promise;
 
-    function createSizedFile (i) {
-      let nextSize = sizes[i];
-      if (!nextSize) {
-        console.log('done!');
-        deferred.resolve({message: 'all images were created'});
-      }
-      else originalImage
-        .scale(nextSize.scale)
-        .write(plateDir + '/' + nextSize.name + '.' + thisOne.imageExtension, function (err) {
+    function createSizedFiles (originalImage) {
+
+      let
+        createdFiles = 0,
+        len = sizes.length;
+
+      sizes.forEach(size => originalImage
+        .scale(size.scale)
+        .write(plateDir + '/' + size.name + '.' + thisOne.imageExtension, function (err) {
           if (err) deferred.reject(err);
-          else createSizedFile(i + 1);
-        });
+          else {
+            createdFiles += 1;
+            createdFiles === len && deferred.resolve({message: 'all images were created'});
+          }
+        })
+      );
     }
   };
 
@@ -818,32 +848,25 @@ function refreshCharitySchema () {
     .then(res => !res.length && models.Charity.collection.insert([
       {
         name: 'Live United',
-        description: `LIVE UNITED. It\'s a credo. A mission. A goal. 
-        A constant reminder that when we reach out a hand to one, we 
-        influence the condition of all.`,
+        description: `LIVE UNITED. It\'s a credo. A mission. A goal. A constant reminder that when we reach out a hand to one, we influence the condition of all.`,
         image: 'assets/charity/live_united.jpg',
         votes: []
       },
       {
         name: 'Task Force for Global Health',
-        description: `TASK FORCE FOR GLOBAL HEALTH. We help control 
-        and eliminate debilitating infectious diseases and strengthen 
-        systems that protect and promote health.`,
+        description: `TASK FORCE FOR GLOBAL HEALTH. We help control and eliminate debilitating infectious diseases and strengthen systems that protect and promote health.`,
         image: 'assets/charity/task_force.jpg',
         votes: []
       },
       {
         name: 'Salvation Army',
-        description: `The story of The Salvation Army, 
-        a Christian Church working worldwide for more than 150 years.`,
+        description: `The story of The Salvation Army, a Christian Church working worldwide for more than 150 years.`,
         image: 'assets/charity/salvation_army.jpg',
         votes: []
       },
       {
         name: 'St. Jude Children\'s Research Hospital',
-        description: `ST. JUDE CHILDREN'S RESEARCH HOSPITAL. St. Jude is 
-        leading the way the world understands, treats and defeats childhood 
-        cancer and other life-threatening diseases.`,
+        description: `ST. JUDE CHILDREN'S RESEARCH HOSPITAL. St. Jude is leading the way the world understands, treats and defeats childhood cancer and other life-threatening diseases.`,
         image: 'assets/charity/st_jude.jpg',
         votes: []
       }
@@ -854,13 +877,10 @@ function refreshCharitySchema () {
 function refreshWinnerSchema () {
 
   const winnerSchema = new mongoose.Schema({
-    name: {
-      type: String,
-      unique: true
-    },
-    year: String,
-    month: String,
-    week: String,
+    name: String,
+    year: Number,
+    month: Number,
+    week: Number,
     likes: Number,
     plate: String
   }, {

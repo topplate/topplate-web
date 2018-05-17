@@ -32,11 +32,6 @@ app.set('indexPage', __dirname + '/dist/index.html');
 // app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(favicon(__dirname + '/dist/assets/favicon.ico'));
-app.use(session({
-  secret: 'somebigsecret',
-  saveUninitialized: true,
-  resave: true
-}));
 app.use(bodyParser.json({
   parameterLimit: 500000,
   limit: '50mb',
@@ -45,7 +40,7 @@ app.use(bodyParser.json({
 app.use(bodyParser.urlencoded({
   parameterLimit: 1000000,
   limit: '100mb',
-  extended: true
+  extended: false
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -102,16 +97,10 @@ function runServer (refreshSchemas) {
     })
     .catch(err => console.log(err));
 
-  process.on('SIGINT', () => global.dbModule.disconnect()
-    .then(() => console.log('db connection closed'))
-    .catch((err) => console.log(err))
-  );
+  process.on('SIGINT', () => onServerClose(server));
 
-  process.on('SIGTERM', () => {
-    server.close(() => {
-      process.exit(0);
-    });
-  });
+  process.on('SIGTERM', () => onServerClose(server));
+
 }
 
 function getRelatedPath (destination) {
@@ -147,5 +136,18 @@ function onServerRun (server) {
   }, 1000 * 60 * 10); /** Call self api every ten minutes to avoid server down with 143 err code */
 
   console.log('Server is listening on ' + host + ':' + app.get('port'));
+}
+
+function onServerClose (server) {
+  server.close(() => {
+    setTimeout(() => {
+      global.dbModule.disconnect()
+        .then(() => {
+          console.log('db connection closed');
+          process.exit(0);
+        })
+        .catch((err) => console.log(err));
+    }, 3000);
+  });
 }
 

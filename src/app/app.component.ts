@@ -96,7 +96,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
       self.accessPointService.postRequest('/add_plate', {
         name: formValue.name,
-        environment: SharedService.getEnvironment(),
+        environment: self.environmentService.getCurrent(),
         email: formValue.email,
         image: onReadyEvent.target['result'],
         extension: plateUploadedImage['fileExtension'],
