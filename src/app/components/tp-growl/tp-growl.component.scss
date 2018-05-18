@@ -1,0 +1,46 @@
+@import "../../app.component";
+
+.tp-growl {
+
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: $z-highest + 100;
+
+  .tp-growl_item {
+    position: relative;
+    width: 200px;
+    padding: 20px 20px 20px 40px;
+    border: 1px solid $white;
+    background: #569d83;
+    margin: 10px 0;
+    color: $white;
+    font-size: 14px;
+
+    @include use-transition($normal);
+    @include transformed(translate(200px, 0));
+
+    &.isActive {
+      @include transformed(translate(0, 0));
+    }
+
+    &.warning {
+      background: #a1b22f;
+    }
+
+    &.error {
+      background: #e21234;
+    }
+
+    .tp-growl_closeBtn {
+      position: absolute;
+      top: 20px;
+      left: 10px;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      background-size: cover;
+      background-image: url(../../../assets/icons/close_icon.png);
+    }
+  }
+}

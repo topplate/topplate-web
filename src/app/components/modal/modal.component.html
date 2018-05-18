@@ -1,3 +1,9 @@
 <div class="top-plate_modalOverlay" (click)="closeModal()">
-  <div class="top-plate_modalContent" (click)="onContentClick($event)"><ng-content></ng-content></div>
+  <div class="top-plate_modalContent_wrapper">
+    <div class="top-plate_modalContent" (click)="onContentClick($event)"><ng-content></ng-content></div>
+  </div>
+</div>
+
+<div class="top-plate_modal_sliderRail">
+  <div class="top-plate_modal_sliderCaret"></div>
 </div>

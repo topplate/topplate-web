@@ -56,8 +56,9 @@ export class PlatesPageComponent implements OnInit, OnDestroy {
             onSuccess: res => {
               plate.likes = res.numberOfLikes === null ? plate.likes : res.numberOfLikes;
               SharedService.setLikedPlates(res.likedPlates);
+              SharedService.getSharedComponent('growl').addItem({message: 'Liked!'});
             },
-            onFail: err => console.log(err)
+            onFail: err => SharedService.getSharedComponent('growl').addItem(err)
           }
         );
       };
@@ -92,7 +93,7 @@ export class PlatesPageComponent implements OnInit, OnDestroy {
           infiniteScrollAPI.setFinalized(newPlates.length < lim);
           infiniteScrollAPI.addItems(newPlates);
         },
-        onFail: err => console.log(err)
+        onFail: err => SharedService.getSharedComponent('growl').addItem(err)
       }
     );
   }
@@ -145,6 +146,6 @@ export class PlatesPageComponent implements OnInit, OnDestroy {
   ngOnDestroy () {
     let self = this;
     self.changesObserver.timer.stop();
+    self.environmentWatcher.unsubscribe();
   }
-
 }

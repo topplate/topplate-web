@@ -15,6 +15,7 @@ import { TpInfiniteListComponent } from './components/tp-infinite-list/tp-infini
 import { TpHeaderComponent } from './components/tp-header/tp-header.component';
 import { TpSwitchComponent } from './components/tp-switch/tp-switch.component';
 import { TpScrollableComponent } from './components/tp-scrollable/tp-scrollable.component';
+import { TpGrowlComponent } from './components/tp-growl/tp-growl.component';
 
 @NgModule({
   imports: [
@@ -38,7 +39,8 @@ import { TpScrollableComponent } from './components/tp-scrollable/tp-scrollable.
     TpInfiniteListComponent,
     TpHeaderComponent,
     TpSwitchComponent,
-    TpScrollableComponent
+    TpScrollableComponent,
+    TpGrowlComponent
   ],
 
   schemas: [
@@ -59,7 +61,8 @@ import { TpScrollableComponent } from './components/tp-scrollable/tp-scrollable.
     TpInfiniteListComponent,
     TpHeaderComponent,
     TpSwitchComponent,
-    TpScrollableComponent
+    TpScrollableComponent,
+    TpGrowlComponent
   ]
 })
 

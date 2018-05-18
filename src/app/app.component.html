@@ -13,7 +13,7 @@
   <app-tp-footer [banner]="banner"></app-tp-footer>
 </app-tp-scrollable>
 
-<app-modal class="top-plate_signInModal" [(model)]="signInModal">
+<app-modal class="top-plate_signInModal" [(state)]="signInModal.state">
 
   <div class="top-plate_signInModal_content roboto-light">
     <div class="welcome-banner"></div>
@@ -62,7 +62,7 @@
 
 </app-modal>
 
-<app-modal class="top-plate_plateUploadModal" (ngSubmit)="onPlateSubmit()" [(model)]="plateUploadModal">
+<app-modal class="top-plate_plateUploadModal" (ngSubmit)="onPlateSubmit()" [(state)]="plateUploadModal.state">
   <div class="plate-uploader_content roboto-light uppercase">
     <form [formGroup]="plateUploadModal.plateUploadForm" class="plate-uploader_form">
       <div class="plate-uploader_contentHeader">
@@ -109,5 +109,6 @@
   <i class="top-plate_globalOverlayIcon fa fa-circle-o-notch fa-spin"></i>
 </div>
 
+<app-tp-growl [events]="appGrowl['events']"></app-tp-growl>
 
 

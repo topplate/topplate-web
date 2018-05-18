@@ -38,8 +38,6 @@ function getAuthorizedUser (token) {
     userData = authTokens[token],
     registeredToken = userData && userData.email && authEmails[userData.email];
 
-  console.log(userData);
-
   return token && registeredToken === token && userData;
 }
 

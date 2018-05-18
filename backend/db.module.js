@@ -3,6 +3,7 @@ const
   fs = require('fs'),
   jimp = require('jimp'),
   mongoose = require('mongoose'),
+  ObjectId = require('mongodb').ObjectID,
   isBuffer = require('is-buffer'),
   models = {},
   methods = {
@@ -120,8 +121,11 @@ module.exports.createPlate = (plateData, authorId) => {
       canLike: true
     };
 
-  models.User.findOne({_id: authorId})
+  models.User.findOne({'_id': authorId})
     .then(plateAuthor => {
+
+      console.log('user found');
+
       let
         lastLoggedProvider = plateAuthor.lastLogged.provider,
         profileData = plateAuthor[lastLoggedProvider],
@@ -134,13 +138,20 @@ module.exports.createPlate = (plateData, authorId) => {
       };
 
       newPlate.save(err => {
+
+        console.log('new plate saved');
+
         if (err) deferred.reject(err);
         else newPlate.refreshFiles(' by ' + newPlate.author.name)
           .then(res => {
             plateAuthor.uploadedPlates.push(newPlate._id);
             plateAuthor.save(err => {
+
+              console.log('plate data saved');
+
+
               if (err) deferred.reject(err);
-              else deferred.resolve(res);
+              else deferred.resolve({message: 'new plate was created'});
             });
           })
           .catch(err => deferred.reject(err));
@@ -360,7 +371,7 @@ module.exports.getContactsData = () => {
   return deferred.promise;
 };
 
-module.exports.getWinners = () => {
+module.exports.getWinners = (env) => {
   let deferred = Q.defer();
 
   models.Winner.find({})
@@ -370,12 +381,15 @@ module.exports.getWinners = () => {
         lenB = 0,
         plates = [];
 
+      console.log(env);
+
       if (!lenA) deferred.resolve([]);
       else winnersList.forEach(item => {
         models.Plate.findOne({_id: item.plate})
           .then(plate => {
             lenB += 1;
-            plates.push(plate.getNormalized('big'));
+            if (!env) plates.push(plate.getNormalized('big'));
+            else plate.environment === env && plates.push(plate.getNormalized('big'));
             lenA === lenB && deferred.resolve(plates);
           })
           .catch(err => deferred.reject(err));

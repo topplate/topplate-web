@@ -10,18 +10,49 @@
   background: $half-transparent;
   z-index: $z-highest;
 
-  .top-plate_modalContent {
-    display: none;
+  .top-plate_modalContent_wrapper {
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: hidden;
     width: max-content;
-    height: max-content;
-    max-height: $full-size;
+    padding: 100px 0;
+    height: $full-size;
+
+    .top-plate_modalContent {
+      display: none;
+      width: max-content;
+      height: max-content;
+    }
+
+  }
+
+  .top-plate_modal_sliderRail {
+    display: none;
+    position: fixed;
+    right: 2px;
+    top: 0;
+    background: #253b39;
+    width: 12px;
+    border-radius: 6px;
+    height: $full-size;
+
+    .top-plate_modal_sliderCaret {
+      width: 12px;
+      height: 300px;
+      min-height: 12px;
+      background: #385553;
+      border-radius: 8px;
+      border: 1px solid #253b39;
+      cursor: ns-resize;
+    }
+
+    &.isOpened {
+      display: block;
+    }
   }
 
   @include use-transition($normal);
 
-  &.is-opened {
+  &.isOpened {
     top: 0;
     .top-plate_modalContent {
       display: block;

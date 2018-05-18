@@ -1,0 +1,7 @@
+<div class="tp-growl_item roboto-light uppercase {{item['type']}}"
+     [ngClass]="{'isActive': item['isActive']}"
+     *ngFor="let item of items">
+  <span class="tp-growl_itemLabel">{{item['label']}}</span><br>
+  <span class="tp-growl_itemStatus" *ngIf="item['type'] === 'error'">err_code: {{item['status']}}</span>
+  <i class="tp-growl_closeBtn" (click)="closeItem(item)"></i>
+</div>

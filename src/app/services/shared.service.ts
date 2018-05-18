@@ -8,6 +8,17 @@ export class SharedService {
 
   private static likedPlates: Object;
 
+  private static sharedComponents: Object = {};
+
+  public static setSharedComponent (name, api) {
+    SharedService.sharedComponents[name] = api;
+    return SharedService.getSharedComponent(name);
+  }
+
+  public static getSharedComponent (name) {
+    return SharedService.sharedComponents[name];
+  }
+
   public static setEnvironment (env) {
     localStorage.setItem('env', env);
     return SharedService;
@@ -37,7 +48,7 @@ export class SharedService {
   }
 
   public static getEnvironmentData (env = null) {
-    return SharedService.environmentsData[env || SharedService.getEnvironment()];
+    // return SharedService.environmentsData[env || SharedService.getEnvironment()];
   }
 
   public static setEnvironmentsData (environmentsData) {

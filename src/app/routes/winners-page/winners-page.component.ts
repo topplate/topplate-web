@@ -2,6 +2,9 @@ import { Component, OnInit, OnDestroy, ViewEncapsulation} from '@angular/core';
 import { Route, ActivatedRoute, Router } from '@angular/router';
 import { AppD3Service } from '../../services/d3.service';
 import { ConstantsService } from '../../services/constants.service';
+import { EnvironmentService } from '../../services/environment.service';
+import { AccessPointService } from '../../services/access-point.service';
+import { SharedService } from '../../services/shared.service';
 
 const
   CONSTANTS = ConstantsService.getConstants(),
@@ -18,19 +21,28 @@ export class WinnersPageComponent implements OnInit, OnDestroy {
 
   constructor (
     private router: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private environmentService: EnvironmentService,
+    private accessPointService: AccessPointService
   ) {}
 
-  public winners: any;
+  public winners: Object[] = [];
 
   public winnersSettings: any;
 
+  public environmentWatcher: any;
+
+  private refreshItems (data) {
+    let self = this;
+    self.winners = (data || []).map(plate => {
+      plate['winner'] = 'week';
+      return plate;
+    });
+  }
+
   ngOnInit () {
 
-    let
-      self = this,
-      routeData = self.activatedRoute.snapshot.data,
-      period = self.activatedRoute.snapshot.params.period;
+    let self = this;
 
     self.winnersSettings = {
       resolution: [14, 3],
@@ -39,12 +51,16 @@ export class WinnersPageComponent implements OnInit, OnDestroy {
       showAuthor: true
     };
 
-    self.winners = (routeData.winners || []).map(plate => {
-      plate['winner'] = period;
-      return plate;
+    self.environmentWatcher = self.environmentService.getSubscription(env => {
+      self.winners.length = 0;
+      self.accessPointService.getRequest('/get_winners', { environment: env }, {
+        onSuccess: winnersData => self.refreshItems(winnersData),
+        onFail: err => SharedService.getSharedComponent('growl').addItem(err)
+      });
     });
   }
 
-  ngOnDestroy () {}
-
+  ngOnDestroy () {
+    this.environmentWatcher.unsubscribe();
+  }
 }

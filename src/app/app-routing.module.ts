@@ -116,7 +116,7 @@ const appRoutes: Routes = [
     }
   },
   {
-    path: ROUTES.WINNERS + '/:period',
+    path: ROUTES.WINNERS,
     component: WinnersPageComponent,
     data: {
       showHomeButton: true,

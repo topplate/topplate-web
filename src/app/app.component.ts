@@ -8,6 +8,7 @@ import { AccessPointService } from './services/access-point.service';
 import { EnvironmentService } from './services/environment.service';
 import { SharedService } from './services/shared.service';
 import { AuthService, FacebookLoginProvider, GoogleLoginProvider } from 'angular5-social-login';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/map';
 
 const
@@ -39,8 +40,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   public headerEvents: any;
 
-  public appHeaderEvents: any;
-
   public isReadyToBeShown: Boolean = false;
 
   public environments: any;
@@ -50,6 +49,18 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   public signInModal: any;
 
   public plateUploadModal: any;
+
+  public appGrowl: Object = {
+    events: {
+      onReady: growlApi => {
+        this.appGrowl['api'] = growlApi;
+        SharedService.setSharedComponent('growl', this.appGrowl['api']);
+      },
+      onShow: growlItem => console.log(growlItem),
+      onHide: () => console.log('item closed')
+    },
+    api: null
+  };
 
   public banner: Object;
 
@@ -62,16 +73,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
     plateUploadModal.isReadyToSubmit = plateUploadForm.valid && isUploaded;
 
-  }
-
-  private resetForm () {
-    let
-      self = this,
-      plateUploadForm = self.plateUploadModal.plateUploadForm,
-      plateUploadedImage = self.plateUploadModal.uploadedImage;
-
-    plateUploadForm.reset();
-    console.log(plateUploadedImage);
   }
 
   public selectEnvironment (clickedEnv) {
@@ -107,14 +108,20 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         author: currentUser['_id']
       }, {
         onSuccess: (res) => {
-          self.isReadyToBeShown = true;
-          self.plateUploadModal.isOpened = false;
+          console.log(res);
+          SharedService.getSharedComponent('globalOverlay').toggle(true);
+          SharedService.getSharedComponent('plateUploadModal').toggle(false);
+          SharedService.getSharedComponent('growl').addItem(res);
         },
-        onFail: err => console.log(err)
+        onFail: err => {
+          SharedService.getSharedComponent('globalOverlay').toggle(true);
+          SharedService.getSharedComponent('plateUploadModal').toggle(false);
+          SharedService.getSharedComponent('growl').addItem(err);
+        }
       });
     };
 
-    self.isReadyToBeShown = false;
+    SharedService.getSharedComponent('globalOverlay').toggle(false);
 
     fReader.readAsBinaryString(plateUploadedImage['originalImage']);
   }
@@ -126,11 +133,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
     self.rootElem = d3.select(self.reference.nativeElement).classed(ROOT_ELEM_CLASS, true);
     self.signInModal = {
-      isOpened: false,
+      state: new BehaviorSubject(false),
       wantToSubscribe: false
     };
     self.plateUploadModal = {
-      isOpened: false,
+      state: new BehaviorSubject(false),
       isReadyToSubmit: false,
       plateUploadForm: new FormGroup({
         name: new FormControl('', Validators.required),
@@ -161,12 +168,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         label: 'how it works',
         icon: 'how-it-works',
         navigateTo: [ROUTES.SELECT_ENV]
-        // navigateTo: [ROUTES.WINNERS + '/', 'week']
       },
       {
         label: 'plate of the week',
         icon: 'plate-of-week',
-        navigateTo: [ROUTES.WINNERS + '/', 'week']
+        navigateTo: [ROUTES.WINNERS]
       },
       {
         label: 'charity choice',
@@ -182,7 +188,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
             currentUser = self.authorizationService.getCurrentUser(),
             currentEnv = SharedService.getEnvironment();
 
-          if (!currentUser) return self.appHeaderEvents.onSignInButtonClick();
+          if (!currentUser) return self.headerEvents.onSignInButtonClick();
 
           plateUploadModal.plateUploadForm.reset();
           typeof plateUploadModal.uploadedImage.reset === 'function' && plateUploadModal.uploadedImage.reset();
@@ -195,7 +201,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
             plateUploadModal.showEmailField = true;
           }
 
-          self.plateUploadModal.isOpened = true;
+          self.plateUploadModal.state.next(true);
         }
       },
       {
@@ -207,7 +213,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
     self.headerEvents = {
       onSignInButtonClick: () => {
-        self.signInModal.isOpened = true;
+        self.signInModal.state.next(true);
       },
       onSignOutButtonClick: () => {
         self.authorizationService.signOut().catch(err => console.log(err));
@@ -221,6 +227,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         isSelected: env === SharedService.getEnvironment()
       };
     });
+
     self.logInMethods = [
       {
         name: GoogleLoginProvider.PROVIDER_ID,
@@ -229,7 +236,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         label: 'CONNECT WITH GOOGLE',
         onClick: () => {
           self.authorizationService.signIn(GoogleLoginProvider.PROVIDER_ID)
-            .then(res => self.signInModal.isOpened = false )
+            .then(res => self.signInModal.state.next(false) )
             .catch(err => console.log(err));
         }
       },
@@ -241,7 +248,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         onClick: () => {
           // console.log(self.socialAuthService.authState);
           self.authorizationService.signIn(FacebookLoginProvider.PROVIDER_ID)
-            .then(res => self.signInModal.isOpened = false)
+            .then(res => self.signInModal.state.next(false))
             .catch(err => console.log(err));
         }
       },
@@ -290,7 +297,19 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         err => console.log(err)
       );
 
-    setTimeout(() => self.isReadyToBeShown = true, 1000);
+    SharedService.setSharedComponent('signInModal', {
+      toggle: state => self.signInModal.state.next(state)
+    });
+
+    SharedService.setSharedComponent('plateUploadModal', {
+      toggle: state => self.plateUploadModal.state.next(state)
+    });
+
+    SharedService.setSharedComponent('globalOverlay', {
+      toggle: state => self.isReadyToBeShown = state
+    });
+
+    setTimeout(() => SharedService.getSharedComponent('globalOverlay').toggle(true), 2000);
   }
 
   ngOnDestroy () {}

@@ -4,6 +4,8 @@ const
   fs = require('fs'),
   jimp = require('jimp'),
   Q = require('q'),
+  isBuffer = require('is-buffer'),
+  formidable = require('formidable'),
   CONSTANTS = require('../app-constants.json'),
   ROUTES = CONSTANTS.REST_API,
   ENVIRONMENTS = {
@@ -168,15 +170,49 @@ function refreshRoutes () {
   );
 
   /** Plates */
-  app.post('/add_plate', (req, res) => checkAuthorization(req)
-    .then(user => {
-      console.log('--- ADD PLATE REQUEST ---');
-      console.log(req.body);
-      console.log('---------- END ----------');
-      dbModule.createPlate(req.body, user._id)
+  app.post('/add_plate_form', (req, res) => {
+
+    let
+      registeredUser,
+      image,
+      fields,
+      form;
+
+    checkAuthorization(req)
+      .then(user => {
+        registeredUser = user;
+        getFormData(req)
+          .then(formData => {
+            image = formData.files && formData.files.image;
+            fields = formData.fields;
+            form = {};
+            if (!image) sendError(res, {message: 'image should be an ImageFile, BinaryString or Buffer'});
+            else if (typeof fields !== 'object') sendError(res, {message: 'bad form data'});
+            else {
+              Object.keys(fields).forEach(key => form[key] = fields[key]);
+              if (isBuffer(image)) addPlate(image);
+              else fs.readFile(image.path, (err, result) => {
+                if (err) sendError(res, err);
+                else addPlate(result);
+              });
+            }
+          })
+          .catch(err => sendError(res, err));
+      })
+      .catch(err => sendError(res, err));
+
+    function addPlate (bufferedImage) {
+      form['image'] = bufferedImage;
+      dbModule.createPlate(form, registeredUser._id)
         .then(creationRes => res.send(creationRes))
         .catch(err => sendError(res, err));
-    })
+    }
+  });
+
+  app.post('/add_plate', (req, res) => checkAuthorization(req)
+    .then(user => dbModule.createPlate(req.body, user._id)
+      .then(creationRes => res.send(creationRes))
+      .catch(err => sendError(res, err)))
     .catch(err => sendError(res, err))
   );
 
@@ -249,6 +285,14 @@ function refreshRoutes () {
       .catch(err => sendError(res, err));
   });
 
+  app.get('/get_winners', (req, res) => {
+    let env = req.query.environment;
+    global.dbModule.getWinners(env)
+      .then(winners => res.send(winners))
+      .catch(err => sendError(res,err))
+    }
+  );
+
   app.get('*', (req, res) => {
     console.log('redirect to index page');
     res.redirect('/');
@@ -312,5 +356,23 @@ function getFacebookCredentials () {
 
 function getGoogleCredentials () {
   return GOOGLE_CREDENTIALS;
+}
+
+function getFormData (req) {
+
+  let
+    deferred = Q.defer(),
+    form = new formidable.IncomingForm();
+
+  form.once('error', err => deferred.reject(err));
+  form.parse(req, (err, fields, files) => {
+    if (err) deferred.reject(err);
+    else deferred.resolve({
+      fields: fields,
+      files: files
+    });
+  });
+
+  return deferred.promise;
 }
 
