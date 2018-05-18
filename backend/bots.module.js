@@ -199,6 +199,8 @@ function setAppSchedules () {
     dbModels = global.dbModule.getModels(),
     baseData;
 
+  return;
+
   dbModels.Base.findOne()
     .then(data => {
       baseData = data;
