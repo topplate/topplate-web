@@ -118,13 +118,12 @@ module.exports.createPlate = (plateData, authorId) => {
       ingredients: plateData.ingredients || [],
       restaurantName: plateData.restaurantName || 'none',
       isReady: true,
-      canLike: true
+      canLike: true,
+      isTest: plateData.isTest || false
     };
 
   models.User.findOne({'_id': authorId})
     .then(plateAuthor => {
-
-      console.log('user found');
 
       let
         lastLoggedProvider = plateAuthor.lastLogged.provider,
@@ -138,18 +137,11 @@ module.exports.createPlate = (plateData, authorId) => {
       };
 
       newPlate.save(err => {
-
-        console.log('new plate saved');
-
         if (err) deferred.reject(err);
         else newPlate.refreshFiles(' by ' + newPlate.author.name)
           .then(res => {
             plateAuthor.uploadedPlates.push(newPlate._id);
             plateAuthor.save(err => {
-
-              console.log('plate data saved');
-
-
               if (err) deferred.reject(err);
               else deferred.resolve({message: 'new plate was created'});
             });
@@ -372,25 +364,29 @@ module.exports.getContactsData = () => {
 };
 
 module.exports.getWinners = (env) => {
-  let deferred = Q.defer();
+  let
+    deferred = Q.defer(),
+    query = {};
 
-  models.Winner.find({})
+  if (env) query['environment'] = env;
+
+  models.Winner.find(query)
     .then(winnersList => {
       let
         lenA = winnersList.length,
         lenB = 0,
         plates = [];
 
-      console.log(env);
-
       if (!lenA) deferred.resolve([]);
       else winnersList.forEach(item => {
         models.Plate.findOne({_id: item.plate})
           .then(plate => {
             lenB += 1;
-            if (!env) plates.push(plate.getNormalized('big'));
-            else plate.environment === env && plates.push(plate.getNormalized('big'));
-            lenA === lenB && deferred.resolve(plates);
+            plates.push(plate.getNormalized('big'));
+            lenA === lenB && deferred.resolve(plates.sort((a, b) => {
+              let propA = a.createdAt, propB = b.createdAt;
+              return propA > propB ? -1 : (propB > propA ? 1 : 0);
+            }));
           })
           .catch(err => deferred.reject(err));
       });
@@ -690,7 +686,8 @@ function refreshPlateSchema () {
     },
     isReady: Boolean,
     canLike: Boolean,
-    isFixed: Boolean
+    isFixed: Boolean,
+    isTest: Boolean
   }, {
     collection: 'plates',
     timestamps: true
@@ -891,6 +888,7 @@ function refreshCharitySchema () {
 function refreshWinnerSchema () {
 
   const winnerSchema = new mongoose.Schema({
+    environment: String,
     name: String,
     year: Number,
     month: Number,

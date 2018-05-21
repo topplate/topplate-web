@@ -1,3 +1,12 @@
+/**
+ * - create 50 plates for each bot - plates should be marked as { test: true }
+ * - loop through plates and change dates randomly and add random number of likes
+ * - find winners
+ *
+ * */
+
+
+
 const
   Q = require('q'),
   https = require('https'),
@@ -18,7 +27,8 @@ function refreshBots () {
     dbModule = global.dbModule,
     userModel = dbModule.getModels().User,
     plateModel = dbModule.getModels().Plate,
-    charityModel = dbModule.getModels().Charity;
+    charityModel = dbModule.getModels().Charity,
+    winnerModel = dbModule.getModels().Winner;
 
   userModel.find({isRobot: true})
     .then(bots => bots.length ? setBotsSchedules(bots) : createBots())
@@ -56,14 +66,22 @@ function refreshBots () {
   }
 
   function setBotsSchedules (bots) {
+    let
+      len = bots.length,
+      i = 0;
+
     bots.forEach(bot => {
       bot.lastLogged = {provider: 'google'};
       bot.save(err => {
         if (err) console.log(err);
         else {
-          likeRandomPlate(bot);
-          createRandomPlate(bot, true);
-          likeCharityChoice(bot);
+          createRandomPlate(bot, true, (message) => {
+            console.log(message);
+            i += 1;
+            if (i === len) likeTestPlates()
+              .then(() => defineWinners())
+              .catch(err => deferred.reject(err));
+          });
         }
       });
     });
@@ -86,7 +104,7 @@ function refreshBots () {
       .catch(err => console.log(err));
   }
 
-  function createRandomPlate (bot, skipFirst) {
+  function createRandomPlate (bot, skipFirst, callback) {
 
     let
       oneHour = 1000 * 60 * 60,
@@ -116,7 +134,8 @@ function refreshBots () {
               'salt',
               'pepper'
             ] : [],
-            restaurantName: environment === 'homemade' ? '' : 'some restaurant'
+            restaurantName: environment === 'homemade' ? '' : 'some restaurant',
+            isTest: true
           };
 
         dbModule.createPlate(randomPlate, bot['_id'])
@@ -153,12 +172,126 @@ function refreshBots () {
 
     function loopPlateCreation () {
       userModel.findOne({_id: bot['_id']})
-        .then(_bot => {
-          let
-            numberOfCreatedPlates = _bot.uploadedPlates.length,
-            delay = numberOfCreatedPlates < 10 ? 50000 : oneHour;
+        .then(_bot =>_bot.uploadedPlates.length < 3 ?
+          setTimeout(() => createRandomPlate(bot, false, callback), 3000 + Math.floor(Math.random() * 3000)) :
+          callback({message: 'bot ' + bot['_id'] + ' is ready'})
+        ).catch(err => console.log(err));
+    }
+  }
 
-          setTimeout(() => createRandomPlate(bot), delay + Math.floor(Math.random() * delay));
+  function likeTestPlates () {
+
+    let
+      platesDeferred = Q.defer(),
+      allPlatesLen = 21;
+
+    plateModel.find({isTest: true})
+      .then(plates => {
+        //
+        // console.log('plates to like');
+        //
+        // console.log(plates);
+        //
+        // console.log('***************');
+
+        let
+          platesLen = plates.length,
+          i = 0;
+
+        if (platesLen < allPlatesLen) platesDeferred.resolve({message: 'likes are done'});
+        else plates.forEach(plate => {
+          let
+            randomNumberOfLikes = Math.floor(Math.random() * 10000),
+            ii = 0;
+
+          for (; ii < randomNumberOfLikes; ii++) plate.likes.push(getRandomToken());
+          plate.save(err => {
+            if (err) platesDeferred.reject(err);
+            else {
+              i += 1;
+              platesLen === i && platesDeferred.resolve({message: 'all pates were liked'});
+            }
+          });
+        });
+      })
+      .catch(err => platesDeferred.reject(err));
+
+    return platesDeferred.promise;
+  }
+
+  function defineWinners () {
+
+    winnerModel.find({})
+      .then(winners => !winners.length && _defineWinners())
+      .catch(err => console.log(err));
+
+    function _defineWinners () {
+
+      let
+        currentWeek = moment().week(),
+        itemsToFix = [],
+        weeks = {},
+        winners = {};
+
+      plateModel.find({isTest: true}, {
+        _id: 1,
+        createdAt: 1,
+        likes: 1,
+        environment: 1
+      })
+        .then(plates => {
+          plates.forEach(plate => {
+            let
+              createdAt = moment().subtract(Math.floor(Math.random() * 4), 'week'),
+              year = createdAt.year(),
+              month = createdAt.month(),
+              week = createdAt.week(),
+              name = year + '_' + month + '_' + week + '_' + plate.environment,
+              item = {
+                environment: plate.environment,
+                name: name,
+                year: year,
+                month: month,
+                week: week,
+                plate: plate._id,
+                likes: plate.likes.length
+              };
+
+            if (week < currentWeek) {
+              weeks[name] = weeks[name] || [];
+              weeks[name].push(item);
+              itemsToFix.push(mongoose.Types.ObjectId(item.plate));
+            }
+          });
+
+          Object.keys(weeks).forEach(key => {
+            let
+              sorted = weeks[key].sort((a, b) => {
+                let wa = a.likes, wb = b.likes;
+                return wa < wb ? 1 : (wa > wb ? -1 : 0);
+              }),
+              weight = (sorted[0] && sorted[0].likes) || 0;
+
+            if (weight > 0) winners[key] = sorted.filter(item => item.likes === weight);
+          });
+
+          console.log(itemsToFix);
+
+          plateModel.collection
+            .updateMany({_id: {$in: itemsToFix}}, {$set: {isFixed: true, canLike: false}})
+            .then(updateRes => {
+              Object.keys(winners).forEach(key => {
+                console.log('preparing ' + key + ' week winner...');
+                winners[key].forEach(item => {
+                  let newWinner = new winnerModel(item);
+                  newWinner.save(err => {
+                    if (err) console.log(err);
+                    else console.log(newWinner.plate + ' saved as winner of ' + key + 'week');
+                  });
+                })
+              });
+            })
+            .catch(err => console.log(err));
         })
         .catch(err => console.log(err));
     }
@@ -175,7 +308,7 @@ function refreshBots () {
           charityItem = charityItems[Math.floor(Math.random() * len)];
 
         charityItem.vote(bot._id)
-          .then(() => setTimeout(() => likeCharityChoice(bot), oneHour + Math.floor(Math.random() * oneHour)))
+          .then(() => setTimeout(() => likeCharityChoice(bot), 3000 + Math.floor(Math.random() * 3000)))
           .catch(err => console.log(err));
       });
   }
