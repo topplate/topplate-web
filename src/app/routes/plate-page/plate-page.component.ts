@@ -5,7 +5,8 @@ import { ConstantsService } from '../../services/constants.service';
 import { SharedService } from '../../services/shared.service';
 import { AuthorizationService } from '../../services/authorization.service';
 import { AccessPointService } from '../../services/access-point.service';
-
+import { PlatesService } from '../../services/plates.service';
+import { PlateModel } from '../../models/plate.model';
 
 const
   CONSTANTS = ConstantsService.getConstants(),
@@ -24,14 +25,15 @@ export class PlatePageComponent implements OnInit, OnDestroy {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private authorizationService: AuthorizationService,
-    private accessPointService: AccessPointService
+    private accessPointService: AccessPointService,
+    private platesService: PlatesService
   ) {}
 
   public changesObserver: any;
 
-  public selectedPlate: any;
+  public selectedPlate: PlateModel;
 
-  public relatedPlates: any;
+  public relatedPlates: PlateModel[];
 
   public relatedPlatesSettings: any;
 
@@ -41,29 +43,8 @@ export class PlatePageComponent implements OnInit, OnDestroy {
       self = this,
       routeData = self.activatedRoute.snapshot.data;
 
-    self.selectedPlate = routeData['plate'];
-    self.relatedPlates = self.selectedPlate.relatedPlates.map(plate => plate);
-
-    [self.selectedPlate].concat(self.relatedPlates || []).forEach(plate => {
-      plate['hasRecipe'] = plate.recipe || plate.ingredients;
-      plate['onLinkClick'] = () => self.router.navigate([ROUTES.PLATES])
-        .then(() => self.router.navigate([ROUTES.PLATE + '/', plate._id]));
-      plate['onLikeClick'] = () => {
-        let currentUser = self.authorizationService.getCurrentUser();
-        if (!currentUser) return;
-        self.accessPointService.postRequest('/like_plate',
-          {plate: plate._id},
-          {
-            onSuccess: res => {
-              plate.likes = res.numberOfLikes === null ? plate.likes : res.numberOfLikes;
-              SharedService.setLikedPlates(res.likedPlates);
-            },
-            onFail: err => console.log(err)
-          }
-        );
-      };
-      plate['hasRecipe'] = plate.recipe || plate.ingredients;
-    });
+    self.selectedPlate = self.platesService.createPlateEntity(routeData['plate']);
+    self.relatedPlates = self.selectedPlate.relatedPlates.map(plate => self.platesService.createPlateEntity(plate));
 
     self.relatedPlatesSettings = {
       resolution: [430, 360],

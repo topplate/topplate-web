@@ -13,7 +13,7 @@ export class PlateModel {
     } catch (err) { console.log(err); }
   }
 
-  public _id: String;
+  public _id: string;
 
   public name: String;
 
@@ -25,6 +25,8 @@ export class PlateModel {
 
   public likes: Number;
 
+  public liked: Boolean;
+
   public recipe: String;
 
   public ingredients: String[];
@@ -34,6 +36,8 @@ export class PlateModel {
   public environment: String;
 
   public canLike: Boolean;
+
+  public relatedPlates: PlateModel[] = [];
 
   /** Methods */
   public onLinkClick: any;

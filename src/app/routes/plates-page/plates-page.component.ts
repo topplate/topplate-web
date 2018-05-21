@@ -6,6 +6,8 @@ import { SharedService } from '../../services/shared.service';
 import { AccessPointService } from '../../services/access-point.service';
 import { AuthorizationService } from '../../services/authorization.service';
 import { EnvironmentService } from '../../services/environment.service';
+import { PlatesService } from '../../services/plates.service';
+import { PlateModel } from '../../models/plate.model';
 
 const
   CONSTANTS = ConstantsService.getConstants(),
@@ -25,14 +27,15 @@ export class PlatesPageComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private accessPointService: AccessPointService,
     private authorizationService: AuthorizationService,
-    private environmentService: EnvironmentService
+    private environmentService: EnvironmentService,
+    private platesService: PlatesService
   ) {}
 
   private changesObserver: any;
 
   private environmentWatcher: any;
 
-  public plates: any;
+  public plates: PlateModel[] = [];
 
   public settings: any;
 
@@ -42,30 +45,7 @@ export class PlatesPageComponent implements OnInit, OnDestroy {
 
   private refreshPlates (plates) {
     let self = this;
-    self.plates = self.plates || [];
-    return plates.map(plate => {
-      plate['onLinkClick'] = () => self.router.navigate([ROUTES.PLATE + '/', plate._id]);
-      plate['onProfileLinkClick'] = () => self.router.navigate([ROUTES.PROFILE + '/', plate.author.id]);
-      plate['onLikeClick'] = () => {
-        let currentUser = self.authorizationService.getCurrentUser();
-        if (!currentUser) return;
-
-        self.accessPointService.postRequest('/like_plate',
-          {plate: plate._id},
-          {
-            onSuccess: res => {
-              plate.likes = res.numberOfLikes === null ? plate.likes : res.numberOfLikes;
-              SharedService.setLikedPlates(res.likedPlates);
-              SharedService.getSharedComponent('growl').addItem({message: 'Liked!'});
-            },
-            onFail: err => SharedService.getSharedComponent('growl').addItem(err)
-          }
-        );
-      };
-      plate['hasRecipe'] = plate.recipe || plate.ingredients;
-      self.plates.push(plate);
-      return plate;
-    });
+    return plates.map(plate => self.platesService.createPlateEntity(plate));
   }
 
   private loadPlates () {

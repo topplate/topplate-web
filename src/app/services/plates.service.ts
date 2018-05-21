@@ -32,7 +32,8 @@ export class PlatesService {
       newPlate = new PlateModel(initialData);
 
     allowedMethods && allowedMethods.onLinkClick &&
-      (newPlate.onLinkClick = () => self.router.navigate([ROUTES.PLATE + '/', newPlate._id]));
+      (newPlate.onLinkClick = () => self.router.navigate([ROUTES.EMPTY])
+          .then(() => self.router.navigate([ROUTES.PLATE + '/', newPlate._id])));
 
     allowedMethods && allowedMethods.onProfileLinkClick &&
       (newPlate.onProfileLinkClick = () => self.router.navigate([ROUTES.PROFILE + '/', newPlate.author.id]));
