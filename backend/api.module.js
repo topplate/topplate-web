@@ -66,7 +66,7 @@ function refreshRoutes () {
       reqBody = req.body,
       email = reqBody.email,
       // password = reqBody.password,
-      userModel = global.dbModule.getModel().User,
+      userModel = global.dbModule.getModels().User,
       authModule = global.authModule;
 
     userModel.findOne({email: email})
@@ -75,17 +75,20 @@ function refreshRoutes () {
         else authModule.comparePasswords(reqBody.password, user.local.hashedPassword)
           .then(checkResult => {
             if (checkResult) {
-              user.login({
-                email: email,
-                name: reqBody.name,
-                image: reqBody.image || null,
-                token: authModule.getLocalToken(),
-                provider: 'local'
-              })
-                .then(loginRes => {
-                  authModule.saveAuthToken(user, token);
-                  res.send(loginRes);
+              authModule.getLocalToken()
+                .then(localToken => user.login({
+                  email: email,
+                  name: reqBody.name,
+                  image: reqBody.image || null,
+                  token: localToken,
+                  provider: 'local'
                 })
+                  .then(loginRes => {
+                    authModule.saveAuthToken(user, localToken);
+                    res.send(loginRes);
+                  })
+                  .catch(err => sendError(res, err))
+                )
                 .catch(err => sendError(res, err));
             }
             else sendError(res, {message: 'wrong email or password!', status: 401});
