@@ -62,13 +62,13 @@ export class SearchPageComponent implements OnInit {
     self.accessPointService.getRequest(
       'search_plates',
       {
-        term: term,
-        env: env
+        searchString: term,
+        environment: env
       },
       {
         onSuccess: (res) => {
           self.items = res.map(item => self.platesService.createPlateEntity(item));
-          console.log(self.items);
+          // console.log(self.items);
         },
         onFail: (err) => console.log(err)
       });

@@ -2,6 +2,8 @@ const
   passport = require('passport'),
   PassportGoogleStrategy = require('passport-google-oauth2').Strategy,
   PassportFacebookStrategy = require('passport-facebook').Strategy,
+  bCrypt = require('bcrypt'),
+  Q = require('Q'),
   authEmails = {},
   authTokens = {};
 
@@ -20,14 +22,52 @@ module.exports.getAuthorizedUsers = () => {
   };
 };
 
+module.exports.getHashedPassword = (str) => {
+  let
+    deferred = Q.defer(),
+    saltLen = 10;
+
+  bCrypt.hash(str, saltLen, (err, hashedPassword) => {
+    if (err) deferred.reject(err);
+    else deferred.resolve(hashedPassword);
+  });
+
+  return deferred.promise;
+};
+
+module.exports.comparePasswords = (str, hash) => {
+  let deferred = Q.defer();
+
+  bCrypt.compare(str, hash, (err, res) => {
+    if (err) deferred.reject(err);
+    else deferred.resolve(res);
+  });
+
+  return deferred.promise;
+};
+
+module.exports.getLocalToken = () => {
+  let deferred = Q.defer();
+
+  bCrypt.genSalt(10, false, (err, token) => {
+    if (err) deferred.reject(err);
+    else deferred.resolve(token);
+  });
+
+  return deferred.promise;
+};
+
 function saveAuthToken (userData, token) {
   clearAuthToken(userData.email);
   authEmails[userData.email] = token;
   authTokens[token] = userData;
 }
 
-function clearAuthToken (email) {
-  let token = authEmails[email];
+function clearAuthToken (userEmail, userToken) {
+  let
+    email = userEmail || (authTokens[userToken] && authTokens[userToken].email),
+    token = userToken || authEmails[email];
+
   delete authEmails[email];
   delete authTokens[token];
 }

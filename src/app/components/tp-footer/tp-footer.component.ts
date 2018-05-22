@@ -98,7 +98,7 @@ export class TpFooterComponent implements OnInit {
     bannerObserver['prev'] = '';
     bannerObserver['refresh'] = timer(0, 10).subscribe(() => {
       bannerObserver['prev'] = bannerObserver['curr'];
-      bannerObserver['curr'] = (self.banner && (self.banner['icon'] + '_' + self.banner['text'])) || '';
+      bannerObserver['curr'] = (self.banner && (self.banner['icon'] + '_' + self.banner['html'])) || '';
       bannerObserver['prev'] !== bannerObserver['curr'] && self.refreshBanner();
     });
 
@@ -115,7 +115,7 @@ export class TpFooterComponent implements OnInit {
       self = this,
       banners = self.elements['banners'];
     banners.select('.tp-footer_bannerLabel')
-      .html((self.banner && self.banner.text) || '');
+      .html((self.banner && self.banner.html) || '');
     banners.select('.tp-footer_bannerIcon')
       .style('background-image', self.banner && self.banner['icon'] ? 'url(' + (self.banner['icon']) + ')' : 'none');
   }

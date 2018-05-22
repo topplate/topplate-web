@@ -260,7 +260,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     ];
 
-    self.accessPointService.getRequest('/get_banner', {}, {
+    self.accessPointService.getRequest('/get_banner', {
+      asHtml: 'true'
+    }, {
       onSuccess: banner => self.banner = banner,
       onFail: err => console.log(err)
     });

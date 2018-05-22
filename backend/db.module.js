@@ -43,14 +43,19 @@ module.exports.createUser = userData => {
     .then(user => {
       if (user) deferred.reject({ message: 'User with same email already registered', status: 409 });
       else {
-        let creationData = {};
+        let
+          creationData = {},
+          usePassword = initialData.provider === 'local';
+
         creationData.email = initialData.email;
         creationData.isRobot = initialData.isRobot;
         creationData[initialData.provider] = {
           name: initialData.name,
-          image: initialData.image,
-          id: initialData.id
+          image: initialData.image
         };
+
+        if (usePassword) creationData[initialData.provider].hashedPassword = initialData.password;
+        else creationData[initialData.provider].id = initialData.id;
 
         let newUser = new User(creationData);
 
@@ -152,14 +157,6 @@ module.exports.createPlate = (plateData, authorId) => {
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
-
-  function getFileExtension (contentType) {
-    return {
-      'image/png': 'png',
-      'image/gif': 'gif',
-      'image/jpeg': 'jpg'
-    }[contentType];
-  }
 };
 
 module.exports.updatePlate = (userId, plateId, fields) => {
@@ -402,6 +399,8 @@ module.exports.disconnect = () => methods.disconnect();
 
 module.exports.getModels = () => models;
 
+module.exports.getFileExtension = getFileExtension;
+
 function refreshMongoose () {
   mongoose.Promise = Promise;
   mongoose.set('debug', false);
@@ -449,10 +448,14 @@ function refreshUserSchema () {
       unique: true,
       required: true
     },
-    local: {
-      id: String,
+    customProfile: {
       image: String,
       name: String
+    },
+    local: {
+      image: String,
+      name: String,
+      hashedPassword: String
     },
     google: {
       id: String,
@@ -561,11 +564,19 @@ function refreshUserSchema () {
     user.lastLogged.token = user.currentToken;
     user.lastLogged.provider = provider;
 
-    if (!user[provider] || !user[provider].id) user[provider] = {
-      id: userData.id,
-      name: userData.name,
-      image: userData.image
-    };
+    if (provider === 'local') {
+      if (!user[provider]) user[provider] = {
+        name: userData.name,
+        image: userData.image,
+        hashedPassword: userData.hashedPassword
+      };
+    } else {
+      if (!user[provider] || !user[provider].id) user[provider] = {
+        id: userData.id,
+        name: userData.name,
+        image: userData.image
+      };
+    }
 
     user.save(err => {
       if (err) deferred.reject(err);
@@ -573,7 +584,8 @@ function refreshUserSchema () {
         _id: user._id,
         user: user[provider],
         token: user.currentToken,
-        likedPlates: plates
+        likedPlates: plates,
+        email: user.email
       });
     });
 
@@ -901,5 +913,13 @@ function refreshWinnerSchema () {
   });
 
   models.Winner = mongoose.model('Winner', winnerSchema);
+}
+
+function getFileExtension (contentType) {
+  return {
+    'image/png': 'png',
+    'image/gif': 'gif',
+    'image/jpeg': 'jpg'
+  }[contentType];
 }
 

@@ -65,8 +65,370 @@ function refreshRoutes () {
     let
       reqBody = req.body,
       email = reqBody.email,
-      password = reqBody.password;
+      // password = reqBody.password,
+      userModel = global.dbModule.getModel().User,
+      authModule = global.authModule;
 
+    userModel.findOne({email: email})
+      .then(user => {
+        if (!user) sendError(res, {message: 'wrong email or password!', status: 401});
+        else authModule.comparePasswords(reqBody.password, user.local.hashedPassword)
+          .then(checkResult => {
+            if (checkResult) {
+              user.login({
+                email: email,
+                name: reqBody.name,
+                image: reqBody.image || null,
+                token: authModule.getLocalToken(),
+                provider: 'local'
+              })
+                .then(loginRes => {
+                  authModule.saveAuthToken(user, token);
+                  res.send(loginRes);
+                })
+                .catch(err => sendError(res, err));
+            }
+            else sendError(res, {message: 'wrong email or password!', status: 401});
+          })
+          .catch(err => sendError(res, err));
+      })
+      .catch(err => sendError(res, err));
+  });
+
+  app.post('/create_local_user', (req, res) => {
+
+    let
+      contentType = req.headers['content-type'],
+      reqBody = req.body,
+      userModel = global.dbModule.getModels().User,
+      authModule = global.authModule,
+      isForm = /^multipart\/form-data/.test(contentType),
+      name, email, image, password, imageContentType, token;
+
+    prepareUserData()
+      .then(message => userModel.findOne({email: email})
+        .then(user => user ? updateExistingUser(user) : createNewUser())
+        .catch(err => sendError(res, err))
+      )
+      .catch(err => sendError(res, err));
+
+    function prepareUserData () {
+      let deferred = Q.defer();
+
+      if (isForm) getFormData(req)
+        .then(formData => {
+          name = formData.fields.name;
+          email = formData.fields.email;
+          password = formData.fields.password;
+          imageContentType = formData.fields.contentType;
+          image = formData.files.image.path;
+
+          deferred.resolve({message: 'user data prepared'});
+        })
+        .catch(err => deferred.reject(err));
+      else {
+        name = reqBody.name;
+        email = reqBody.email;
+        password = reqBody.password;
+        imageContentType = reqBody.contentType;
+        image = isBuffer(reqBody.image) ? reqBody.image : new Buffer(reqBody.image, 'binary');
+
+        deferred.resolve({message: 'user data prepared'});
+      }
+      return deferred.promise;
+    }
+
+    function saveImage () {
+      let
+        deferred = Q.defer(),
+        rootDir = './src/uploaded',
+        imageName = 'avatar' + (new Date()).getTime() + '.' + global.dbModule.getFileExtension(imageContentType);
+
+      if (!fs.existsSync(rootDir)) fs.mkdirSync(rootDir);
+
+      jimp.read(image)
+        .then(jimpFile => jimpFile.write(rootDir + '/' + imageName, (err) => {
+          if (err) deferred.reject(err);
+          else deferred.resolve(imageName);
+        }));
+
+      return deferred.promise;
+    }
+
+    function createNewUser () {
+      authModule.getHashedPassword(password)
+        .then(hashedPassword => authModule.getLocalToken()
+          .then(localToken => saveImage()
+            .then(imageSource => {
+              global.dbModule.createUser({
+                name: name,
+                email: email,
+                image: imageSource,
+                token: localToken,
+                password: hashedPassword,
+                provider: 'local'
+              })
+                .then(() => userModel.findOne({email: email})
+                  .then(newUser => newUser.login({
+                    name: name,
+                    email: email,
+                    image: imageSource,
+                    token: localToken,
+                    hashedPassword: hashedPassword,
+                    provider: 'local',
+                  })
+                    .then(loginRes => {
+                      authModule.saveAuthToken(newUser, localToken);
+                      res.send(loginRes);
+                    })
+                    .catch(err => sendError(res, err))
+                  )
+                  .catch(err => sendError(res,err))
+                )
+                .catch(err => sendError(res,err))
+            })
+            .catch(err => sendError(res,err))
+          )
+          .catch(err => sendError(res,err))
+        )
+        .catch(err => sendError(res,err));
+    }
+
+    function updateExistingUser (user) {
+
+      if (user.local && user.local.hashedPassword) sendError(res, {
+        message: 'User with same email already registered',
+        status: 409
+      });
+
+      else authModule.getHashedPassword(password)
+        .then(hashedPassword => authModule.getLocalToken()
+          .then(localToken => saveImage()
+            .then(imageSource => {
+              user['local'] = user.local || {};
+              user.local.name = name;
+              user.local.image = imageSource;
+              user.local.hashedPassword = hashedPassword;
+
+              user.save(err => {
+                if (err) sendError(res, err);
+                else user.login({
+                  name: name,
+                  email: email,
+                  token: localToken,
+                  hashedPassword: hashedPassword,
+                  provider: 'local',
+                })
+                  .then(loginRes => {
+                    authModule.saveAuthToken(user, localToken);
+                    res.send(loginRes);
+                  })
+                  .catch(err => sendError(res, err));
+              });
+            })
+            .catch(err => sendError(err))
+          )
+          .catch(err => sendError(res, err))
+        )
+        .catch(err => sendError(res, err));
+    }
+
+    // function getImage () {}
+
+    // if ()
+
+
+
+    // if (isForm) getFormData(req)
+    //   .then(formData => {})
+    //   .catch(err => sendError(res, err));
+    // else {
+    //   let
+    //     reqBody = req.body,
+    //     name = reqBody.name,
+    //     email = reqBody.email,
+    //     image = reqBody.image,
+    //     password = reqBody.password,
+    //     imageContentType = reqBody.contentType,
+    //     userModel = global.dbModule.getModel().User,
+    //     authModule = global.authModule;
+    //
+    //   userModel.findOne({email: email})
+    //     .then(user => {
+    //       if (user) {
+    //         if (user.local && user.local.hashedPassword) sendError(res, {
+    //           message: 'User with same email already registered', status: 409
+    //         });
+    //         else authModule.getHashedPassword(password)
+    //           .then(hashedPassword => {
+    //             let
+    //               rootDir = './src/uploaded/',
+    //               imageName = 'avatar' + (new Date()).getTime() + '.' + global.dbModule.getFileExtension(imageContentType);
+    //
+    //             jimp.read(isBuffer(image) ? image : new Buffer(image, 'binary'))
+    //               .then(jimpFile => jimpFile.write(rootDir + imageName, function (err) {
+    //                 if (err) sendError(res, err);
+    //                 else {
+    //                   user['local'] = user.local || {};
+    //                   user.local.name = name;
+    //                   user.local.hashedPassword = hashedPassword;
+    //                   user.local.image = imageName;
+    //
+    //                   user.save(err => {
+    //                     if (err) sendError(res, err);
+    //                     else authModule.getLocalToken()
+    //                       .then(token => user.login({
+    //                           email: email,
+    //                           name: name,
+    //                           image: imageName,
+    //                           token: token,
+    //                           provider: 'local'
+    //                         })
+    //                         .then(loginRes => {
+    //                           authModule.saveAuthToken(user, token);
+    //                           res.send(loginRes);
+    //                         })
+    //                         .catch(err => sendError(res, err))
+    //                       )
+    //                       .catch(err => sendError(res, err));
+    //                   });
+    //                 }
+    //               }))
+    //               .catch(err => sendError(res, err));
+    //           })
+    //           .catch(err => sendError(res, err));
+    //       }
+    //       else authModule.getHashedPassword(password)
+    //         .then(hashedPassword => authModule.getLocalToken()
+    //           .then(token => global.dbModule.createUser({
+    //               email: email,
+    //               name: name,
+    //               image: imageName,
+    //               token: token,
+    //               provider: 'local'
+    //           })
+    //             .then(() => userModel.findOne({email: email})
+    //               .then(newUser => {})
+    //               .catch(err => sendError(res, err))
+    //             )
+    //             .catch(err => sendError(res, err))
+    //           )
+    //           .catch(err => sendError(res, err))
+    //         )
+    //         .catch(err => sendError(res, err));
+    //     })
+    //     .catch(err => sendError(res, err));
+    //
+    //   // userModel.findOne({email : email})
+    //   //   .then(user => {
+    //   //     if (user) {
+    //   //       if (user.local && user.local.hashedPassword) sendError(res, {
+    //   //         message: 'User with same email already registered', status: 409
+    //   //       });
+    //   //       else authModule.getHashedPassword(password)
+    //   //         .then(hashedPassword => {
+    //   //           let
+    //   //             rootDir = './src/uploaded/',
+    //   //             imageName = 'avatar' + (new Date()).getTime() + '.' + global.dbModule.getFileExtension(imageContentType);
+    //   //
+    //   //           jimp.read(isBuffer(image) ? image : new Buffer(image, 'binary'))
+    //   //             .then(jimpFile => jimpFile.write(rootDir + imageName), function (err) {
+    //   //               if (err) sendError(res, err);
+    //   //               else {
+    //   //                 user['local'] = user.local || {};
+    //   //                 user.local.name = name;
+    //   //                 user.local.hashedPassword = hashedPassword;
+    //   //                 user.local.image = imageName;
+    //   //
+    //   //                 user.save(err => {
+    //   //                   if (err) sendError(res, err);
+    //   //                   else authModule.getLocalToken()
+    //   //                     .then(token => user.login({
+    //   //                       email: email,
+    //   //                       name: name,
+    //   //                       image: imageName,
+    //   //                       token: token,
+    //   //                       provider: 'local'
+    //   //                     })
+    //   //                       .then(loginRes => {
+    //   //                         authModule.saveAuthToken(user, token);
+    //   //                         res.send(loginRes);
+    //   //                       })
+    //   //                       .catch(err => sendError(res, err))
+    //   //                     )
+    //   //                     .catch(err => sendError(res, err));
+    //   //                 });
+    //   //               }
+    //   //             })
+    //   //             .catch(err => sendError(res, err));
+    //   //         })
+    //   //         .catch(err => sendError(res, err));
+    //   //     } else authModule.getHashedPassword(password)
+    //   //       .then(hashedPassword => {
+    //   //
+    //   //         let
+    //   //           rootDir = './src/uploaded/',
+    //   //           imageName = 'avatar' + (new Date()).getTime() + '.' + global.dbModule.getFileExtension(imageContentType);
+    //   //
+    //   //         jimp.read(isBuffer(image) ? image : new Buffer(image, 'binary'))
+    //   //           .then(jimpFile => jimpFile.write(rootDir + imageName), function (err) {
+    //   //             if (err) sendError(res, err);
+    //   //             else authModule.getLocalToken()
+    //   //               .then(token => {
+    //   //                 global.dbModule.createUser({
+    //   //                   email: email,
+    //   //                   name: name,
+    //   //                   image: imageName,
+    //   //                   token: token,
+    //   //                   password: hashedPassword,
+    //   //                   provider: 'local'
+    //   //                 })
+    //   //                   .then(() => {})
+    //   //                   .catch(err => sendError(res, err));
+    //   //               })
+    //   //               .catch(err => sendError(res, err));
+    //   //
+    //   //               // {
+    //   //               // global.dbModule.createUser();
+    //   //               //
+    //   //               // let newUser = new userModel({
+    //   //               //   email: email,
+    //   //               //   name: name,
+    //   //               //   image: imageName,
+    //   //               //   token: token,
+    //   //               //   provider: 'local'
+    //   //               // });
+    //   //
+    //   //               // user.local.name = name;
+    //   //               // user.local.hashedPassword = hashedPassword;
+    //   //               // user.local.image = imageName;
+    //   //               //
+    //   //               // user.save(err => {
+    //   //               //   if (err) sendError(res, err);
+    //   //               //   else authModule.getLocalToken()
+    //   //               //     .then(token => user.login({
+    //   //               //         email: email,
+    //   //               //         name: name,
+    //   //               //         image: imageName,
+    //   //               //         token: token,
+    //   //               //         provider: 'local'
+    //   //               //       })
+    //   //               //         .then(loginRes => {
+    //   //               //           authModule.saveAuthToken(user, token);
+    //   //               //           res.send(loginRes);
+    //   //               //         })
+    //   //               //         .catch(err => sendError(res, err))
+    //   //               //     )
+    //   //               //     .catch(err => sendError(res, err));
+    //   //               // });
+    //   //             })
+    //   //           })
+    //   //           .catch(err => sendError(res, err));
+    //   //       })
+    //   //     .catch(err => sendError(res, err));
+    //   //   })
+    //   //   .catch(err => sendError(res, err));
+    // }
 
 
 
@@ -89,14 +451,10 @@ function refreshRoutes () {
   });
 
   app.post('/logout', (req, res) => {
+    let authToken = req.headers['access-token'];
 
-    let
-      authToken = req.headers['access-token'],
-      user = global.authModule.getAuthorizedUser(authToken);
-
-    global.authModule.clearAuthToken(user && user.email, authToken);
+    global.authModule.clearAuthToken(null, authToken);
     console.log('logged out');
-
     res.send({message: 'logged out'});
   });
 
@@ -134,14 +492,19 @@ function refreshRoutes () {
   });
 
   app.get('/get_banner', (req, res) => {
-    res.send({
-      icon: 'assets/icons/prize-banner.png',
-      text: `
+    let
+      asHtml = req.query['asHtml'] === 'true',
+      resp = {icon: 'assets/icons/prize-banner.png',};
+
+    if (asHtml) resp['html'] = `
         <span>this week's prize is </span>
         <b style="color: #f6d44c">$100</b>
         <span>amazon gift card!</span>
-      `
-    });
+      `;
+
+    else resp['text'] = `this week's prize is <%(use_color:#f6d44c)$100%> amazon gift card!`;
+
+    res.send(resp);
   });
 
   app.get('/get_charity_choice_banners', (req, res) => {
@@ -278,9 +641,9 @@ function refreshRoutes () {
 
     let
       query = req.query,
-      term = (typeof query.term === 'string' && query.term.length && query.term) || null;
+      term = (typeof query.searchString === 'string' && query.searchString.length && query.searchString) || null;
 
-    global.dbModule.searchPlates('name', term, query.env)
+    global.dbModule.searchPlates('name', term, query.environment)
       .then(searchRes => {res.send(searchRes)})
       .catch(err => sendError(res, err));
   });
@@ -374,5 +737,11 @@ function getFormData (req) {
   });
 
   return deferred.promise;
+}
+
+function saveUserAvatar (image) {
+  let deferred = Q.defer();
+
+
 }
 

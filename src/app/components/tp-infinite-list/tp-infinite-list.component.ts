@@ -129,7 +129,7 @@ export class TpInfiniteListComponent implements OnInit, OnDestroy {
           outputLen === inputLen && resolve('done');
         };
         newImage.onerror = (err) => {
-          console.log(err);
+          resolve('bad image');
         };
       });
     });
