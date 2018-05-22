@@ -3,7 +3,7 @@ const
   PassportGoogleStrategy = require('passport-google-oauth2').Strategy,
   PassportFacebookStrategy = require('passport-facebook').Strategy,
   bCrypt = require('bcrypt'),
-  Q = require('Q'),
+  Q = require('q'),
   authEmails = {},
   authTokens = {};
 
