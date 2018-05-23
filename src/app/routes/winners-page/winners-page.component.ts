@@ -5,6 +5,7 @@ import { ConstantsService } from '../../services/constants.service';
 import { EnvironmentService } from '../../services/environment.service';
 import { AccessPointService } from '../../services/access-point.service';
 import { SharedService } from '../../services/shared.service';
+import { PlatesService } from '../../services/plates.service';
 
 const
   CONSTANTS = ConstantsService.getConstants(),
@@ -23,7 +24,8 @@ export class WinnersPageComponent implements OnInit, OnDestroy {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private environmentService: EnvironmentService,
-    private accessPointService: AccessPointService
+    private accessPointService: AccessPointService,
+    private platesService: PlatesService
   ) {}
 
   public winners: Object[] = [];
@@ -35,8 +37,9 @@ export class WinnersPageComponent implements OnInit, OnDestroy {
   private refreshItems (data) {
     let self = this;
     self.winners = (data || []).map(plate => {
-      plate['winner'] = 'week';
-      return plate;
+      let _plate = self.platesService.createPlateEntity(plate);
+      _plate['winner'] = 'week';
+      return _plate;
     });
   }
 

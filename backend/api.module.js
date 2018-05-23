@@ -78,8 +78,6 @@ function refreshRoutes () {
               authModule.getLocalToken()
                 .then(localToken => user.login({
                   email: email,
-                  name: reqBody.name,
-                  image: reqBody.image || null,
                   token: localToken,
                   provider: 'local'
                 })
@@ -106,7 +104,7 @@ function refreshRoutes () {
       userModel = global.dbModule.getModels().User,
       authModule = global.authModule,
       isForm = /^multipart\/form-data/.test(contentType),
-      name, email, image, password, imageContentType, token;
+      firstName, lastName, email, image, password, imageContentType, token;
 
     prepareUserData()
       .then(message => userModel.findOne({email: email})
@@ -120,7 +118,8 @@ function refreshRoutes () {
 
       if (isForm) getFormData(req)
         .then(formData => {
-          name = formData.fields.name;
+          firstName = formData.fields.firstName;
+          lastName = formData.fields.lastName;
           email = formData.fields.email;
           password = formData.fields.password;
           imageContentType = formData.fields.contentType;
@@ -130,7 +129,8 @@ function refreshRoutes () {
         })
         .catch(err => deferred.reject(err));
       else {
-        name = reqBody.name;
+        firstName = reqBody.firstName;
+        lastName = reqBody.lastName;
         email = reqBody.email;
         password = reqBody.password;
         imageContentType = reqBody.contentType;
@@ -209,14 +209,16 @@ function refreshRoutes () {
           .then(localToken => saveImage()
             .then(imageSource => {
               user['local'] = user.local || {};
-              user.local.name = name;
+              user.local.firstName = firstName;
+              user.local.lastName = lastName;
               user.local.image = imageSource;
               user.local.hashedPassword = hashedPassword;
 
               user.save(err => {
                 if (err) sendError(res, err);
                 else user.login({
-                  name: name,
+                  firstName: firstName,
+                  lastName: lastName,
                   email: email,
                   token: localToken,
                   hashedPassword: hashedPassword,
@@ -235,206 +237,6 @@ function refreshRoutes () {
         )
         .catch(err => sendError(res, err));
     }
-
-    // function getImage () {}
-
-    // if ()
-
-
-
-    // if (isForm) getFormData(req)
-    //   .then(formData => {})
-    //   .catch(err => sendError(res, err));
-    // else {
-    //   let
-    //     reqBody = req.body,
-    //     name = reqBody.name,
-    //     email = reqBody.email,
-    //     image = reqBody.image,
-    //     password = reqBody.password,
-    //     imageContentType = reqBody.contentType,
-    //     userModel = global.dbModule.getModel().User,
-    //     authModule = global.authModule;
-    //
-    //   userModel.findOne({email: email})
-    //     .then(user => {
-    //       if (user) {
-    //         if (user.local && user.local.hashedPassword) sendError(res, {
-    //           message: 'User with same email already registered', status: 409
-    //         });
-    //         else authModule.getHashedPassword(password)
-    //           .then(hashedPassword => {
-    //             let
-    //               rootDir = './src/uploaded/',
-    //               imageName = 'avatar' + (new Date()).getTime() + '.' + global.dbModule.getFileExtension(imageContentType);
-    //
-    //             jimp.read(isBuffer(image) ? image : new Buffer(image, 'binary'))
-    //               .then(jimpFile => jimpFile.write(rootDir + imageName, function (err) {
-    //                 if (err) sendError(res, err);
-    //                 else {
-    //                   user['local'] = user.local || {};
-    //                   user.local.name = name;
-    //                   user.local.hashedPassword = hashedPassword;
-    //                   user.local.image = imageName;
-    //
-    //                   user.save(err => {
-    //                     if (err) sendError(res, err);
-    //                     else authModule.getLocalToken()
-    //                       .then(token => user.login({
-    //                           email: email,
-    //                           name: name,
-    //                           image: imageName,
-    //                           token: token,
-    //                           provider: 'local'
-    //                         })
-    //                         .then(loginRes => {
-    //                           authModule.saveAuthToken(user, token);
-    //                           res.send(loginRes);
-    //                         })
-    //                         .catch(err => sendError(res, err))
-    //                       )
-    //                       .catch(err => sendError(res, err));
-    //                   });
-    //                 }
-    //               }))
-    //               .catch(err => sendError(res, err));
-    //           })
-    //           .catch(err => sendError(res, err));
-    //       }
-    //       else authModule.getHashedPassword(password)
-    //         .then(hashedPassword => authModule.getLocalToken()
-    //           .then(token => global.dbModule.createUser({
-    //               email: email,
-    //               name: name,
-    //               image: imageName,
-    //               token: token,
-    //               provider: 'local'
-    //           })
-    //             .then(() => userModel.findOne({email: email})
-    //               .then(newUser => {})
-    //               .catch(err => sendError(res, err))
-    //             )
-    //             .catch(err => sendError(res, err))
-    //           )
-    //           .catch(err => sendError(res, err))
-    //         )
-    //         .catch(err => sendError(res, err));
-    //     })
-    //     .catch(err => sendError(res, err));
-    //
-    //   // userModel.findOne({email : email})
-    //   //   .then(user => {
-    //   //     if (user) {
-    //   //       if (user.local && user.local.hashedPassword) sendError(res, {
-    //   //         message: 'User with same email already registered', status: 409
-    //   //       });
-    //   //       else authModule.getHashedPassword(password)
-    //   //         .then(hashedPassword => {
-    //   //           let
-    //   //             rootDir = './src/uploaded/',
-    //   //             imageName = 'avatar' + (new Date()).getTime() + '.' + global.dbModule.getFileExtension(imageContentType);
-    //   //
-    //   //           jimp.read(isBuffer(image) ? image : new Buffer(image, 'binary'))
-    //   //             .then(jimpFile => jimpFile.write(rootDir + imageName), function (err) {
-    //   //               if (err) sendError(res, err);
-    //   //               else {
-    //   //                 user['local'] = user.local || {};
-    //   //                 user.local.name = name;
-    //   //                 user.local.hashedPassword = hashedPassword;
-    //   //                 user.local.image = imageName;
-    //   //
-    //   //                 user.save(err => {
-    //   //                   if (err) sendError(res, err);
-    //   //                   else authModule.getLocalToken()
-    //   //                     .then(token => user.login({
-    //   //                       email: email,
-    //   //                       name: name,
-    //   //                       image: imageName,
-    //   //                       token: token,
-    //   //                       provider: 'local'
-    //   //                     })
-    //   //                       .then(loginRes => {
-    //   //                         authModule.saveAuthToken(user, token);
-    //   //                         res.send(loginRes);
-    //   //                       })
-    //   //                       .catch(err => sendError(res, err))
-    //   //                     )
-    //   //                     .catch(err => sendError(res, err));
-    //   //                 });
-    //   //               }
-    //   //             })
-    //   //             .catch(err => sendError(res, err));
-    //   //         })
-    //   //         .catch(err => sendError(res, err));
-    //   //     } else authModule.getHashedPassword(password)
-    //   //       .then(hashedPassword => {
-    //   //
-    //   //         let
-    //   //           rootDir = './src/uploaded/',
-    //   //           imageName = 'avatar' + (new Date()).getTime() + '.' + global.dbModule.getFileExtension(imageContentType);
-    //   //
-    //   //         jimp.read(isBuffer(image) ? image : new Buffer(image, 'binary'))
-    //   //           .then(jimpFile => jimpFile.write(rootDir + imageName), function (err) {
-    //   //             if (err) sendError(res, err);
-    //   //             else authModule.getLocalToken()
-    //   //               .then(token => {
-    //   //                 global.dbModule.createUser({
-    //   //                   email: email,
-    //   //                   name: name,
-    //   //                   image: imageName,
-    //   //                   token: token,
-    //   //                   password: hashedPassword,
-    //   //                   provider: 'local'
-    //   //                 })
-    //   //                   .then(() => {})
-    //   //                   .catch(err => sendError(res, err));
-    //   //               })
-    //   //               .catch(err => sendError(res, err));
-    //   //
-    //   //               // {
-    //   //               // global.dbModule.createUser();
-    //   //               //
-    //   //               // let newUser = new userModel({
-    //   //               //   email: email,
-    //   //               //   name: name,
-    //   //               //   image: imageName,
-    //   //               //   token: token,
-    //   //               //   provider: 'local'
-    //   //               // });
-    //   //
-    //   //               // user.local.name = name;
-    //   //               // user.local.hashedPassword = hashedPassword;
-    //   //               // user.local.image = imageName;
-    //   //               //
-    //   //               // user.save(err => {
-    //   //               //   if (err) sendError(res, err);
-    //   //               //   else authModule.getLocalToken()
-    //   //               //     .then(token => user.login({
-    //   //               //         email: email,
-    //   //               //         name: name,
-    //   //               //         image: imageName,
-    //   //               //         token: token,
-    //   //               //         provider: 'local'
-    //   //               //       })
-    //   //               //         .then(loginRes => {
-    //   //               //           authModule.saveAuthToken(user, token);
-    //   //               //           res.send(loginRes);
-    //   //               //         })
-    //   //               //         .catch(err => sendError(res, err))
-    //   //               //     )
-    //   //               //     .catch(err => sendError(res, err));
-    //   //               // });
-    //   //             })
-    //   //           })
-    //   //           .catch(err => sendError(res, err));
-    //   //       })
-    //   //     .catch(err => sendError(res, err));
-    //   //   })
-    //   //   .catch(err => sendError(res, err));
-    // }
-
-
-
   });
 
   app.post('/login_google', (req, res) => signIn(req, res, 'google'));
@@ -648,6 +450,17 @@ function refreshRoutes () {
 
     global.dbModule.searchPlates('name', term, query.environment)
       .then(searchRes => {res.send(searchRes)})
+      .catch(err => sendError(res, err));
+  });
+
+  app.get('/get_liked_plates', (req, res) => {
+    let
+      authToken = req.headers['access-token'],
+      user = global.authModule.getAuthorizedUser(authToken);
+
+    if (!user) res.send({});
+    else global.dbModule.getLikedPlates(user._id)
+      .then(plates => res.send(plates))
       .catch(err => sendError(res, err));
   });
 

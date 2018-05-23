@@ -21,6 +21,8 @@ export class PlatesService {
     private environmentService: EnvironmentService
   ) {}
 
+  private platesList: PlateModel[] = [];
+
   public createPlateEntity (initialData, allowedMethods = {
     'onLinkClick': true,
     'onProfileLinkClick': true,
@@ -47,14 +49,41 @@ export class PlatesService {
           {
             onSuccess: res => {
               newPlate.likes = res.numberOfLikes === null ? newPlate.likes : res.numberOfLikes;
-              SharedService.setLikedPlates(res.likedPlates);
+              newPlate.liked = true;
+              self.refreshLikedPlates();
             },
-            onFail: err => console.log(err)
+            onFail: err => SharedService.getSharedComponent('growl').addItem(err)
           }
         );
       });
 
     return newPlate;
+  }
+
+  public refreshPlatesList (list) {
+    let self = this;
+
+    self.platesList.length = 0;
+
+    (Array.isArray(list) ? list : [list]).forEach(item => {
+      self.platesList.push(item instanceof PlateModel ? item : self.createPlateEntity(item));
+    });
+
+    self.refreshLikedPlates();
+  }
+
+  public refreshLikedPlates () {
+    let
+      self = this,
+      user = self.authorizationService.getCurrentUser();
+
+    if (!user) self.platesList.forEach(plate => plate.liked = false);
+    else self.accessPointService.getRequest('/get_liked_plates', {}, {
+      onSuccess: likedPlates => {
+        self.platesList.forEach(plate => plate.liked = likedPlates[plate._id] || false);
+      },
+      onFail: err => SharedService.getSharedComponent('growl').addItem(err)
+    });
   }
 }
 

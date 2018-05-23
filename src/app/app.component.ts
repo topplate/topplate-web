@@ -6,6 +6,7 @@ import { ConstantsService } from './services/constants.service';
 import { AuthorizationService } from './services/authorization.service';
 import { AccessPointService } from './services/access-point.service';
 import { EnvironmentService } from './services/environment.service';
+import { PlatesService } from './services/plates.service';
 import { SharedService } from './services/shared.service';
 import { AuthService, FacebookLoginProvider, GoogleLoginProvider } from 'angular5-social-login';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -31,6 +32,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     private accessPointService: AccessPointService,
     private authorizationService: AuthorizationService,
     private socialAuthService: AuthService,
+    private platesService: PlatesService,
     private reference: ElementRef
   ) {}
 
@@ -73,6 +75,25 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
     plateUploadModal.isReadyToSubmit = plateUploadForm.valid && isUploaded;
 
+  }
+
+  private getUploadPlateForm () {
+    let
+      self = this,
+      selectedEnvironment = self.environmentService.getCurrent(),
+      form = new FormGroup({
+        name: new FormControl('', Validators.required),
+        address: new FormControl('', Validators.required),
+        image: new FormControl('', Validators.required)
+      });
+
+    if (selectedEnvironment === CONSTANTS.ENVIRONMENTS.HOMEMADE) {
+      form.addControl('recipe', new FormControl());
+    } else {
+      form.addControl('restaurantName', new FormControl());
+    }
+
+    return form;
   }
 
   public selectEnvironment (clickedEnv) {
@@ -139,6 +160,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     self.plateUploadModal = {
       state: new BehaviorSubject(false),
       isReadyToSubmit: false,
+      // plateUploadForm: self.getUploadPlateForm(),
+
       plateUploadForm: new FormGroup({
         name: new FormControl('', Validators.required),
         email: new FormControl('', [
@@ -275,20 +298,20 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
           self.accessPointService.postRequest('login_' + userData.provider, userData, {
             onSuccess: res => {
               self.authorizationService.getCurrentUser()['_id'] = res._id;
-              SharedService.setLikedPlates(res.likedPlates);
+              self.platesService.refreshLikedPlates();
             },
-            onFail: err => console.log(err)
+            onFail: err => SharedService.getSharedComponent('growl').addItem(err)
           });
         } else {
           SharedService.clearToken();
           self.authorizationService.setCurrentUser(null);
           self.accessPointService.postRequest('logout', null, {
-            onSuccess: res => SharedService.clearLikedPlates(),
-            onFail: err => console.log(err)
+            onSuccess: res => self.platesService.refreshLikedPlates(),
+            onFail: err => SharedService.getSharedComponent('growl').addItem(err)
           });
         }
       },
-      err => console.log(err)
+      err => SharedService.getSharedComponent('growl').addItem(err)
     );
 
     plateUploadForm = self.plateUploadModal.plateUploadForm;
@@ -296,7 +319,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     plateUploadForm.valueChanges
       .subscribe(
         value => self.refreshUploadModalState(),
-        err => console.log(err)
+        err => SharedService.getSharedComponent('growl').addItem(err)
       );
 
     SharedService.setSharedComponent('signInModal', {

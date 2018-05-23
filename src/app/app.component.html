@@ -19,15 +19,6 @@
     <div class="welcome-banner"></div>
     <p class="top-plate_signInModal_environmentSelectorLabel">Choose your environment</p>
 
-    <div class="top-plate_signInModal_environmentSelectorButtons">
-      <a class="top-plate_signInModal_environmentSelectorButton"
-         *ngFor="let env of environments"
-         [ngClass]="{'isSelected': env.isSelected}"
-         (click)="selectEnvironment(env)">
-        <span>{{env.label}}</span>
-      </a>
-    </div>
-
     <div class="top-plate_signInModal_logInMethods">
       <div class="top-plate_signInModal_logInMethod btn-{{method.className}}"
          *ngFor="let method of logInMethods"

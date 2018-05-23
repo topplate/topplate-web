@@ -71,7 +71,8 @@ export class PlatesPageComponent implements OnInit, OnDestroy {
         onSuccess: res => {
           let newPlates = self.refreshPlates(res);
           infiniteScrollAPI.setFinalized(newPlates.length < lim);
-          infiniteScrollAPI.addItems(newPlates);
+          infiniteScrollAPI.addItems(newPlates)
+            .then(platesInList => self.platesService.refreshPlatesList(platesInList));
         },
         onFail: err => SharedService.getSharedComponent('growl').addItem(err)
       }
@@ -101,31 +102,11 @@ export class PlatesPageComponent implements OnInit, OnDestroy {
         self.loadPlates();
       }
     };
-
-    self.changesObserver = {
-      timer: null,
-      curr: '',
-      prev: '',
-      refreshHashes: () => {
-        let
-          likedPlates = SharedService.getLikedPlates(),
-          hash = Object.keys(likedPlates).map(key => key).join('_'),
-          observer = self.changesObserver,
-          items = self.plates || [];
-
-        observer.prev = observer.curr;
-        observer.curr = hash;
-
-        if (observer.curr !== observer.prev) items.forEach(plate => plate.liked = !!likedPlates[plate._id]);
-      }
-    };
-
-    self.changesObserver.timer = d3.timer(() => self.changesObserver.refreshHashes(), 10);
   }
 
   ngOnDestroy () {
     let self = this;
-    self.changesObserver.timer.stop();
+    // self.changesObserver.timer.stop();
     self.environmentWatcher.unsubscribe();
   }
 }

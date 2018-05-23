@@ -160,21 +160,25 @@ export class TpInfiniteListComponent implements OnInit, OnDestroy {
 
     typeof events['onReady'] === 'function' && events['onReady']({
       addItems: items => {
-
         self.endOfListReachedEventEmitted = true;
         let images = [];
-        items.forEach(item => {
-          item['isNewOne'] = true;
-          images = images.concat(item.images);
+        return new Promise((resolve, reject) => {
+          items.forEach(item => {
+            item['isNewOne'] = true;
+            images = images.concat(item.images);
+          });
+          self.loadImages(images)
+            .then(res => {
+              self.list = self.list || [];
+              self.list = self.list.concat(items);
+              self.endOfListReachedEventEmitted = false;
+              setTimeout(() => {
+                self.animateAppearance();
+                resolve(self.list);
+              }, 10);
+            })
+            .catch(err => console.log(err));
         });
-        self.loadImages(images)
-          .then(res => {
-            self.list = self.list || [];
-            self.list = self.list.concat(items);
-            self.endOfListReachedEventEmitted = false;
-            setTimeout(() => self.animateAppearance(), 10);
-          })
-          .catch(err => console.log(err));
       },
       getRequiredNumberOfItems: () => {
         let
@@ -191,6 +195,7 @@ export class TpInfiniteListComponent implements OnInit, OnDestroy {
         self.list.length = 0;
         self.endOfListReachedEventEmitted = false;
       },
+      getList: () => self.list,
       getCurrentIndex: () => self.list.length,
       toggleOvelray: state => self.elements['overlay'].classed('isVisible', !!state),
       setFinalized: state => self.isFinalized = !!state,

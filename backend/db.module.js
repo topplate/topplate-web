@@ -49,13 +49,24 @@ module.exports.createUser = userData => {
 
         creationData.email = initialData.email;
         creationData.isRobot = initialData.isRobot;
+
         creationData[initialData.provider] = {
           name: initialData.name,
           image: initialData.image
         };
 
-        if (usePassword) creationData[initialData.provider].hashedPassword = initialData.password;
-        else creationData[initialData.provider].id = initialData.id;
+        if (usePassword) creationData[initialData.provider] = {
+          firstName: initialData.firstName,
+          lastName: initialData.lastName,
+          image: initialData.image,
+          hashedPassword: initialData.password
+        };
+
+        else creationData[initialData.provider] = {
+          name: initialData.name,
+          image: initialData.image,
+          id:  initialData.id
+        };
 
         let newUser = new User(creationData);
 
@@ -271,6 +282,17 @@ module.exports.getPlate = (id, lim = 3) => {
     return deferred.promise;
 };
 
+module.exports.getLikedPlates = (id) => {
+
+  let deferred = Q.defer();
+
+  models.User.findOne({_id: id})
+    .then(user => deferred.resolve(user.getLikedPlates()))
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+};
+
 module.exports.searchPlates = (property = 'name', string = null, env, size = 'medium') => {
 
   let
@@ -454,7 +476,8 @@ function refreshUserSchema () {
     },
     local: {
       image: String,
-      name: String,
+      lastName: String,
+      firstName: String,
       hashedPassword: String
     },
     google: {
@@ -637,7 +660,15 @@ function refreshUserSchema () {
       user = this,
       plates = {},
       lastLoggedProvider = (user.lastLogged && user.lastLogged.provider) || 'google',
-      userData = user[lastLoggedProvider];
+      providerData = user[lastLoggedProvider],
+      userData = {};
+
+    if (lastLoggedProvider === 'local') {
+      userData['name'] = providerData.firstName + ' ' + providerData.lastName;
+      userData['firstName'] = providerData.firstName;
+      userData['lastName'] = providerData.lastName;
+      userData['image'] = providerData.image;
+    } else userData = providerData;
 
     user.likedPlates.forEach(key => plates[key] = true);
 
@@ -646,6 +677,16 @@ function refreshUserSchema () {
       user: userData,
       likedPlates: plates
     };
+  };
+
+  userSchema.methods.getLikedPlates = function () {
+    let
+      user = this,
+      plates = {};
+
+    user.likedPlates.forEach(key => plates[key] = true);
+
+    return plates;
   };
 
   models.User = mongoose.model('User', userSchema);
