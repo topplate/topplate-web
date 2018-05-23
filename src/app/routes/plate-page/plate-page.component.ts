@@ -54,31 +54,11 @@ export class PlatePageComponent implements OnInit, OnDestroy {
       showRecipeBanner: true
     };
 
-    self.changesObserver = {
-      timer: null,
-      curr: '',
-      prev: '',
-      refreshHashes: () => {
-        let
-          likedPlates = SharedService.getLikedPlates(),
-          hash = Object.keys(likedPlates).map(key => key).join('_'),
-          observer = self.changesObserver;
-
-        observer.prev = observer.curr;
-        observer.curr = hash;
-
-        if (observer.curr !== observer.prev) {
-          self.selectedPlate.liked = !!likedPlates[self.selectedPlate._id];
-          self.relatedPlates.forEach(plate => plate.liked = !!likedPlates[plate._id]);
-        }
-      }
-    };
-
-    self.changesObserver.timer = d3.timer(() => self.changesObserver.refreshHashes(), 500);
+    self.platesService.refreshPlatesList([self.selectedPlate].concat(self.relatedPlates));
   }
 
   ngOnDestroy () {
-    this.changesObserver.timer.stop();
+
   }
 
 }
