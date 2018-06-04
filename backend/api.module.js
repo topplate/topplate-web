@@ -385,27 +385,45 @@ function refreshRoutes () {
   );
 
   app.get('/get_plate', (req, res) => {
-    let
-      query = req.query,
-      dbModule = global.dbModule;
+    checkAuthorization(req, true)
+      .then(user => getPlate(user.getLikedPlates()))
+      .catch(err => err.status === 401 ? getPlate() : sendError(res, err));
 
-    dbModule.getPlate(query.id, query.lim)
-      .then(dbResponse => res.send(dbResponse))
-      .catch(err => sendError(res, err));
+    function getPlate (likedPlates = {}) {
+      let
+        query = req.query,
+        dbModule = global.dbModule;
+
+      dbModule.getPlate(query.id, query.lim)
+        .then(plate => {
+          plate.liked = likedPlates[plate._id];
+          plate.relatedPlates.forEach(relatedPlate => relatedPlate['liked'] = likedPlates[plate._id]);
+          res.send(plate);
+        })
+        .catch(err => sendError(res, err));
+    }
   });
 
   app.get('/get_plates', (req, res) => {
-    let
-      query = req.query,
-      dbModule = global.dbModule,
-      env = query.environment || 'restaurant',
-      lastId = query.lastId,
-      skip = parseInt(query.skip),
-      lim = parseInt(query.lim);
+    checkAuthorization(req, true)
+      .then(user => getPlates(user.getLikedPlates()))
+      .catch(err => err.status === 401 ? getPlates() : sendError(res, err));
 
-    dbModule.getPlates(env, lastId, isNaN(lim) ? 11 : lim, query.size)
-      .then(plates => res.send(plates))
-      .catch(err => sendError(res, err));
+    function getPlates (likedPlates = {}) {
+      let
+        query = req.query,
+        dbModule = global.dbModule,
+        env = query.environment || 'restaurant',
+        lastId = query.lastId,
+        lim = +query.lim;
+
+      dbModule.getPlates(env, lastId, isNaN(lim) ? 11 : lim, query.size)
+        .then(plates => {
+          plates.forEach(plate => plate.liked = likedPlates[plate._id]);
+          res.send(plates);
+        })
+        .catch(err => sendError(res, err));
+    }
   });
 
   app.post('/like_plate', (req, res) => checkAuthorization(req)
@@ -416,17 +434,25 @@ function refreshRoutes () {
   );
 
   app.get('/get_plates_by_author', (req, res) => {
+    checkAuthorization(req, true)
+      .then(user => getPlatesByAuthor(user.getLikedPlates()))
+      .catch(err => err.status === 401 ? getPlatesByAuthor() : sendError(res, err));
 
-    let
-      query = req.query,
-      userId = query.id,
-      env = query.environment,
-      skip = parseInt(query.skip),
-      lim = parseInt(query.lim);
+    function getPlatesByAuthor (likedPlates = {}) {
+      let
+        query = req.query,
+        userId = query.id,
+        env = query.environment,
+        skip = +query.skip,
+        lim = +query.lim;
 
-    dbModule.getPlatesByAuthor(userId, env, isNaN(skip) ? 0 : skip, isNaN(lim) ? 11 : lim, query.size)
-      .then(plates => res.send(plates))
-      .catch(err => sendError(res, err));
+      dbModule.getPlatesByAuthor(userId, env, isNaN(skip) ? 0 : skip, isNaN(lim) ? 11 : lim, query.size)
+        .then(plates => {
+          plates.forEach(plate => plate.liked = likedPlates[plate._id]);
+          res.send(plates);
+        })
+        .catch(err => sendError(res, err));
+    }
   });
 
   app.post('/edit_plate', (req, res) => {
@@ -443,14 +469,22 @@ function refreshRoutes () {
   });
 
   app.get('/search_plates', (req, res) => {
+    checkAuthorization(req, true)
+      .then(user => searchPlates(user.getLikedPlates()))
+      .catch(err => err.status === 401 ? searchPlates() : sendError(res, err));
 
-    let
-      query = req.query,
-      term = (typeof query.searchString === 'string' && query.searchString.length && query.searchString) || null;
+    function searchPlates (likedPlates = {}) {
+      let
+        query = req.query,
+        term = (typeof query.searchString === 'string' && query.searchString.length && query.searchString) || null;
 
-    global.dbModule.searchPlates('name', term, query.environment)
-      .then(searchRes => {res.send(searchRes)})
-      .catch(err => sendError(res, err));
+      global.dbModule.searchPlates('name', term, query.environment)
+        .then(plates => {
+          plates.forEach(plate => plate.liked = likedPlates[plate._id]);
+          res.send(plates);
+        })
+        .catch(err => sendError(res, err));
+    }
   });
 
   app.get('/get_liked_plates', (req, res) => {
@@ -478,14 +512,16 @@ function refreshRoutes () {
   });
 }
 
-function checkAuthorization (req) {
+function checkAuthorization (req, reload = false) {
   let
     deferred = Q.defer(),
     authToken = req.headers['access-token'],
     user = global.authModule.getAuthorizedUser(authToken);
 
   if (!user) deferred.reject({status: 401, message: 'Not authorized'});
-  else deferred.resolve(user);
+  else reload ? global.dbModule.getModels().User.findOne({_id: user._id})
+    .then(reloadedUser => deferred.resolve(reloadedUser))
+    .catch(err => deferred.reject(err)):  deferred.resolve(user);
 
   return deferred.promise;
 }

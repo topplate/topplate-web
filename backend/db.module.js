@@ -748,6 +748,8 @@ function refreshPlateSchema () {
 
   plateSchema.index({environment: 1});
 
+  plateSchema.index({createdAt: 1});
+
   plateSchema.methods.likeIt = function (userId) {
 
     let
@@ -962,5 +964,12 @@ function getFileExtension (contentType) {
     'image/gif': 'gif',
     'image/jpeg': 'jpg'
   }[contentType];
+}
+
+function getSorted (arr, prop) {
+  return arr.sort((a, b) => {
+    let propA = a[prop], propB = b[prop];
+    return propA < propB ? 1 : (propA > propB ? -1 : 0);
+  });
 }
 
