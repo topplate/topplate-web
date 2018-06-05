@@ -396,8 +396,8 @@ function refreshRoutes () {
 
       dbModule.getPlate(query.id, query.lim)
         .then(plate => {
-          plate.liked = likedPlates[plate._id];
-          plate.relatedPlates.forEach(relatedPlate => relatedPlate['liked'] = likedPlates[plate._id]);
+          plate.liked = likedPlates[plate._id] || false;
+          plate.relatedPlates.forEach(relatedPlate => relatedPlate['liked'] = likedPlates[plate._id] || false);
           res.send(plate);
         })
         .catch(err => sendError(res, err));
@@ -419,7 +419,9 @@ function refreshRoutes () {
 
       dbModule.getPlates(env, lastId, isNaN(lim) ? 11 : lim, query.size)
         .then(plates => {
-          plates.forEach(plate => plate.liked = likedPlates[plate._id]);
+          plates.forEach(plate => {
+            plate.liked = likedPlates[plate._id] || false;
+          });
           res.send(plates);
         })
         .catch(err => sendError(res, err));
@@ -448,7 +450,7 @@ function refreshRoutes () {
 
       dbModule.getPlatesByAuthor(userId, env, isNaN(skip) ? 0 : skip, isNaN(lim) ? 11 : lim, query.size)
         .then(plates => {
-          plates.forEach(plate => plate.liked = likedPlates[plate._id]);
+          plates.forEach(plate => plate.liked = likedPlates[plate._id] || false);
           res.send(plates);
         })
         .catch(err => sendError(res, err));
@@ -480,7 +482,7 @@ function refreshRoutes () {
 
       global.dbModule.searchPlates('name', term, query.environment)
         .then(plates => {
-          plates.forEach(plate => plate.liked = likedPlates[plate._id]);
+          plates.forEach(plate => plate.liked = likedPlates[plate._id] || false);
           res.send(plates);
         })
         .catch(err => sendError(res, err));

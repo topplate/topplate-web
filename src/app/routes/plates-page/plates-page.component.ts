@@ -70,6 +70,9 @@ export class PlatesPageComponent implements OnInit, OnDestroy {
       {
         onSuccess: res => {
           let newPlates = self.refreshPlates(res);
+
+          console.log(newPlates);
+
           infiniteScrollAPI.setFinalized(newPlates.length < lim);
           infiniteScrollAPI.addItems(newPlates)
             .then(platesInList => self.platesService.refreshPlatesList(platesInList));
