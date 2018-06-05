@@ -313,9 +313,25 @@ function refreshRoutes () {
   });
 
   app.get('/get_charity_choice_banners', (req, res) => {
-    global.dbModule.getCharityItems()
-      .then(items => res.send(items))
-      .catch(err => sendError(res, err));
+    checkAuthorization(req, true)
+      .then(user => {
+        let userCharityVotes = {};
+        user.charityVotes.forEach(charityId => userCharityVotes[charityId] = true);
+        getCharityChoiceBanners(userCharityVotes);
+      })
+      .catch(err => {
+        if (err.status === 401) getCharityChoiceBanners();
+        else sendError(res, err);
+      });
+
+    function getCharityChoiceBanners (userCharityVotes = {}) {
+      global.dbModule.getCharityItems()
+        .then(items => {
+          items.forEach(item => item['voted'] = userCharityVotes[item._id] || false);
+          res.send(items);
+        })
+        .catch(err => sendError(res, err));
+    }
   });
 
   app.post('/vote_for_charity', (req, res) => checkAuthorization(req)

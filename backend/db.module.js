@@ -347,7 +347,11 @@ module.exports.getCharityItems = () => {
     deferred = Q.defer();
 
   models.Charity.find({})
-    .then(items => deferred.resolve(items))
+    .then(items => deferred.resolve(items.map(item => {
+        let itemReplica = {};
+        ['_id', 'createdAt', 'description', 'image', 'name', 'votes'].forEach(key => itemReplica[key] = item[key]);
+        return itemReplica;
+    })))
     .catch(err => deferred.reject(err));
 
   return deferred.promise;

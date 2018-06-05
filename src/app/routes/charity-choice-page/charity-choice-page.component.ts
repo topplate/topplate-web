@@ -55,6 +55,7 @@ export class CharityChoicePageComponent implements OnInit {
 
     self.charityItems = routeData['charityItems'].map(item => {
       item['numberOfVotes'] = item['votes'].length;
+      item['liked'] = item['liked'];
       return item;
     });
 

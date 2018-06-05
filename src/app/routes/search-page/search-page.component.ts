@@ -68,9 +68,7 @@ export class SearchPageComponent implements OnInit {
       {
         onSuccess: (res) => {
           self.items = res.map(item => self.platesService.createPlateEntity(item));
-          console.log(res, self.items);
-
-          // self.platesService.refreshPlatesList(self.items);
+          self.platesService.refreshPlatesList(self.items);
         },
         onFail: (err) => console.log(err)
       });
