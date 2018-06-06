@@ -1,0 +1,8 @@
+<div class="tp-filter-custom-content"><ng-content></ng-content></div>
+<div class="tp-filter-buttons">
+  <div class="tp-filter-button" *ngFor="let button of model.buttons"
+       [ngClass]="{isSelected: button.isSelected}"
+       (click)="model.selectButton(button)">
+    <span>{{button.label}}</span>
+  </div>
+</div>

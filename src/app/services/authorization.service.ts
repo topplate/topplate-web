@@ -24,6 +24,8 @@ export class AuthorizationService {
 
   private currentUser: Object;
 
+  private adminUser: Object | null = null;
+
   public getState () {
     return this.socialAuthService.authState;
   }
@@ -42,6 +44,18 @@ export class AuthorizationService {
 
   public getCurrentUser () {
     return this.currentUser;
+  }
+
+  public setAdminUser (adminUserData) {
+    this.adminUser = adminUserData;
+  }
+
+  public getAdminUser () {
+    return this.adminUser;
+  }
+
+  public clearAdminUser () {
+    this.adminUser = null;
   }
 }
 

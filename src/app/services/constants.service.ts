@@ -16,6 +16,15 @@ const CONSTANTS = {
     'OTHERWISE': '**'
   },
 
+  'ADMIN_ROUTES': {
+    'ADMIN_ENTRANCE': 'admin-entrance',
+    'MANAGE_USERS': 'manage-users',
+    'MANAGE_PLATES': 'manage-plates',
+    'MANAGE_GENERAL': 'manage-general',
+    'MANAGE_REQUESTS': 'manage-requests',
+    'MANAGE_CONTACTS': 'manage-contacts'
+  },
+
   'REST_API': {
     'LOGIN_FB': 'login-fb',
     'LOGIN_GP': 'login-gp',

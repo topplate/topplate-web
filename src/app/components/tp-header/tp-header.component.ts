@@ -11,6 +11,7 @@ import { EnvironmentService } from '../../services/environment.service';
 const
   CONSTANTS = ConstantsService.getConstants(),
   ROUTES = CONSTANTS.ROUTES,
+  ADMIN_ROUTES = CONSTANTS.ADMIN_ROUTES,
   TYPES = CONSTANTS.TYPES,
   ENVIRONMENTS = CONSTANTS.ENVIRONMENTS,
   ROOT_ELEM_CLASS = 'tp-header',
@@ -37,6 +38,8 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
 
   @Input() public events: Object;
 
+  public isAdminRoute: Boolean = false;
+
   public links: Object[] = [];
 
   public menuItems: Object[] = [
@@ -62,6 +65,29 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
     },
     {
       label: 'log out'
+    }
+  ];
+
+  public adminLinks: any[] = [
+    {
+      label: 'general',
+      url: [ADMIN_ROUTES.MANAGE_GENERAL]
+    },
+    {
+      label: 'users',
+      url: [ADMIN_ROUTES.MANAGE_USERS]
+    },
+    {
+      label: 'plates',
+      url: [ADMIN_ROUTES.MANAGE_PLATES]
+    },
+    {
+      label: 'requests',
+      url: [ADMIN_ROUTES.MANAGE_REQUESTS]
+    },
+    {
+      label: 'contacts',
+      url: [ADMIN_ROUTES.MANAGE_CONTACTS]
     }
   ];
 
@@ -96,6 +122,10 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
   public isAuthorized: Boolean = false;
 
   private elements: Object;
+
+  public get loggedAsAdmin () {
+    return !!this.authorizationService.getAdminUser();
+  }
 
   private refreshDOM () {
 
@@ -159,6 +189,8 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
     self.router.events.subscribe( (event) => {
       if (event instanceof NavigationEnd) {
         self.currentStateData = self.activatedRoute.root.firstChild.snapshot.data;
+        self.isAdminRoute = self.currentStateData['isAdminRoute'];
+        SharedService.isAdminRoute = self.isAdminRoute;
         linksToObserve.forEach(link => link['isHidden'] = !self.currentStateData['showHomeButton']);
       }
     });
@@ -173,6 +205,10 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
     if (link['navigateTo']) self.router.navigate([ROUTES.EMPTY])
       .then(() => self.router.navigate(link['navigateTo']));
     else if (link['onClick']) link['onClick']();
+  }
+
+  public onAdminLinkClick (link) {
+    if (link.url) this.router.navigate(link.url);
   }
 
   public onMenuItemClick (clickedItem) {

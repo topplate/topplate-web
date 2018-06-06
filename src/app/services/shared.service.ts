@@ -10,6 +10,8 @@ export class SharedService {
 
   private static sharedComponents: Object = {};
 
+  public static isAdminRoute: Boolean = false;
+
   public static setSharedComponent (name, api) {
     SharedService.sharedComponents[name] = api;
     return SharedService.getSharedComponent(name);

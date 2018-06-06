@@ -5,7 +5,8 @@ const
   bCrypt = require('bcrypt'),
   Q = require('q'),
   authEmails = {},
-  authTokens = {};
+  authTokens = {},
+  adminTokens = {};
 
 module.exports.refreshAuthorization = refreshAuthorization;
 
@@ -20,6 +21,30 @@ module.exports.getAuthorizedUsers = () => {
     authEmails: authEmails,
     authTokens: authTokens
   };
+};
+
+module.exports.authorizeAsAdmin = (login, pswrd) => {
+  let deferred = Q.defer();
+
+  if (login === process.env.ADMIN_LOGIN && pswrd === process.env.ADMIN_PASSWORD) getLocalToken()
+    .then(token => {
+      adminTokens[token] = { login: login, pswrd: pswrd };
+      deferred.resolve({'admin-access-token': token});
+    })
+    .catch(err => deferred.reject(err));
+
+  else deferred.reject({message: 'unauthorized', status: 401});
+
+  return deferred.promise;
+};
+
+module.exports.checkAdminAuthorization = (token) => {
+  let deferred = Q.defer();
+
+  if (adminTokens[token]) deferred.resolve({message: 'Authorized admin'});
+  else deferred.reject({message: 'Unauthorized', status: 401});
+
+  return deferred.promise;
 };
 
 module.exports.getHashedPassword = (str) => {
@@ -46,16 +71,7 @@ module.exports.comparePasswords = (str, hash) => {
   return deferred.promise;
 };
 
-module.exports.getLocalToken = () => {
-  let deferred = Q.defer();
-
-  bCrypt.genSalt(10, false, (err, token) => {
-    if (err) deferred.reject(err);
-    else deferred.resolve(token);
-  });
-
-  return deferred.promise;
-};
+module.exports.getLocalToken = getLocalToken;
 
 function saveAuthToken (userData, token) {
   clearAuthToken(userData.email);
@@ -124,6 +140,17 @@ function refreshAuthorization () {
   app.use(passport.session());
 
 
+}
+
+function getLocalToken () {
+  let deferred = Q.defer();
+
+  bCrypt.genSalt(10, false, (err, token) => {
+    if (err) deferred.reject(err);
+    else deferred.resolve(token);
+  });
+
+  return deferred.promise;
 }
 
 

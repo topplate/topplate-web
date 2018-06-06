@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { SharedService } from './shared.service';
-import {Observable} from 'rxjs/Observable';
+import { AuthorizationService } from './authorization.service';
 import 'rxjs/add/operator/catch';
 
 import { ConstantsService } from './constants.service';
@@ -19,6 +19,7 @@ const
 export class AccessPointService {
 
   constructor (
+    private authorizationService: AuthorizationService,
     private httpClient: HttpClient
   ) {}
 
@@ -34,11 +35,16 @@ export class AccessPointService {
     }
   }
 
-  private static getHeaders () {
+  private getHeaders () {
+    let
+      adminUser = this.authorizationService.getAdminUser(),
+      adminUserKey = 'admin-access-token';
+
     return new HttpHeaders()
       .append('Content-type', 'application/json')
       .append('Access-Token', SharedService.getToken() || '')
-      .append('User-Environment', SharedService.getEnvironment() || '');
+      .append('User-Environment', SharedService.getEnvironment() || '')
+      .append(adminUserKey, adminUser ? adminUser[adminUserKey] : '');
   }
 
   public getRequest (apiUrl, params, customCallbacks = {}) {
@@ -51,7 +57,7 @@ export class AccessPointService {
     );
 
     return this.httpClient.get(apiUrl, {
-      headers: AccessPointService.getHeaders(),
+      headers: this.getHeaders(),
       params: reqParams
     }).subscribe(
       reqCallbacks.onSuccess,
@@ -63,7 +69,7 @@ export class AccessPointService {
     let reqCallbacks = AccessPointService.prepareCallbacks(customCallbacks);
 
     return this.httpClient.post(apiUrl, data, {
-      headers: AccessPointService.getHeaders()
+      headers: this.getHeaders()
     }).subscribe(
       reqCallbacks.onSuccess,
       reqCallbacks.onFail

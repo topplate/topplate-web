@@ -16,6 +16,8 @@ import { TpHeaderComponent } from './components/tp-header/tp-header.component';
 import { TpSwitchComponent } from './components/tp-switch/tp-switch.component';
 import { TpScrollableComponent } from './components/tp-scrollable/tp-scrollable.component';
 import { TpGrowlComponent } from './components/tp-growl/tp-growl.component';
+import { TpFilterComponent } from './components/tp-filter/tp-filter.component';
+import { TpGridComponent } from './components/tp-grid/tp-grid.component';
 
 @NgModule({
   imports: [
@@ -40,7 +42,9 @@ import { TpGrowlComponent } from './components/tp-growl/tp-growl.component';
     TpHeaderComponent,
     TpSwitchComponent,
     TpScrollableComponent,
-    TpGrowlComponent
+    TpGrowlComponent,
+    TpFilterComponent,
+    TpGridComponent
   ],
 
   schemas: [
@@ -62,7 +66,9 @@ import { TpGrowlComponent } from './components/tp-growl/tp-growl.component';
     TpHeaderComponent,
     TpSwitchComponent,
     TpScrollableComponent,
-    TpGrowlComponent
+    TpGrowlComponent,
+    TpFilterComponent,
+    TpGridComponent
   ]
 })
 

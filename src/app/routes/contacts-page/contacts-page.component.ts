@@ -22,6 +22,7 @@ const
 export class ContactsPageComponent implements OnInit {
 
   constructor (
+    private accessPointService: AccessPointService,
     private activatedRoute: ActivatedRoute
   ) {}
 
@@ -30,13 +31,36 @@ export class ContactsPageComponent implements OnInit {
   public contactsData: Object;
 
   public sendRequest () {
+    let formValue = this.contactForm.value;
 
+    if (!this.contactForm.valid) SharedService.getSharedComponent('growl')
+      .addItem({message: 'Email and request required', status: 500});
 
-
+    else {
+      SharedService.getSharedComponent('globalOverlay').toggle(false);
+      this.accessPointService.postRequest(
+        '/create_request',
+        {
+          name: formValue.name,
+          email: formValue.email,
+          message: formValue.message
+        },
+        {
+          onSuccess: resMessage => {
+            this.contactForm.reset();
+            SharedService.getSharedComponent('globalOverlay').toggle(true);
+            SharedService.getSharedComponent('growl').addItem(resMessage);
+          },
+          onFail: err => {
+            SharedService.getSharedComponent('globalOverlay').toggle(true);
+            SharedService.getSharedComponent('growl').addItem(err);
+          }
+        }
+      );
+    }
   }
 
   ngOnInit () {
-
     let
       self = this,
       contactForm = self.contactForm = new FormGroup({
@@ -50,9 +74,5 @@ export class ContactsPageComponent implements OnInit {
       routeData = self.activatedRoute.snapshot.data;
 
     self.contactsData = routeData['contactsData'];
-
-    console.log(contactForm);
-
   }
-
 }

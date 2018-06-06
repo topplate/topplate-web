@@ -5,6 +5,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
 import { EnvironmentGuard } from './guards/environment.guard';
+import { AdminAuthGuard } from './guards/admin-auth.guard';
 import { AppCommonModule } from './app-common.module';
 import { AuthorizationService } from './services/authorization.service';
 import { ConstantsService } from './services/constants.service';
@@ -24,9 +25,17 @@ import { ProfilePageComponent } from './routes/profile-page/profile-page.compone
 import { CharityChoicePageComponent } from './routes/charity-choice-page/charity-choice-page.component';
 import { ContactsPageComponent } from './routes/contacts-page/contacts-page.component';
 import { SearchPageComponent } from './routes/search-page/search-page.component';
+import { AdminEntranceComponent } from './routes/admin-entrance/admin-entrance.component';
+import { AdminGeneralComponent } from './routes/admin-general/admin-general.component';
+import { AdminUsersComponent } from './routes/admin-users/admin-users.component';
+import { AdminPlatesComponent } from './routes/admin-plates/admin-plates.component';
+import { AdminRequestsComponent } from './routes/admin-requests/admin-requests.component';
+import { AdminContactsComponent } from './routes/admin-contacts/admin-contacts.component';
+
 const
   CONSTANTS = ConstantsService.getConstants(),
-  ROUTES = CONSTANTS.ROUTES;
+  ROUTES = CONSTANTS.ROUTES,
+  ADMIN_ROUTES = CONSTANTS.ADMIN_ROUTES;
 
 @NgModule({
   imports: [
@@ -39,6 +48,7 @@ const
   providers: [
     AuthGuard,
     EnvironmentGuard,
+    AdminAuthGuard,
     AuthorizationService,
     HomeResolver,
     PlatesResolver,
@@ -58,7 +68,14 @@ const
     ProfilePageComponent,
     CharityChoicePageComponent,
     ContactsPageComponent,
-    SearchPageComponent
+    SearchPageComponent,
+
+    AdminEntranceComponent,
+    AdminGeneralComponent,
+    AdminUsersComponent,
+    AdminPlatesComponent,
+    AdminRequestsComponent,
+    AdminContactsComponent
   ],
 
   schemas: [
@@ -66,15 +83,7 @@ const
   ],
 
   exports: [
-    HomePageComponent,
-    PlatesPageComponent,
-    PlatePageComponent,
-    WinnersPageComponent,
-    EmptyPageComponent,
-    ProfilePageComponent,
-    CharityChoicePageComponent,
-    ContactsPageComponent,
-    SearchPageComponent
+    RouterModule
   ]
 })
 
@@ -176,10 +185,59 @@ const appRoutes: Routes = [
       label: 'empty'
     }
   },
+
+  {
+    path: ADMIN_ROUTES.ADMIN_ENTRANCE,
+    component: AdminEntranceComponent,
+    data: {
+      isAdminRoute: true
+    }
+  },
+  {
+    path: ADMIN_ROUTES.MANAGE_GENERAL,
+    component: AdminGeneralComponent,
+    canActivate: [AdminAuthGuard],
+    data: {
+      isAdminRoute: true
+    }
+  },
+  {
+    path: ADMIN_ROUTES.MANAGE_USERS,
+    component: AdminUsersComponent,
+    canActivate: [AdminAuthGuard],
+    data: {
+      isAdminRoute: true
+    }
+  },
+  {
+    path: ADMIN_ROUTES.MANAGE_PLATES,
+    component: AdminPlatesComponent,
+    canActivate: [AdminAuthGuard],
+    data: {
+      isAdminRoute: true
+    }
+  },
+  {
+    path: ADMIN_ROUTES.MANAGE_REQUESTS,
+    component: AdminRequestsComponent,
+    canActivate: [AdminAuthGuard],
+    data: {
+      isAdminRoute: true
+    }
+  },
+  {
+    path: ADMIN_ROUTES.MANAGE_CONTACTS,
+    component: AdminContactsComponent,
+    canActivate: [AdminAuthGuard],
+    data: {
+      isAdminRoute: true
+    }
+  },
+
   {
     path: ROUTES.OTHERWISE,
     redirectTo: ROUTES.PLATES
-  }
+  },
 ];
 
 export const AppRouting = RouterModule.forRoot(appRoutes, {useHash: true});

@@ -1,0 +1,41 @@
+@import "../../app.component";
+
+.admin-entrance {
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: $full-size;
+  height: $full-size;
+  z-index: $z-highest;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .admin-entrance-form {
+    padding: 50px;
+    border: 1px solid $white;
+
+    .admin-entrance-form-group {
+      display: block;
+    }
+
+    .admin-entrance-form-input {
+      @include styled-input();
+    }
+
+    .admin-entrance-form-btn {
+      display: block;
+      padding: 10px 20px;
+      border: 1px solid $white;
+      color: $white;
+      background: $transparent-white;
+      cursor: pointer;
+      @include use-transition($normal);
+
+      &:hover {
+        background: $cyan;
+      }
+    }
+  }
+}

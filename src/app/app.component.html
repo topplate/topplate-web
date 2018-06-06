@@ -1,16 +1,10 @@
-<!--<app-header [events]="appHeaderEvents"></app-header>-->
-
 <app-tp-header [items]="headerLinks" [events]="headerEvents"></app-tp-header>
 
 <div class="tp-header_spacer"></div>
 
-<!--<div class="tp-page_content" style="min-height: 500px">-->
-  <!---->
-<!--</div>-->
-
 <app-tp-scrollable>
   <div class="tp-page-content"><router-outlet></router-outlet></div>
-  <app-tp-footer [banner]="banner"></app-tp-footer>
+  <app-tp-footer [banner]="banner" *ngIf="!isAdminRoute"></app-tp-footer>
 </app-tp-scrollable>
 
 <app-modal class="top-plate_signInModal" [(state)]="signInModal.state">

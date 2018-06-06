@@ -1,0 +1,14 @@
+<div class="admin-entrance roboto-light">
+  <form [formGroup]="adminLoginForm" class="admin-entrance-form" (submit)="submit()">
+    <label class="admin-entrance-form-group">
+      <input formControlName="login" class="admin-entrance-form-input" type="text" placeholder="LOGIN">
+    </label>
+
+    <label class="admin-entrance-form-group">
+      <input formControlName="password" class="admin-entrance-form-input" type="password" placeholder="PASSWORD">
+    </label>
+
+    <button type="submit" class="admin-entrance-form-btn">SUBMIT</button>
+  </form>
+
+</div>

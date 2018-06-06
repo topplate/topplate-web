@@ -140,6 +140,19 @@ $form-element-default-color: $grey-dark;
   user-select: none!important;
 }
 
+@mixin styled-input {
+  padding: 0 20px;
+  display: block;
+  background: transparent;
+  width: $full-size;
+  line-height: $form-elem-height - 2;
+  border: 1px solid $cyan-darkest;
+  outline: none;
+  color: $white;
+  text-align: center;
+}
+
+
 body {
   &.no-select {
     & * {
@@ -342,15 +355,7 @@ body {
       margin-top: $btn-margin;
 
       input, textarea {
-        padding: 0 20px;
-        display: block;
-        background: transparent;
-        width: $full-size;
-        line-height: $form-elem-height - 2;
-        border: 1px solid $cyan-darkest;
-        outline: none;
-        color: $white;
-        text-align: center;
+        @include styled-input();
         text-transform: uppercase;
       }
 

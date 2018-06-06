@@ -3,10 +3,6 @@ import {Route, ActivatedRoute, ActivationEnd, NavigationEnd, Router} from '@angu
 import 'rxjs/add/operator/filter';
 import { AppD3Service } from '../../services/d3.service';
 import { ConstantsService } from '../../services/constants.service';
-import { AuthorizationService } from '../../services/authorization.service';
-import { SharedService } from '../../services/shared.service';
-import { AccessPointService } from '../../services/access-point.service';
-import { Observable } from 'rxjs/Observable';
 import { timer } from 'rxjs/observable/timer';
 
 const

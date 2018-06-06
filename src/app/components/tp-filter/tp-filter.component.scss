@@ -1,0 +1,25 @@
+@import "../../app.component";
+
+.tp-filter {
+  display: inline-block;
+
+  .tp-filter-custom-content {}
+
+  .tp-filter-buttons {
+    white-space: nowrap;
+
+    .tp-filter-button {
+      display: inline-block;
+      padding: 10px 20px;
+      border: 1px solid #fff;
+      background: rgba(255, 255, 255, .4);
+      color: #fff;
+      cursor: pointer;
+      @include use-transition();
+
+      &.isSelected {
+        background: rgba(255, 255, 255, .7);
+      }
+    }
+  }
+}

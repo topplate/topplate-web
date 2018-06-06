@@ -212,6 +212,34 @@ $nav-aside-block-width: 400px;
     }
   }
 
+  .tp-header_admin-links-wrapper {
+    display: inline-block;
+    height: $full-size;
+
+    .tp-header_admin-links {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin: 0;
+      padding: 0;
+      height: inherit;
+
+      .tp-header_admin-link {
+        color: $white;
+        list-style: none;
+        cursor: pointer;
+        margin-left: 10px;
+        opacity: .8;
+
+        @include use-transition();
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
   &.isVisible {
     top: 0;
   }

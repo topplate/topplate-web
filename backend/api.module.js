@@ -521,9 +521,44 @@ function refreshRoutes () {
     global.dbModule.getWinners(env)
       .then(winners => res.send(winners))
       .catch(err => sendError(res,err))
-    }
+    });
+
+  app.post('/create_request', (req, res) => {
+    global.dbModule.createRequest(req.body)
+      .then(message => res.send(message))
+      .catch(err => sendError(res, err));
+  });
+
+  /** Admin */
+  app.post('/sign_in_admin', (req, res) => {
+    let reqBody = req.body;
+    global.authModule.authorizeAsAdmin(reqBody.login, reqBody.password)
+      .then(authMessage => res.send(authMessage))
+      .catch(err => sendError(res, err));
+  });
+
+  app.get('/check_admin_authorization', (req, res) => checkAdminAuthorization(req)
+    .then(successResult => res.send(successResult))
+    .catch(err => sendError(res, err))
   );
 
+  app.get('/get_users_requests', (req, res) => checkAdminAuthorization(req)
+    .then(() => global.dbModule.getUserRequests(req.query.filter)
+      .then(usersRequests => res.send(usersRequests))
+      .catch(err => sendError(res, err))
+    )
+    .catch(err => sendError(res, err))
+  );
+
+  app.get('/get_users', (req, res) => checkAuthorization(req)
+    .then(() => global.dbModule.getUsers(req.query.filter)
+      .then(users => res.send(users))
+      .catch(err => sendError(res, err))
+    )
+    .catch(err => sendError(res, err))
+  );
+
+  /** Default redirect */
   app.get('*', (req, res) => {
     console.log('redirect to index page');
     res.redirect('/');
@@ -540,6 +575,18 @@ function checkAuthorization (req, reload = false) {
   else reload ? global.dbModule.getModels().User.findOne({_id: user._id})
     .then(reloadedUser => deferred.resolve(reloadedUser))
     .catch(err => deferred.reject(err)):  deferred.resolve(user);
+
+  return deferred.promise;
+}
+
+function checkAdminAuthorization (req) {
+  let
+    deferred = Q.defer(),
+    reqHeaders = req.headers;
+
+  global.authModule.checkAdminAuthorization(reqHeaders['admin-access-token'])
+    .then(successResult => deferred.resolve(successResult))
+    .catch(err => deferred.reject(err));
 
   return deferred.promise;
 }

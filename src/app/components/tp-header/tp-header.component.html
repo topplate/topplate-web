@@ -1,37 +1,50 @@
 <div class="tp-header_content">
 
-  <div class="tp-header_envSwitch">
-    <app-tp-switch [items]="switchItems" [events]="switchEvents"></app-tp-switch>
+  <div *ngIf="!isAdminRoute">
+
+    <div class="tp-header_envSwitch">
+      <app-tp-switch [items]="switchItems" [events]="switchEvents"></app-tp-switch>
+    </div>
+
+    <div class="tp-header_links" *ngIf="!isAdminRoute">
+      <div class="tp-header_link"
+           *ngFor="let link of links"
+           (click)="onLinkClick(link)"
+           [hidden]="link['isHidden']">
+        <div class="tp-header_linkIcon {{link['icon']}}"></div>
+        <div class="tp-header_linkLabel roboto-light uppercase">{{link['_label'][0]}}</div>
+        <div class="tp-header_linkLabel roboto-light uppercase">{{link['_label'][1] || '_'}}</div>
+      </div>
+    </div>
+
+    <div class="tp-header_profile">
+      <div class="tp-header_signInButton" *ngIf="!currentUser" (click)="onSignInButtonClick()">
+        <span class="roboto-light uppercase">sign up / log in</span>
+      </div>
+      <div class="tp-header_profileButton" *ngIf="currentUser" (click)="onProfileButtonClick()">
+        <div class="tp-header_profile-userIcon"
+             [ngStyle]="{'background-image': 'url(' + currentUser['image'] + ')'}"></div>
+        <span class="tp-header_profile-userName roboto-light uppercase">{{currentUser['name']}}</span>
+      </div>
+    </div>
+
+    <div class="tp-header_menu">
+      <i class="fa fa-bars"></i>
+      <ul class="tp-header_menuItems">
+        <li class="tp-header_menuItem roboto-light uppercase"
+            *ngFor="let menuItem of menuItems" (click)="onMenuItemClick(menuItem)">
+          <span>{{menuItem['label']}}</span>
+        </li>
+      </ul>
+    </div>
+
+
   </div>
 
-  <div class="tp-header_links">
-    <div class="tp-header_link"
-        *ngFor="let link of links"
-        (click)="onLinkClick(link)"
-        [hidden]="link['isHidden']">
-      <div class="tp-header_linkIcon {{link['icon']}}"></div>
-      <div class="tp-header_linkLabel roboto-light uppercase">{{link['_label'][0]}}</div>
-      <div class="tp-header_linkLabel roboto-light uppercase">{{link['_label'][1] || '_'}}</div>
-    </div>
-  </div>
-
-  <div class="tp-header_profile">
-    <div class="tp-header_signInButton" *ngIf="!currentUser" (click)="onSignInButtonClick()">
-      <span class="roboto-light uppercase">sign up / log in</span>
-    </div>
-    <div class="tp-header_profileButton" *ngIf="currentUser" (click)="onProfileButtonClick()">
-      <div class="tp-header_profile-userIcon"
-        [ngStyle]="{'background-image': 'url(' + currentUser['image'] + ')'}"></div>
-      <span class="tp-header_profile-userName roboto-light uppercase">{{currentUser['name']}}</span>
-    </div>
-  </div>
-
-  <div class="tp-header_menu">
-    <i class="fa fa-bars"></i>
-    <ul class="tp-header_menuItems">
-      <li class="tp-header_menuItem roboto-light uppercase"
-          *ngFor="let menuItem of menuItems" (click)="onMenuItemClick(menuItem)">
-        <span>{{menuItem['label']}}</span>
+  <div class="tp-header_admin-links-wrapper" *ngIf="isAdminRoute && loggedAsAdmin">
+    <ul class="tp-header_admin-links roboto-light uppercase">
+      <li class="tp-header_admin-link" *ngFor="let link of adminLinks">
+        <span class="tp-header_admin-link-label" (click)="onAdminLinkClick(link)">{{link.label}}</span>
       </li>
     </ul>
   </div>

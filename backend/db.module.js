@@ -29,6 +29,7 @@ module.exports.refreshSchemas = () => {
   refreshPlateSchema();
   refreshCharitySchema();
   refreshWinnerSchema();
+  refreshRequestsSchema();
 };
 
 module.exports.createUser = userData => {
@@ -92,11 +93,25 @@ module.exports.getUser = (query, fields = {}) => {
   return deferred.promise;
 };
 
-module.exports.getUsers = () =>  {
-  let deferred = Q.defer();
+module.exports.getUsers = (filter) =>  {
+  let
+    deferred = Q.defer(),
+    query = {};
 
-  models.User.find()
-    .then(users => deferred.resolve(users))
+  if (filter !== 'all') query['isSuspended'] = filter === 'suspended';
+
+  models.User.find(query)
+    .then(users => deferred.resolve(users.map(user => {
+      let provider = user.lastLogged.provider;
+      return {
+        email: user.email,
+        name: user[provider].name,
+        image: user[provider].image,
+        likedPlates: user.likedPlates,
+        uploadedPlates: user.uploadedPlates,
+        status: user.isSuspended ? 'Suspended' : 'Active'
+      };
+    })))
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
@@ -419,6 +434,33 @@ module.exports.getWinners = (env) => {
   return deferred.promise;
 };
 
+module.exports.createRequest = (requestData) => {
+  let
+    deferred = Q.defer(),
+    requestEntity = new models.Request(requestData);
+
+  requestEntity.save(err => {
+    if (err) deferred.reject(err);
+    else deferred.resolve({message: 'Thank you for you request'});
+  });
+
+  return deferred.promise;
+};
+
+module.exports.getUserRequests = (filter) => {
+  let
+    deferred = Q.defer(),
+    query = {};
+
+  if (query !== 'all') query['isClosed'] = filter === 'old';
+
+  models.Request.find(query)
+    .then(requests => deferred.resolve(requests))
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+};
+
 module.exports.connect = () => methods.connect();
 
 module.exports.disconnect = () => methods.disconnect();
@@ -503,6 +545,10 @@ function refreshUserSchema () {
     likedPlates: [String],
     charityVotes: [String],
     isRobot: {
+      type: Boolean,
+      default: false
+    },
+    isSuspended: {
       type: Boolean,
       default: false
     }
@@ -695,6 +741,16 @@ function refreshUserSchema () {
 
   models.User = mongoose.model('User', userSchema);
 
+  models.User.find({})
+    .then(users => {
+      users.forEach(user => {
+        user.isSuspended = false;
+        user.save(err => {
+          if (err) console.log(err);
+          else console.log(user._id + ' is updated');
+        });
+      })
+    });
 }
 
 function refreshPlateSchema () {
@@ -960,6 +1016,52 @@ function refreshWinnerSchema () {
   });
 
   models.Winner = mongoose.model('Winner', winnerSchema);
+}
+
+function refreshRequestsSchema () {
+
+  let requestSchema = new mongoose.Schema({
+    name: {
+      type: String,
+      required: true
+    },
+    email: {
+      type: String,
+      required: true
+    },
+    message: {
+      type: String,
+      required: true
+    },
+    response: {
+      type: String,
+      default: ''
+    },
+    isClosed: {
+      type: Boolean,
+      default: false
+    }
+  }, {
+    collection: 'user-requests',
+    timestamp: true
+  });
+
+  requestSchema.methods.close = function () {
+    let
+      deferred = Q.defer(),
+      userRequest = this;
+
+    userRequest.isClosed = true;
+
+    userRequest.save(err => {
+      if (err) deferred.reject(err);
+      else deferred.resolve({message: 'request' + userRequest._id + ' is closed'});
+    });
+
+    return deferred.promise;
+  };
+
+  models.Request = mongoose.model('Request', requestSchema);
 }
 
 function getFileExtension (contentType) {

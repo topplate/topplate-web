@@ -147,6 +147,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     fReader.readAsBinaryString(plateUploadedImage['originalImage']);
   }
 
+  public get isAdminRoute () {
+    let self = this;
+    return SharedService.isAdminRoute;
+  }
+
   ngOnInit () {
     let
       self = this,
@@ -190,7 +195,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       {
         label: 'how it works',
         icon: 'how-it-works',
-        navigateTo: [ROUTES.SELECT_ENV]
+        navigateTo: [CONSTANTS.ADMIN_ROUTES.ADMIN_ENTRANCE]
       },
       {
         label: 'plate of the week',

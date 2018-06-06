@@ -102,7 +102,9 @@ export class TpScrollableComponent implements OnInit, OnDestroy {
     refreshSizes();
 
     content.style('height', currentValues.outerHeight + 'px');
-    pageContent.style('min-height', (content.node().clientHeight - pageFooter.node().clientHeight - 1) + 'px');
+    pageContent.style('min-height', (content.node().clientHeight - (
+      (pageFooter.node() && pageFooter.node().clientHeight) || 1) - 1
+    ) + 'px');
     rail.style('display', isVisible ? 'block' : 'none');
     caret
       .transition().duration(0)
