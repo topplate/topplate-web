@@ -9,3 +9,28 @@
     width: $half-size;
   }
 }
+
+.admin-plates-modal-content {
+  width: 572px;
+  background: rgba(43, 43, 43, .5);
+  border: 1px solid $cyan;
+  padding: 34px 68px;
+  color: $white;
+  text-align: center;
+
+  .admin-plates-modal-plate-preview {
+    height: 300px;
+  }
+
+  button {
+    display: block;
+    width: $full-size;
+    background: $transparent;
+    border: 1px solid $cyan;
+    color: $white;
+    font-size: 14px;
+    margin-top: $btn-margin;
+    line-height: $form-elem-height - 2;
+    cursor: pointer;
+  }
+}

@@ -5,3 +5,12 @@
   <div class="admin-plates-filter"><app-tp-filter [model]="envFilter"><h3>Environment</h3></app-tp-filter></div>
   <app-tp-grid [model]="platesGrid"></app-tp-grid>
 </div>
+
+<app-modal class="admin-plates-modal" [(state)]="modalState">
+  <div class="admin-plates-modal-content" *ngIf="modalContent">
+    <div class="admin-plates-modal-plate-preview">
+      <app-plate-preview [model]="modalContent" [settings]="modalPreviewSettings"></app-plate-preview>
+    </div>
+    <button (click)="togglePlateStatus()">{{modalContent['status'] ? 'SUSPEND' : 'RESTORE'}} PLATE</button>
+  </div>
+</app-modal>

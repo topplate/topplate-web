@@ -19,10 +19,10 @@ const
 export class AdminEntranceComponent implements OnInit {
 
   public adminLoginForm: FormGroup = new FormGroup({
-    login: new FormControl('', Validators.required),
-    password: new FormControl('', Validators.required)
-    // login: new FormControl('The_Chosen_One', Validators.required),
-    // password: new FormControl('Enter_The_Matrix', Validators.required)
+    // login: new FormControl('', Validators.required),
+    // password: new FormControl('', Validators.required)
+    login: new FormControl('The_Chosen_One', Validators.required),
+    password: new FormControl('Enter_The_Matrix', Validators.required)
   });
 
   public submit () {
@@ -44,7 +44,7 @@ export class AdminEntranceComponent implements OnInit {
             SharedService.getSharedComponent('globalOverlay').toggle(true);
             SharedService.getSharedComponent('growl').addItem({message: 'authorized as admin'});
             this.authorizationService.setAdminUser(adminData);
-            this.router.navigate([ADMIN_ROUTES.MANAGE_GENERAL]);
+            this.router.navigate([ADMIN_ROUTES.MANAGE_USERS]);
           },
           onFail: err => {
             SharedService.getSharedComponent('globalOverlay').toggle(true);

@@ -3,3 +3,20 @@
   <app-tp-filter [model]="requestsFilter"></app-tp-filter>
   <app-tp-grid [model]="requestsGrid"></app-tp-grid>
 </div>
+
+<app-modal class="admin-requests-modal" [(state)]="modalState">
+  <div class="admin-requests-modal-content roboto-light uppercase" *ngIf="modalContent">
+    <p>
+      <span>Request</span><br>
+      <span>{{modalContent.message}}</span>
+    </p>
+    <p *ngIf="modalContent['isClosed']">
+      <span>RESPONSE</span><br>
+      <span>{{modalContent.response}}</span>
+    </p>
+    <div class="admin-requests-modal-content-response" *ngIf="!modalContent['isClosed']">
+      <textarea title="admin-response" [(ngModel)]="modalContent.response"></textarea>
+      <button (click)="closeRequest()">CLOSE REQUEST</button>
+    </div>
+  </div>
+</app-modal>

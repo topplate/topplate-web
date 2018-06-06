@@ -3,3 +3,15 @@
   <app-tp-filter [model]="usersFilter"></app-tp-filter>
   <app-tp-grid [model]="usersGrid"></app-tp-grid>
 </div>
+
+<app-modal class="admin-users-modal roboto-light uppercase" [(state)]="modalModel">
+  <div class="admin-users-modal-content" *ngIf="modalContent">
+    <div class="admin-users-modal-user-avatar" [ngStyle]="{'background-image': 'url(' + modalContent['image'] + ')'}"></div>
+    <div class="admin-users-modal-user-credentials">{{modalContent['name']}}</div>
+    <div class="admin-users-modal-user-warnings">
+      <textarea [(ngModel)]="modalContentWarning" placeholder="WARNING HERE"></textarea>
+      <button (click)="addWarning()">ADD WARNING</button>
+      <button (click)="toggleUserStatus()">{{modalContent['status'] === 'Active' ? 'SUSPEND' : 'RESTORE'}} USER</button>
+    </div>
+  </div>
+</app-modal>

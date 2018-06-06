@@ -5,5 +5,46 @@
   padding: 100px;
   color: $white;
 
+}
 
+.admin-users-modal-content {
+  width: 572px;
+  background: rgba(43, 43, 43, .5);
+  border: 1px solid $cyan;
+  padding: 34px 68px;
+  color: $white;
+  text-align: center;
+
+  .admin-users-modal-user-avatar {
+    width: 200px;
+    height: 200px;
+    border-radius: 100px;
+    background-size: cover;
+    margin: 0 auto;
+  }
+
+  .admin-users-modal-user-credentials {
+    margin: 30px auto;
+  }
+
+  .admin-users-modal-user-warnings {
+    textarea {
+      @include styled-input();
+      text-transform: uppercase;
+      padding: 10px 20px;
+      height: 250px;
+    }
+
+    button {
+      display: block;
+      width: $full-size;
+      background: $transparent;
+      border: 1px solid $cyan;
+      color: $white;
+      font-size: 14px;
+      margin-top: $btn-margin;
+      line-height: $form-elem-height - 2;
+      cursor: pointer;
+    }
+  }
 }

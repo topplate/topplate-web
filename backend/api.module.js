@@ -558,7 +558,7 @@ function refreshRoutes () {
     .catch(err => sendError(res, err))
   );
 
-  app.get('/get_users', (req, res) => checkAuthorization(req)
+  app.get('/get_users', (req, res) => checkAdminAuthorization(req)
     .then(() => global.dbModule.getUsers(req.query.filter)
       .then(users => res.send(users))
       .catch(err => sendError(res, err))
@@ -566,7 +566,7 @@ function refreshRoutes () {
     .catch(err => sendError(res, err))
   );
 
-  app.get('/get_plates_admin', (req, res) => checkAuthorization(req)
+  app.get('/get_plates_admin', (req, res) => checkAdminAuthorization(req)
     .then(() => {
         global.dbModule.getPlatesAdmin(
           req.query.statusFilter,
@@ -575,7 +575,38 @@ function refreshRoutes () {
         )
           .then(plates => res.send(plates))
           .catch(err => sendError(res, err))
-      }
+      })
+    .catch(err => sendError(res, err))
+  );
+
+  app.post('/add_warning', (req, res) => checkAdminAuthorization(req)
+    .then(() => global.dbModule.addWarning(req.body.userId, req.body.warningMessage)
+      .then(updatedUser => res.send(updatedUser))
+      .catch(err => sendError(res, err))
+    )
+    .catch(err => sendError(res, err))
+  );
+
+  app.post('/toggle_user_status', (req, res) => checkAdminAuthorization(req)
+    .then(() => global.dbModule.toggleUserStatus(req.body.userId, req.body.newStatus)
+      .then(updatedUser => res.send(updatedUser))
+      .catch(err => sendError(res, err))
+    )
+    .catch(err => sendError(res, err))
+  );
+
+  app.post('/toggle_plate_status', (req, res) => checkAdminAuthorization(req)
+    .then(() => global.dbModule.togglePlateStatus(req.body.plateId, req.body.newStatus)
+      .then(updatedPlate => res.send(updatedPlate))
+      .catch(err => sendError(res, err))
+    )
+    .catch(err => sendError(res, err))
+  );
+
+  app.post('/close_request', (req, res) => checkAdminAuthorization(req)
+    .then(() => global.dbModule.closeRequest(req.body.requestId, req.body.response)
+      .then(updatedRequest => res.send(updatedRequest))
+      .catch(err => sendError(res, err))
     )
     .catch(err => sendError(res, err))
   );

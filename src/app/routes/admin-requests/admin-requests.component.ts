@@ -3,6 +3,7 @@ import { FilterComponentModel } from '../../models/filter-component.model';
 import { GridComponentModel } from '../../models/grid-component.model';
 import { AccessPointService } from '../../services/access-point.service';
 import {SharedService} from '../../services/shared.service';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
   selector: 'app-admin-requests',
@@ -47,8 +48,15 @@ export class AdminRequestsComponent implements OnInit, OnDestroy {
       type: 'boolean'
     }
   ], {
-    onRowClick: row => console.log(row)
+    onRowClick: row => {
+      this.modalContent = row;
+      this.modalState.next(true);
+    }
   });
+
+  public modalState: BehaviorSubject<any> = new BehaviorSubject<any>(false);
+
+  public modalContent: any;
 
   private loadItems () {
     SharedService.getSharedComponent('globalOverlay').toggle(false);
@@ -66,6 +74,35 @@ export class AdminRequestsComponent implements OnInit, OnDestroy {
         }
       }
     );
+  }
+
+  public closeRequest () {
+    if (!this.modalContent['response']) SharedService.getSharedComponent('growl')
+      .addItem({message: 'input response, please'});
+
+    else {
+      SharedService.getSharedComponent('globalOverlay').toggle(false);
+      this.accessPointService.postRequest(
+        '/close_request',
+        {
+          requestId: this.modalContent._id,
+          adminResponse: this.modalContent.response
+        },
+        {
+          onSuccess: requestData => {
+            SharedService.getSharedComponent('globalOverlay').toggle(true);
+            this.requestsFilter.getSelectedButton().name === 'all' ?
+              this.requestsGrid.refreshRow(requestData) :
+              this.requestsGrid.removeRow(requestData);
+            this.modalState.next(false);
+          },
+          onFail: err => {
+            SharedService.getSharedComponent('globalOverlay').toggle(true);
+            SharedService.getSharedComponent('growl').addItem(err);
+          }
+        }
+      );
+    }
   }
 
   constructor (

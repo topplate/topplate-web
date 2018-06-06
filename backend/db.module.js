@@ -101,17 +101,7 @@ module.exports.getUsers = (filter) =>  {
   if (filter !== 'all') query['isSuspended'] = filter === 'suspended';
 
   models.User.find(query)
-    .then(users => deferred.resolve(users.map(user => {
-      let provider = user.lastLogged.provider;
-      return {
-        email: user.email,
-        name: user[provider].name,
-        image: user[provider].image,
-        likedPlates: user.likedPlates,
-        uploadedPlates: user.uploadedPlates,
-        status: user.isSuspended ? 'Suspended' : 'Active'
-      };
-    })))
+    .then(users => deferred.resolve(users.map(user => user.getNormalizedForAdmin())))
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
@@ -125,6 +115,41 @@ module.exports.updateUserData = (id, data) => {
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
+};
+
+module.exports.addWarning = (userId, warning) => {
+  let deferred = Q.defer();
+
+  models.User.findOne({_id: userId})
+    .then(user => {
+      user.warnings.push(warning);
+      user.save(err => {
+        if (err) deferred.reject(err);
+        else deferred.resolve(user.getNormalizedForAdmin());
+      });
+    })
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+};
+
+module.exports.toggleUserStatus = (userId, status) => {
+
+  let deferred = Q.defer();
+
+  models.User.findOne({_id: userId})
+    .then(user => {
+
+      user.isSuspended = status;
+      user.save(err => {
+        if (err) deferred.reject(err);
+        else deferred.resolve(user.getNormalizedForAdmin());
+      });
+    })
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+
 };
 
 module.exports.createPlate = (plateData, authorId) => {
@@ -278,10 +303,24 @@ module.exports.getPlatesAdmin = (statusFilter, periodFilter, envFilter) => {
   if (periodFilter !== 'all') query['isFixed'] = periodFilter === 'old';
   if (envFilter !== 'all') query['environment'] = envFilter;
 
-  console.log(query);
-
   models.Plate.find(query)
     .then(plates => deferred.resolve(plates.map(plate => plate.getNormalized())))
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+};
+
+module.exports.togglePlateStatus = (plateId, nesStatus) => {
+  let deferred = Q.defer();
+
+  models.Plate.findOne({_id: plateId})
+    .then(plate => {
+      plate.isReady = nesStatus;
+      plate.save(err => {
+        if (err) deferred.reject(err);
+        else deferred.resolve(plate.getNormalized());
+      });
+    })
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
@@ -465,6 +504,23 @@ module.exports.createRequest = (requestData) => {
   return deferred.promise;
 };
 
+module.exports.closeRequest = (requestId, message) => {
+  let deferred = Q.defer();
+
+  models.Request.findOne({_id: requestId})
+    .then(requestEntity => {
+      requestEntity.response = message;
+      requestEntity.isClosed = true;
+      requestEntity.save(err => {
+        if (err) deferred.reject(err);
+        else deferred.resolve(requestEntity);
+      });
+    })
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+};
+
 module.exports.getUserRequests = (filter) => {
   let
     deferred = Q.defer(),
@@ -562,6 +618,7 @@ function refreshUserSchema () {
     uploadedPlates: [String],
     likedPlates: [String],
     charityVotes: [String],
+    warnings: [String],
     isRobot: {
       type: Boolean,
       default: false
@@ -772,7 +829,25 @@ function refreshUserSchema () {
     return {
       _id: user._id,
       user: userData,
-      likedPlates: plates
+      likedPlates: plates,
+      warning: user.warnings
+    };
+  };
+
+  userSchema.methods.getNormalizedForAdmin = function () {
+    let
+      user = this,
+      provider = user.lastLogged.provider;
+
+    return {
+      _id: user._id,
+      email: user.email,
+      name: user[provider].name,
+      image: user[provider].image,
+      likedPlates: user.likedPlates,
+      uploadedPlates: user.uploadedPlates,
+      status: user.isSuspended ? 'Suspended' : 'Active',
+      warnings: user.warnings
     };
   };
 

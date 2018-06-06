@@ -3,6 +3,7 @@ import {AccessPointService} from '../../services/access-point.service';
 import {GridComponentModel} from '../../models/grid-component.model';
 import {FilterComponentModel} from '../../models/filter-component.model';
 import {SharedService} from '../../services/shared.service';
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
 
 @Component({
   selector: 'app-admin-plates',
@@ -62,6 +63,16 @@ export class AdminPlatesComponent implements OnInit, OnDestroy {
     }
   ]);
 
+  public modalState: BehaviorSubject<any> = new BehaviorSubject(false);
+
+  public modalContent: any;
+
+  public modalPreviewSettings = {
+    showLabel: true,
+    showGeo: true,
+    showAuthor: true
+  };
+
   private get isReady () {
     return !!this.statusFilterSubscription && !!this.periodFilterSubscription && !!this.evnFilterSubscription;
   }
@@ -95,8 +106,36 @@ export class AdminPlatesComponent implements OnInit, OnDestroy {
       label: 'Status'
     }
   ], {
-    onRowClick: row => console.log(row)
+    onRowClick: row => {
+      this.modalContent = row;
+      this.modalState.next(true);
+    }
   });
+
+  public togglePlateStatus () {
+    SharedService.getSharedComponent('globalOverlay').toggle(false);
+    this.accessPointService.postRequest(
+      '/toggle_plate_status',
+      {
+        plateId: this.modalContent._id,
+        newStatus: !this.modalContent.status
+      },
+      {
+        onSuccess: (plateData) => {
+          SharedService.getSharedComponent('globalOverlay').toggle(true);
+          this.statusFilter.getSelectedButton().name === 'all' ?
+            this.platesGrid.refreshRow(plateData) :
+            this.platesGrid.removeRow(plateData);
+          this.modalState.next(false);
+        },
+        onFail: (err) => {
+          SharedService.getSharedComponent('globalOverlay').toggle(true);
+          SharedService.getSharedComponent('growl').addItem(err);
+        }
+      }
+    );
+
+  }
 
   private loadItems () {
     if (!this.isReady) return;
