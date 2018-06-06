@@ -741,16 +741,16 @@ function refreshUserSchema () {
 
   models.User = mongoose.model('User', userSchema);
 
-  models.User.find({})
-    .then(users => {
-      users.forEach(user => {
-        user.isSuspended = false;
-        user.save(err => {
-          if (err) console.log(err);
-          else console.log(user._id + ' is updated');
-        });
-      })
-    });
+  // models.User.find({})
+  //   .then(users => {
+  //     users.forEach(user => {
+  //       user.isSuspended = false;
+  //       user.save(err => {
+  //         if (err) console.log(err);
+  //         else console.log(user._id + ' is updated');
+  //       });
+  //     })
+  //   });
 }
 
 function refreshPlateSchema () {
