@@ -1,0 +1,11 @@
+@import "../../app.component";
+
+.admin-plates {
+  padding: 100px;
+  color: $white;
+
+  .admin-plates-filter {
+    display: inline-block;
+    width: $half-size;
+  }
+}

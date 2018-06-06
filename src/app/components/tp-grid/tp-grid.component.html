@@ -1,23 +1,20 @@
-<table class="tp-grid-table table table-bordered table-stripped">
-  <thead>
-  <tr>
-    <td class="tp-grid-header-cell" [ngClass]="{isSelected: col.isSelected}"
-        *ngFor="let col of model.cols" (click)="model.emitEvent('onColumnClick', col)">
-      <div class="tp-grid-header-cell-inner">
-        <span class="tp-grid-header-cell-label">{{col.label}}</span>
-        <!--<i class="tp-grid-header-cell-icon fa" *ngIf="col.isSortable" [ngClass]="{-->
-            <!--'fa-chevron-down': !col.isReversed,-->
-            <!--'fa-chevron-up': col.isReversed-->
-          <!--}"></i>-->
-      </div>
-    </td>
-  </tr>
+<div class="tp-grid-marker-top"></div>
+<table class="tp-grid-table table table-stripped">
+  <thead class="tp-grid-static-header">
+    <tr>
+      <td class="tp-grid-header-cell" [ngClass]="{isSelected: col.isSelected}"
+          *ngFor="let col of model.cols" (click)="model.emitEvent('onColumnClick', col)">
+        <div class="tp-grid-header-cell-inner">
+          <span class="tp-grid-header-cell-label">{{col.label}}</span>
+        </div>
+      </td>
+    </tr>
   </thead>
   <tbody>
   <tr *ngFor="let row of model.rows"  (click)="model.emitEvent('onRowClick', row.data)">
     <td *ngFor="let cell of row.cells" class="tp-grid-type-{{cell.type}}">
-      <span class="tp-grid-cell-label" *ngIf="cell.type === 'string'">{{cell.value}}</span>
-      <ul class="tp-grid-cell-list" *ngIf="cell.type === 'list'">
+      <span class="tp-grid-cell-label" *ngIf="cell.type === 'string' || cell.type ==='boolean'">{{cell.value}}</span>
+      <ul class="tp-grid-cell-list" *ngIf="cell.type === 'list' || cell.type === 'object'">
         <li class="tp-grid-cell-list-item" *ngFor="let item of cell.value">
           <span class="tp-grid-cell-label">{{item}}</span>
         </li>
@@ -27,3 +24,18 @@
   </tr>
   </tbody>
 </table>
+<div class="tp-grid-fixed-header" [ngClass]="{'isVisible': fixedHeader}">
+  <table class="tp-grid-table-fixed table table-stripped">
+    <thead class="tp-grid-floating-header">
+    <tr>
+      <td class="tp-grid-header-cell" [ngClass]="{isSelected: col.isSelected}"
+          *ngFor="let col of model.cols" (click)="model.emitEvent('onColumnClick', col)">
+        <div class="tp-grid-header-cell-inner">
+          <span class="tp-grid-header-cell-label">{{col.label}}</span>
+        </div>
+      </td>
+    </tr>
+    </thead>
+  </table>
+</div>
+<div class="tp-grid-marker-bottom"></div>

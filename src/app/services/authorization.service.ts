@@ -9,6 +9,7 @@ const
   CONSTANTS = ConstantsService.getConstants(),
   AUTH_TOKEN = CONSTANTS.AUTH_TOKEN,
   USER_KEY = 'top-plate-user',
+  ADMIN_KEY = 'admin-access-token',
   PROVIDER_KEY = 'last-used-provider',
   d3 = AppD3Service.getD3();
 
@@ -18,13 +19,21 @@ declare let FB: any;
 
 export class AuthorizationService {
 
-  constructor (
-    private socialAuthService: AuthService,
-  ) {}
-
   private currentUser: Object;
 
   private adminUser: Object | null = null;
+
+  private static loadAdminAuthToken () {
+    return localStorage.getItem(ADMIN_KEY);
+  }
+
+  private static saveAdminAuthToken (token) {
+    localStorage.setItem(ADMIN_KEY, token);
+  }
+
+  private static clearAdminAuthToken () {
+    localStorage.removeItem(ADMIN_KEY);
+  }
 
   public getState () {
     return this.socialAuthService.authState;
@@ -48,6 +57,7 @@ export class AuthorizationService {
 
   public setAdminUser (adminUserData) {
     this.adminUser = adminUserData;
+    AuthorizationService.saveAdminAuthToken(adminUserData[ADMIN_KEY]);
   }
 
   public getAdminUser () {
@@ -56,6 +66,20 @@ export class AuthorizationService {
 
   public clearAdminUser () {
     this.adminUser = null;
+    AuthorizationService.clearAdminAuthToken();
+  }
+
+  constructor (
+    private socialAuthService: AuthService,
+  ) {
+    // let
+    //   adminToken = AuthorizationService.loadAdminAuthToken(),
+    //   adminUser = {};
+    //
+    // if (adminToken) {
+    //   adminUser[ADMIN_KEY] = adminToken;
+    //   this.setAdminUser(adminUser);
+    // }
   }
 }
 

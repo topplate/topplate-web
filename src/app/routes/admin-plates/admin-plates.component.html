@@ -1,3 +1,7 @@
-<p>
-  admin-plates works!
-</p>
+<div class="admin-plates">
+  <h1>Plates</h1>
+  <div class="admin-plates-filter"><app-tp-filter [model]="statusFilter"><h3>Approved</h3></app-tp-filter></div>
+  <div class="admin-plates-filter"><app-tp-filter [model]="periodFilter"><h3>Period</h3></app-tp-filter></div>
+  <div class="admin-plates-filter"><app-tp-filter [model]="envFilter"><h3>Environment</h3></app-tp-filter></div>
+  <app-tp-grid [model]="platesGrid"></app-tp-grid>
+</div>

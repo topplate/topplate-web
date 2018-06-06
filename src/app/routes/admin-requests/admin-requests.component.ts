@@ -42,11 +42,10 @@ export class AdminRequestsComponent implements OnInit, OnDestroy {
       label: 'Request'
     },
     {
-      name: 'response',
-      label: 'Request'
+      name: 'isClosed',
+      label: 'Is closed',
+      type: 'boolean'
     }
-
-
   ], {
     onRowClick: row => console.log(row)
   });

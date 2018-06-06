@@ -4,6 +4,22 @@
 
   display: block;
 
+  thead {
+    background: #fff;
+    color: #000;
+  }
+
+  .tp-grid-fixed-header {
+    position: fixed;
+    top: -200px;
+    left: 0;
+    z-index: $z-highest;
+
+    &.isVisible {
+      top: 100px;
+    }
+  }
+
   .tp-grid-table {
 
     .tp-grid-header-cell {

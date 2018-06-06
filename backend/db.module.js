@@ -269,6 +269,24 @@ module.exports.getPlatesByAuthor = (userId, env, skip = 0, lim = 11, size = 'med
   return deferred.promise;
 };
 
+module.exports.getPlatesAdmin = (statusFilter, periodFilter, envFilter) => {
+  let
+    deferred = Q.defer(),
+    query = {};
+
+  if (statusFilter !== 'all') query['isReady'] = statusFilter === 'approved';
+  if (periodFilter !== 'all') query['isFixed'] = periodFilter === 'old';
+  if (envFilter !== 'all') query['environment'] = envFilter;
+
+  console.log(query);
+
+  models.Plate.find(query)
+    .then(plates => deferred.resolve(plates.map(plate => plate.getNormalized())))
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+};
+
 module.exports.getPlate = (id, lim = 3) => {
   let deferred = Q.defer();
 
@@ -600,6 +618,35 @@ function refreshUserSchema () {
     }
   };
 
+  userSchema.methods.dislikePlate = function (plateId) {
+
+    let
+      user = this,
+      deferred = Q.defer(),
+      indexInList = user.likedPlates.indexOf(plateId);
+
+    if (indexInList === -1) deferred.reject({message: 'plate was not liked by ' + user._id});
+    else models.Plate.findOne({_id: plateId})
+      .then(plate => {
+        let indexOfUserId = plate.likes.indexOf(user._id);
+
+        user.likedPlates.splice(indexInList, 1);
+        user.save(err => {
+          if (err) deferred.reject(err);
+          else {
+            indexOfUserId > -1 && plate.likes.splice(indexOfUserId, 1);
+            plate.save(err => {
+              if (err) deferred.reject(err);
+              else deferred.resolve({message: 'plate disliked'});
+            });
+          }
+        });
+      })
+      .catch(err => deferred.reject(err));
+
+    return deferred.promise;
+  };
+
   userSchema.methods.updatePlate = function (plateId, fields) {
 
     let
@@ -905,7 +952,8 @@ function refreshPlateSchema () {
       ingredients: (plate.ingredients.length && plate.ingredients) || null,
       hasRecipe: !!plate.recipe,
       environment: plate.environment,
-      canLike: plate.canLike
+      canLike: plate.canLike,
+      status: plate.isReady
     }
   };
 

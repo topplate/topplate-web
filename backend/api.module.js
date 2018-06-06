@@ -451,6 +451,14 @@ function refreshRoutes () {
     .catch(err => sendError(res, err))
   );
 
+  app.post('/dislike_plate', (req, res) => checkAuthorization(req, true)
+    .then(user => user.dislikePlate(req.body.plate)
+      .then(updateMessage => res.send(updateMessage))
+      .catch(err => sendError(res, err))
+    )
+    .catch(err => sendError(res, err))
+  );
+
   app.get('/get_plates_by_author', (req, res) => {
     checkAuthorization(req, true)
       .then(user => getPlatesByAuthor(user.getLikedPlates()))
@@ -554,6 +562,20 @@ function refreshRoutes () {
     .then(() => global.dbModule.getUsers(req.query.filter)
       .then(users => res.send(users))
       .catch(err => sendError(res, err))
+    )
+    .catch(err => sendError(res, err))
+  );
+
+  app.get('/get_plates_admin', (req, res) => checkAuthorization(req)
+    .then(() => {
+        global.dbModule.getPlatesAdmin(
+          req.query.statusFilter,
+          req.query.periodFilter,
+          req.query.environmentFilter
+        )
+          .then(plates => res.send(plates))
+          .catch(err => sendError(res, err))
+      }
     )
     .catch(err => sendError(res, err))
   );

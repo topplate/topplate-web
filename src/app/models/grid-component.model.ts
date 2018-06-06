@@ -27,6 +27,8 @@ export class GridComponentModel {
 
         if (type === 'string') cell.value = datum;
         else if (type === 'list') cell.value = Array.isArray(datum) ? datum : [datum];
+        else if (type === 'object') cell.value = col['keys'].map(key => (datum || {})[key]);
+        else if (type === 'boolean') cell.value = !!datum;
 
         cells.push(cell);
       });
@@ -53,7 +55,8 @@ export class GridComponentModel {
       index: col.index,
       name: col.name,
       label: col.label || col.name,
-      type: col.type || 'string'
+      type: col.type || 'string',
+      keys: col.keys || []
     }));
 
     this.events = (typeof events === 'object' && events) || {};
