@@ -44,15 +44,22 @@ export class PlatesService {
       (newPlate.onLikeClick = () => {
         let currentUser = self.authorizationService.getCurrentUser();
         if (!currentUser) return;
+
+        SharedService.getSharedComponent('globalOverlay').toggle(false);
         self.accessPointService.postRequest('/like_plate',
           {plate: newPlate._id},
           {
             onSuccess: res => {
-              newPlate.likes = res.numberOfLikes === null ? newPlate.likes : res.numberOfLikes;
+              SharedService.getSharedComponent('globalOverlay').toggle(true);
+              SharedService.getSharedComponent('growl').addItem({'message': 'Liked!'});
+              newPlate.likes = res.likes === null ? newPlate.likes : res.numberOfLikes;
               newPlate.liked = true;
               self.refreshLikedPlates();
             },
-            onFail: err => SharedService.getSharedComponent('growl').addItem(err)
+            onFail: err => {
+              SharedService.getSharedComponent('globalOverlay').toggle(true);
+              SharedService.getSharedComponent('growl').addItem(err);
+            }
           }
         );
       });

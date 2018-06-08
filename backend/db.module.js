@@ -639,40 +639,35 @@ function refreshUserSchema () {
   userSchema.methods.likePlate = function (plateId) {
     let
       user = this,
-      deferred = Q.defer(),
-      isNewOne = user.likedPlates.indexOf(plateId) === -1;
+      deferred = Q.defer();
 
-    if (isNewOne) models.Plate.findOne({_id: plateId})
+    if (user.likedPlates.indexOf(plateId) < 0) models.Plate.findOne({_id: plateId})
       .then(plate => {
-        if (!plate.canLike) deferred.resolve(getNormalizedResponse(user.likedPlates, null));
+
+        if (!plate.canLike) deferred.reject({message: 'can not like ' + plateId, status: 406});
         else {
           user.likedPlates.push(plateId);
           plate.likes = plate.likes || [];
-          if (plate.likes.indexOf(user._id) === -1) plate.likes.push(user._id);
+          plate.likes.indexOf(user._id) < 0 && plate.likes.push(user._id);
 
           user.save(err => {
             if (err) deferred.reject(err);
             else plate.save(err => {
               if (err) deferred.reject(err);
-              else deferred.resolve(getNormalizedResponse(user.likedPlates, plate.likes.length));
+              else {
+                let normalizedResponse = plate.getNormalized();
+                normalizedResponse.liked = true;
+                deferred.resolve(normalizedResponse);
+              }
             });
           });
         }
       })
       .catch(err => deferred.reject(err));
 
-    else deferred.resolve(getNormalizedResponse(user.likedPlates, null));
+    else deferred.reject({message: 'user ' +  user._id + ' already liked ' + plateId, status: 406});
 
     return deferred.promise;
-
-    function getNormalizedResponse (likedPlates, numberOfLikes) {
-      let plates = {};
-      likedPlates.forEach(key => plates[key] = true);
-      return {
-        likedPlates: plates,
-        numberOfLikes: numberOfLikes
-      };
-    }
   };
 
   userSchema.methods.dislikePlate = function (plateId) {
@@ -682,7 +677,7 @@ function refreshUserSchema () {
       deferred = Q.defer(),
       indexInList = user.likedPlates.indexOf(plateId);
 
-    if (indexInList === -1) deferred.reject({message: 'plate was not liked by ' + user._id});
+    if (indexInList < 0) deferred.reject({message: 'plate ' + plateId + ' was not liked by ' + user._id});
     else models.Plate.findOne({_id: plateId})
       .then(plate => {
         let indexOfUserId = plate.likes.indexOf(user._id);
@@ -694,7 +689,11 @@ function refreshUserSchema () {
             indexOfUserId > -1 && plate.likes.splice(indexOfUserId, 1);
             plate.save(err => {
               if (err) deferred.reject(err);
-              else deferred.resolve({message: 'plate disliked'});
+              else {
+                let normalizedResponse = plate.getNormalized();
+                normalizedResponse.liked = false;
+                deferred.resolve(normalizedResponse);
+              }
             });
           }
         });
