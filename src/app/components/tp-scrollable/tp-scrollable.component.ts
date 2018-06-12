@@ -1,20 +1,10 @@
-import { Component, OnInit, DoCheck, OnDestroy, AfterViewInit, Input, ElementRef, ViewEncapsulation } from '@angular/core';
-import {Route, ActivatedRoute, ActivationEnd, NavigationEnd, Router} from '@angular/router';
-import 'rxjs/add/operator/filter';
+import { Component, OnInit, OnDestroy, ElementRef, ViewEncapsulation } from '@angular/core';
+import { NavigationEnd, Router} from '@angular/router';
 import { AppD3Service } from '../../services/d3.service';
-import { ConstantsService } from '../../services/constants.service';
-import { AuthorizationService } from '../../services/authorization.service';
 import { SharedService } from '../../services/shared.service';
-import { AccessPointService } from '../../services/access-point.service';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
 import { timer } from 'rxjs/observable/timer';
 
 const
-  CONSTANTS = ConstantsService.getConstants(),
-  ROUTES = CONSTANTS.ROUTES,
-  TYPES = CONSTANTS.TYPES,
-  ENVIRONMENTS = CONSTANTS.ENVIRONMENTS,
   ROOT_ELEM_CLASS = 'tp-scrollable',
   d3 = AppD3Service.getD3();
 
@@ -204,6 +194,14 @@ export class TpScrollableComponent implements OnInit, OnDestroy {
           .transition().duration(100).ease(d3.easeCubicOut)
           .style('transform', 'translate(0, ' + caretPosition + 'px)');
       });
+
+    SharedService.setSharedComponent('scroll', {
+      scrollTop: () => {
+        content.node().scrollTop = 0;
+        caretPosition = 0;
+        caret.style('transform', 'translate(0, ' + caretPosition + 'px)');
+      }
+    });
 
     function refreshSizes () {
         caretSize = isVisible ? (currentValues.outerHeight / currentValues.innerHeight) * currentValues.outerHeight : 0;

@@ -22,10 +22,10 @@ $nav-aside-block-width: 400px;
     text-align: right;
 
     .tp-header_envSwitch {
-      position: absolute;
+      position: fixed;
       top: $nav-height;
-      right: 10px;
-      width: 300px;
+      left: 10px;
+      width: 256px;
       height: 25px;
     }
 

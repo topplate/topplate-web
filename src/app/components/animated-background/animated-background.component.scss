@@ -23,8 +23,10 @@
 
   .animated-background_image {
     background-size: cover;
-    @include use-transition($very-slow);
     @include transformed(scale(1.1));
+    &.animationEnabled {
+      @include use-transition($very-slow);
+    }
   }
 
   .animated-background_overlay {
@@ -41,6 +43,10 @@
 
   &.panel-transparent {
 
+
+  }
+
+  .animated-background_image {
 
   }
 

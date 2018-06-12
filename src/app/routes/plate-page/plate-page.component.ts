@@ -37,14 +37,38 @@ export class PlatePageComponent implements OnInit, OnDestroy {
 
   public relatedPlatesSettings: any;
 
+  private reloadPlates (plateId) {
+    let self = this;
+
+    SharedService.getSharedComponent('globalOverlay').toggle(false);
+
+    self.accessPointService.getRequest('/get_plate', {id: plateId}, {
+      onSuccess: plateData => {
+        self.refreshPlates(plateData);
+        SharedService.getSharedComponent('globalOverlay').toggle(true);
+        SharedService.getSharedComponent('scroll').scrollTop();
+      },
+      onFail: err => {
+        SharedService.getSharedComponent('globalOverlay').toggle(true);
+        SharedService.getSharedComponent('growl').addItem(err);
+      }
+    });
+  }
+
+  private refreshPlates (plateData) {
+    let self = this;
+    self.selectedPlate = self.platesService.createPlateEntity(plateData);
+    self.relatedPlates = self.selectedPlate.relatedPlates.map(plate => self.platesService.createPlateEntity(
+      plate, {'onLinkClick': () => self.reloadPlates(plate._id)}
+    ));
+    self.platesService.refreshPlatesList([self.selectedPlate].concat(self.relatedPlates));
+  }
+
   ngOnInit () {
 
     let
       self = this,
       routeData = self.activatedRoute.snapshot.data;
-
-    self.selectedPlate = self.platesService.createPlateEntity(routeData['plate']);
-    self.relatedPlates = self.selectedPlate.relatedPlates.map(plate => self.platesService.createPlateEntity(plate));
 
     self.relatedPlatesSettings = {
       resolution: [430, 360],
@@ -54,7 +78,7 @@ export class PlatePageComponent implements OnInit, OnDestroy {
       showRecipeBanner: true
     };
 
-    self.platesService.refreshPlatesList([self.selectedPlate].concat(self.relatedPlates));
+    self.refreshPlates(routeData['plate']);
   }
 
   ngOnDestroy () {

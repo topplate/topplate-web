@@ -23,25 +23,35 @@ export class PlatesService {
 
   private platesList: PlateModel[] = [];
 
-  public createPlateEntity (initialData, allowedMethods = {
-    'onLinkClick': true,
-    'onProfileLinkClick': true,
-    'onLikeClick': true
-  }) {
+  public createPlateEntity (initialData, customAllowedMethods = {}) {
 
     let
       self = this,
-      newPlate = new PlateModel(initialData);
+      newPlate = new PlateModel(initialData),
+      defaultAllowedMethods = {
+        'onLinkClick': true,
+        'onProfileLinkClick': true,
+        'onLikeClick': true
+      },
+      allowedMethods = {};
 
-    allowedMethods && allowedMethods.onLinkClick &&
-      (newPlate.onLinkClick = () => self.router.navigate([ROUTES.EMPTY])
-          .then(() => self.router.navigate([ROUTES.PLATE + '/', newPlate._id])));
+    Object.keys(defaultAllowedMethods).forEach(key => {
+      allowedMethods[key] = customAllowedMethods[key] || defaultAllowedMethods[key];
+    });
 
-    allowedMethods && allowedMethods.onProfileLinkClick &&
+    if (allowedMethods['onLinkClick']) {
+      if (typeof allowedMethods['onLinkClick'] === 'function') newPlate.onLinkClick = () => {
+        allowedMethods['onLinkClick']();
+      };
+      else newPlate.onLinkClick = () => {
+        self.router.navigate([ROUTES.PLATE + '/', newPlate._id]);
+      };
+    }
+
+    allowedMethods['onProfileLinkClick'] &&
       (newPlate.onProfileLinkClick = () => self.router.navigate([ROUTES.PROFILE + '/', newPlate.author.id]));
 
-    allowedMethods && allowedMethods.onLikeClick &&
-      (newPlate.onLikeClick = () => {
+    allowedMethods['onLikeClick'] && (newPlate.onLikeClick = () => {
         let currentUser = self.authorizationService.getCurrentUser();
         if (!currentUser) return;
 

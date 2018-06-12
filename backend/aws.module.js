@@ -1,33 +1,66 @@
 let
-  AWS = require('aws-sdk');
+  s3 = require('s3'),
+  Q = require('q'),
+  s3Client;
 
 module.exports.refreshAWS = refreshAWS;
 
+module.exports.uploadFileToBucket = uploadFileToBucket;
+
+module.exports.downloadFileFromBucket = downloadFileFromBucket;
+
 function refreshAWS () {
-  // AWS.config.loadFromPath('aws-config.json');
-  // let
-  //   s3 = new AWS.S3(),
-  //   dbModule = global.dbModule;
+  s3Client = s3.createClient({
+    s3Options: {
+      accessKeyId: process.env.S3_KEY,
+      secretAccessKey: process.env.S3_SECRET
+    }
+  });
 
-  // dbModule.getModels().Plate.findOne({_id: '5af53b2a8feac81d8081b925'})
-  //   .then(res => {
-  //
-  //     s3.putObject({
-  //       Bucket: 'test_bucket',
-  //       Key: 'myTestFile.' + res.imageExtension,
-  //       Body: res.imageBinaryData
-  //     }, (err, data) => {
-  //       console.log(err, data);
-  //     });
-  //   })
+  /** Test */
+  // uploadFileToBucket(__dirname + '/../src/assets/restaurant-bg.jpg', 'static-pictures/restaurant-bg.jpg', 'test-bucket')
+  //   .then(res => console.log(res))
   //   .catch(err => console.log(err));
+}
 
-  // dbModule.getPlates('restaurant', null, 1)
-  //   .then(res => {
-  //     let image =
-  //       // 5af53b2a8feac81d8081b925
-  //
-  //   })
-  //   .catch(err => console.log(err));
+function uploadFileToBucket (tmpFileName, s3FileName, bucketName) {
+  let
+    deferred = Q.defer(),
+    uploader = s3Client.uploadFile({
+      localFile: tmpFileName,
+      s3Params: {
+        Bucket: bucketName,
+        Key: s3FileName
+      }
+    });
+
+  uploader.on('error', (err) => deferred.reject(err));
+
+  uploader.on('progress', () => console.log(uploader.progressMd5Amount, uploader.progressAmount, uploader.progressTotal));
+
+  uploader.on('end', () => {
+    console.log('finished');
+
+    getImageUrlFromBucket(s3FileName, bucketName)
+      .then(filePublicUrl => deferred.resolve(filePublicUrl))
+      .catch(err => deferred.reject(err))
+  });
+
+  return deferred.promise;
+}
+
+function getImageUrlFromBucket (fileName, bucketName) {
+  let
+    deferred = Q.defer(),
+    urlGetter = s3Client.getPublicUrl(fileName, bucketName);
+
+  console.log(urlGetter);
+
+  return deferred.promise;
+}
+
+function downloadFileFromBucket (file, bucketName) {
+
+
 }
 

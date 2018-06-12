@@ -1,4 +1,4 @@
-import { Component, OnInit, DoCheck, Input, ElementRef, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, ElementRef, ViewEncapsulation } from '@angular/core';
 import { ConstantsService } from '../../services/constants.service';
 import { AppD3Service } from '../../services/d3.service';
 
@@ -14,19 +14,19 @@ const
   styleUrls: ['./animated-background.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class AnimatedBackgroundComponent implements OnInit, DoCheck {
+export class AnimatedBackgroundComponent implements OnInit, OnDestroy {
 
   constructor( private reference: ElementRef ) {}
 
   @Input() private source: any;
 
-  private isReady: boolean;
-
-  private gallery: any;
+  private gallery: any[] = [];
 
   private rootElement: any;
 
-  private timer: any;
+  private onChangeTimer: any;
+
+  public animationEnabled: Boolean = true;
 
   private static getSourceImages (source) {
 
@@ -38,39 +38,40 @@ export class AnimatedBackgroundComponent implements OnInit, DoCheck {
   }
 
   private refreshView () {
-
     let
       self = this,
-      gallery = self.gallery,
-      rootElem = self.rootElement,
-      backgroundImage = rootElem.select('.animated-background_image');
+      gallery = self.gallery;
+    self.animationEnabled = false;
+    gallery[0] && self.rootElement
+      .select('.animated-background_image')
+      .style('background-image', 'url(' + gallery[0] + ')')
+      .transition().duration(1000)
+      .on('end', () => self.animationEnabled = true);
+  }
 
-    backgroundImage.style('background-image', 'url(' + gallery[0] + ')');
+  private refreshWatchers () {
+    let
+      self = this,
+      currentValue = self.gallery[0];
 
+    self.onChangeTimer = setInterval(() => {
+      self.gallery = AnimatedBackgroundComponent.getSourceImages(self.source);
+      if (self.gallery[0] !== currentValue) {
+        currentValue = self.gallery[0];
+        self.refreshView();
+      }
+    }, 100);
   }
 
   ngOnInit () {
-
-    let
-      self = this,
-      rootElement = self.rootElement = d3.select(self.reference.nativeElement).classed(ROOT_ELEM_CLASS, true);
-
+    let self = this;
+    self.rootElement = d3.select(self.reference.nativeElement).classed(ROOT_ELEM_CLASS, true);
     self.gallery = [];
-
+    self.refreshWatchers();
   }
 
-  ngDoCheck () {
-
-    let
-      self = this,
-      source = AnimatedBackgroundComponent.getSourceImages(self.source);
-
-    if (!source) self.isReady = false;
-    else if (!self.isReady) {
-      self.isReady = true;
-      self.gallery = source;
-      self.refreshView();
-    }
+  ngOnDestroy () {
+    clearInterval(this.onChangeTimer);
   }
 }
 
