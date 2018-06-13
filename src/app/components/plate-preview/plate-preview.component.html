@@ -24,7 +24,7 @@
          [ngClass]="{'likeItIcon-golden' : model.liked, 'likeItIcon-transparent' : !model.liked}"
       ></div>
       <div class="plate-preview_likeItNumber roboto-light">
-        <span class="plate-preview_likeItNumber_span">{{model.likes | bigNumber}}</span>
+        <span class="plate-preview_likeItNumber_span">{{model.likes}}</span>
         <span>{{model.isFinalized ? 'likes' : ''}}</span>
       </div>
     </div>
