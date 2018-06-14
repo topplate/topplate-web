@@ -20,7 +20,7 @@
     <div class="plate-preview_contentLikes" [ngClass]="{'isFinalized': model.isFinalized}">
       <div class="plate-preview_likeItIcon"
          *ngIf="model.canLike"
-         (click)="!model.isFinalized && model.onLikeClick && model.onLikeClick()"
+         (click)="toggleLiked()"
          [ngClass]="{'likeItIcon-golden' : model.liked, 'likeItIcon-transparent' : !model.liked}"
       ></div>
       <div class="plate-preview_likeItNumber roboto-light">

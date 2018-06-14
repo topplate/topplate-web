@@ -444,7 +444,7 @@ function refreshRoutes () {
     }
   });
 
-  app.post('/like_plate', (req, res) => checkAuthorization(req)
+  app.post('/like_plate', (req, res) => checkAuthorization(req, true)
     .then(user => user.likePlate(req.body.plate)
       .then(updateRes => res.send(updateRes))
       .catch(err => sendError(res, err)))
@@ -454,8 +454,7 @@ function refreshRoutes () {
   app.post('/dislike_plate', (req, res) => checkAuthorization(req, true)
     .then(user => user.dislikePlate(req.body.plate)
       .then(updateMessage => res.send(updateMessage))
-      .catch(err => sendError(res, err))
-    )
+      .catch(err => sendError(res, err)))
     .catch(err => sendError(res, err))
   );
 

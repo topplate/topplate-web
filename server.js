@@ -85,11 +85,7 @@ function runServer (refreshSchemas) {
   dbModule.connect()
     .then(connection => {
       console.log('db connection established');
-
       refreshSchemas && dbModule.refreshSchemas();
-      CHECK_PLATES_BEFORE_RUNNING && refreshSchemas && dbModule.refreshPlates()
-        .then(refreshResult => console.log('all plates were checked'))
-        .catch(err => console.log(err));
       console.log('now running server...');
       server = USE_LOCAL_CERT ?
         https.createServer(certOptions, app).listen(port, () => onServerRun(server)) :

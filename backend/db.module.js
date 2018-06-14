@@ -2,6 +2,7 @@ const
   Q = require('q'),
   fs = require('fs'),
   jimp = require('jimp'),
+  moment = require('moment'),
   mongoose = require('mongoose'),
   ObjectId = require('mongodb').ObjectID,
   isBuffer = require('is-buffer'),
@@ -157,12 +158,13 @@ module.exports.createPlate = (plateData, authorId) => {
   let
     Plate = models.Plate,
     deferred = Q.defer(),
+    imageBinaryData = isBuffer(plateData.image) ? plateData.image : new Buffer(plateData.image, 'binary'),
     creationData = {
       name: plateData.name,
+      week: getWeekName(),
       environment: plateData.environment,
       email: plateData.email,
       imageSource: 'plate' + (new Date()).getTime(),
-      imageBinaryData: isBuffer(plateData.image) ? plateData.image : new Buffer(plateData.image, 'binary'),
       imageExtension: plateData.extension || getFileExtension(plateData.contentType),
       imageContentType: plateData.contentType,
       geo: plateData.geo,
@@ -194,7 +196,7 @@ module.exports.createPlate = (plateData, authorId) => {
 
       newPlate.save(err => {
         if (err) deferred.reject(err);
-        else newPlate.refreshFiles(' by ' + newPlate.author.name)
+        else newPlate.refreshFiles(imageBinaryData, ' by ' + newPlate.author.name)
           .then(res => {
             plateAuthor.uploadedPlates.push(newPlate._id);
             plateAuthor.save(err => {
@@ -543,6 +545,7 @@ module.exports.getModels = () => models;
 
 module.exports.getFileExtension = getFileExtension;
 
+/** Schemas */
 function refreshMongoose () {
   mongoose.Promise = Promise;
   mongoose.set('debug', false);
@@ -677,7 +680,7 @@ function refreshUserSchema () {
       .then(plate => {
         let indexOfUserId = plate.likes.indexOf(user._id);
         indexInList >= 0 && user.likedPlates.splice(indexInList, 1);
-        indexOfUserId >= -1 && plate.likes.splice(indexOfUserId, 1);
+        indexOfUserId >= 0 && plate.likes.splice(indexOfUserId, 1);
         user.save(err => {
           if (err) deferred.reject(err);
           else plate.save(err => {
@@ -882,10 +885,6 @@ function refreshPlateSchema () {
       type: String,
       required: true
     },
-    imageBinaryData: {
-      type: Buffer,
-      required: true
-    },
     imageExtension: {
       type: String,
       required: true
@@ -894,6 +893,7 @@ function refreshPlateSchema () {
       type: String,
       required: true
     },
+    week: String,
     geo: [Number], /** long lat double */
     country: String,
     city: String,
@@ -920,8 +920,8 @@ function refreshPlateSchema () {
   });
 
   plateSchema.index({environment: 1});
-
   plateSchema.index({createdAt: 1});
+  plateSchema.index({week: 1});
 
   plateSchema.methods.likeIt = function (userId) {
 
@@ -942,7 +942,7 @@ function refreshPlateSchema () {
     return deferred.promise;
   };
 
-  plateSchema.methods.refreshFiles = function (additionalMessage) {
+  plateSchema.methods.refreshFiles = function (imageBinaryData, additionalMessage) {
 
     let
       thisOne = this,
@@ -977,7 +977,7 @@ function refreshPlateSchema () {
       console.log('is up to date');
       deferred.resolve({message: 'up to date'});
     }
-    else jimp.read(thisOne.imageBinaryData)
+    else jimp.read(imageBinaryData)
       .then(res => createSizedFiles(res))
       .catch(err => {
         console.log(err);
@@ -989,19 +989,18 @@ function refreshPlateSchema () {
     function createSizedFiles (originalImage) {
 
       let
-        createdFiles = 0,
-        len = sizes.length;
+        i = 0,
+        createSizedFile = size => {
+          if (!size) deferred.resolve({message: 'all images were created'});
+          else originalImage
+            .scale(size.scale)
+            .write(plateDir + '/' + size.name + '.' + thisOne.imageExtension, function (err) {
+              if (err) deferred.reject(err);
+              else createSizedFile(sizes[++i]);
+            });
+        };
 
-      sizes.forEach(size => originalImage
-        .scale(size.scale)
-        .write(plateDir + '/' + size.name + '.' + thisOne.imageExtension, function (err) {
-          if (err) deferred.reject(err);
-          else {
-            createdFiles += 1;
-            createdFiles === len && deferred.resolve({message: 'all images were created'});
-          }
-        })
-      );
+      createSizedFile(sizes[i]);
     }
   };
 
@@ -1184,6 +1183,11 @@ function getFileExtension (contentType) {
     'image/gif': 'gif',
     'image/jpeg': 'jpg'
   }[contentType];
+}
+
+function getWeekName () {
+  let date = moment();
+  return date.year() + '_' + date.month() + '_' + date.week();
 }
 
 function getSorted (arr, prop) {

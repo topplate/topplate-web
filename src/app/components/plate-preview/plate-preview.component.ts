@@ -23,6 +23,12 @@ export class PlatePreviewComponent implements OnInit, DoCheck, OnDestroy {
 
   public rootElem: any;
 
+  public toggleLiked () {
+    console.log(this.model);
+
+    return this.model[this.model.liked ? 'onDislikeClick' : 'onLikeClick']();
+  }
+
   ngOnInit () {
 
     const self = this;

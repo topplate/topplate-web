@@ -23,7 +23,7 @@ export class PlateModel {
 
   public address: String;
 
-  public likes: Number;
+  public likes: any = 0;
 
   public liked: Boolean;
 
@@ -45,6 +45,18 @@ export class PlateModel {
   public onProfileLinkClick: any;
 
   public onLikeClick: any;
+
+  public onDislikeClick: any;
+
+  public likeIt () {
+    this.likes += 1;
+    this.liked = true;
+  }
+
+  public dislikeIt () {
+    this.likes = this.likes > 0 ? this.likes - 1 : 0;
+    this.liked = false;
+  }
 
 }
 

@@ -57,9 +57,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       onReady: growlApi => {
         this.appGrowl['api'] = growlApi;
         SharedService.setSharedComponent('growl', this.appGrowl['api']);
-      },
-      onShow: growlItem => console.log(growlItem),
-      onHide: () => console.log('item closed')
+      }
     },
     api: null
   };

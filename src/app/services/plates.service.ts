@@ -31,7 +31,8 @@ export class PlatesService {
       defaultAllowedMethods = {
         'onLinkClick': true,
         'onProfileLinkClick': true,
-        'onLikeClick': true
+        'onLikeClick': true,
+        'onDislikeClick': true
       },
       allowedMethods = {};
 
@@ -52,27 +53,56 @@ export class PlatesService {
       (newPlate.onProfileLinkClick = () => self.router.navigate([ROUTES.PROFILE + '/', newPlate.author.id]));
 
     allowedMethods['onLikeClick'] && (newPlate.onLikeClick = () => {
-        let currentUser = self.authorizationService.getCurrentUser();
-        if (!currentUser) return;
+      let currentUser = self.authorizationService.getCurrentUser();
+      if (!currentUser) {
+        SharedService.getSharedComponent('growl').addItem({warning: true, message: 'Please, sign in'});
+        SharedService.getSharedComponent('signInModal').toggle(true);
+        return;
+      }
 
-        SharedService.getSharedComponent('globalOverlay').toggle(false);
-        self.accessPointService.postRequest('/like_plate',
-          {plate: newPlate._id},
-          {
-            onSuccess: res => {
-              SharedService.getSharedComponent('globalOverlay').toggle(true);
-              SharedService.getSharedComponent('growl').addItem({'message': 'Liked!'});
-              newPlate.likes = res.likes === null ? newPlate.likes : res.numberOfLikes;
-              newPlate.liked = true;
-              self.refreshLikedPlates();
-            },
-            onFail: err => {
-              SharedService.getSharedComponent('globalOverlay').toggle(true);
-              SharedService.getSharedComponent('growl').addItem(err);
-            }
+      SharedService.getSharedComponent('globalOverlay').toggle(false);
+      self.accessPointService.postRequest('/like_plate',
+        {plate: newPlate._id},
+        {
+          onSuccess: res => {
+            SharedService.getSharedComponent('globalOverlay').toggle(true);
+            SharedService.getSharedComponent('growl').addItem({'message': 'Liked!'});
+            newPlate.likeIt();
+            self.refreshLikedPlates();
+          },
+          onFail: err => {
+            SharedService.getSharedComponent('globalOverlay').toggle(true);
+            SharedService.getSharedComponent('growl').addItem(err);
           }
-        );
-      });
+        }
+      );
+    });
+
+    allowedMethods['onDislikeClick'] && (newPlate.onDislikeClick = () => {
+      let currentUser = self.authorizationService.getCurrentUser();
+      if (!currentUser) {
+        SharedService.getSharedComponent('growl').addItem({warning: true, message: 'Please, sign in'});
+        SharedService.getSharedComponent('signInModal').toggle(true);
+        return;
+      }
+
+      SharedService.getSharedComponent('globalOverlay').toggle(false);
+      self.accessPointService.postRequest('/dislike_plate',
+        {plate: newPlate._id},
+        {
+          onSuccess: res => {
+            SharedService.getSharedComponent('globalOverlay').toggle(true);
+            SharedService.getSharedComponent('growl').addItem({'message': 'Disliked'});
+            newPlate.dislikeIt();
+            self.refreshLikedPlates();
+          },
+          onFail: err => {
+            SharedService.getSharedComponent('globalOverlay').toggle(true);
+            SharedService.getSharedComponent('growl').addItem(err);
+          }
+        }
+      );
+    });
 
     return newPlate;
   }
@@ -97,6 +127,7 @@ export class PlatesService {
     if (!user) self.platesList.forEach(plate => plate.liked = false);
     else self.accessPointService.getRequest('/get_liked_plates', {}, {
       onSuccess: likedPlates => {
+        console.log(likedPlates, self.platesList);
         self.platesList.forEach(plate => plate.liked = likedPlates[plate._id] || false);
       },
       onFail: err => SharedService.getSharedComponent('growl').addItem(err)
