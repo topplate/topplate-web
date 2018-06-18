@@ -70,7 +70,7 @@ export class TpPlateUploadModalComponent implements OnInit {
 
     if (!currentUser || !this.isReadyToBeSubmitted) return;
     let fReader = new FileReader();
-    
+
     fReader.onloadend = function (onReadyEvent) {
       let formValue = form.value;
       self.accessPointService.postRequest('/add_plate', {

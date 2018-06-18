@@ -127,7 +127,6 @@ export class PlatesService {
     if (!user) self.platesList.forEach(plate => plate.liked = false);
     else self.accessPointService.getRequest('/get_liked_plates', {}, {
       onSuccess: likedPlates => {
-        console.log(likedPlates, self.platesList);
         self.platesList.forEach(plate => plate.liked = likedPlates[plate._id] || false);
       },
       onFail: err => SharedService.getSharedComponent('growl').addItem(err)

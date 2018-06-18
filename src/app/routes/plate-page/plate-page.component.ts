@@ -7,6 +7,7 @@ import { AuthorizationService } from '../../services/authorization.service';
 import { AccessPointService } from '../../services/access-point.service';
 import { PlatesService } from '../../services/plates.service';
 import { PlateModel } from '../../models/plate.model';
+import { Location } from '@angular/common';
 
 const
   CONSTANTS = ConstantsService.getConstants(),
@@ -21,15 +22,9 @@ const
 })
 export class PlatePageComponent implements OnInit, OnDestroy {
 
-  constructor (
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private authorizationService: AuthorizationService,
-    private accessPointService: AccessPointService,
-    private platesService: PlatesService
-  ) {}
+  private relocationTimer: any;
 
-  public changesObserver: any;
+  private isReloading: Boolean = false;
 
   public selectedPlate: PlateModel;
 
@@ -37,18 +32,34 @@ export class PlatePageComponent implements OnInit, OnDestroy {
 
   public relatedPlatesSettings: any;
 
+  private setRelocationTimer () {
+    this.clearRelocationTimer();
+    this.relocationTimer = setInterval(() => {
+      if (this.isReloading) return;
+      let currentId = this.location.path().replace(/^\/plate\//, '');
+      if (currentId !== this.selectedPlate._id) this.reloadPlates(currentId);
+    }, 100);
+  }
+
+  private clearRelocationTimer () {
+    if (this.relocationTimer) clearInterval(this.relocationTimer);
+    this.relocationTimer = null;
+  }
+
   private reloadPlates (plateId) {
     let self = this;
 
+    this.isReloading = true;
     SharedService.getSharedComponent('globalOverlay').toggle(false);
-
     self.accessPointService.getRequest('/get_plate', {id: plateId}, {
       onSuccess: plateData => {
+        this.isReloading = false;
         self.refreshPlates(plateData);
         SharedService.getSharedComponent('globalOverlay').toggle(true);
         SharedService.getSharedComponent('scroll').scrollTop();
       },
       onFail: err => {
+        this.isReloading = false;
         SharedService.getSharedComponent('globalOverlay').toggle(true);
         SharedService.getSharedComponent('growl').addItem(err);
       }
@@ -59,10 +70,23 @@ export class PlatePageComponent implements OnInit, OnDestroy {
     let self = this;
     self.selectedPlate = self.platesService.createPlateEntity(plateData);
     self.relatedPlates = self.selectedPlate.relatedPlates.map(plate => self.platesService.createPlateEntity(
-      plate, {'onLinkClick': () => self.reloadPlates(plate._id)}
-    ));
+      plate, {'onLinkClick': () => {
+        self.reloadPlates(plate._id);
+        history.pushState('/plate/' + plate._id, '');
+        self.location.replaceState('/plate/' + plate._id);
+      }
+    }));
     self.platesService.refreshPlatesList([self.selectedPlate].concat(self.relatedPlates));
   }
+
+  constructor (
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+    private authorizationService: AuthorizationService,
+    private accessPointService: AccessPointService,
+    private platesService: PlatesService,
+    private location: Location
+  ) {}
 
   ngOnInit () {
 
@@ -79,10 +103,11 @@ export class PlatePageComponent implements OnInit, OnDestroy {
     };
 
     self.refreshPlates(routeData['plate']);
+    self.setRelocationTimer();
   }
 
   ngOnDestroy () {
-
+    this.clearRelocationTimer();
   }
 
 }
