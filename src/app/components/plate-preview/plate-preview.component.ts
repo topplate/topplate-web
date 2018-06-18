@@ -30,7 +30,7 @@ export class PlatePreviewComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   public get showGeo () {
-    return this.model && this.settings.showGeo && this.model.address.replace(/\s/g, '').length;
+    return this.model && this.settings.showGeo && this.model.address && this.model.address.replace(/\s/g, '').length;
   }
 
   public onMouseOver () {
