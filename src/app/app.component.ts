@@ -48,7 +48,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     {
       label: 'how it works',
       icon: 'how-it-works',
-      navigateTo: [CONSTANTS.ADMIN_ROUTES.ADMIN_ENTRANCE]
+      navigateTo: [ROUTES.HOW_IT_WORKS]
     },
     {
       label: 'plate of the week',
@@ -91,69 +91,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   };
 
   public banner: any;
-
-  private getUploadPlateForm () {
-    let
-      self = this,
-      selectedEnvironment = self.environmentService.getCurrent(),
-      form = new FormGroup({
-        name: new FormControl('', Validators.required),
-        address: new FormControl('', Validators.required),
-        image: new FormControl('', Validators.required)
-      });
-
-    if (selectedEnvironment === CONSTANTS.ENVIRONMENTS.HOMEMADE) {
-      form.addControl('recipe', new FormControl());
-    } else {
-      form.addControl('restaurantName', new FormControl());
-    }
-
-    return form;
-  }
-
-  public onPlateSubmit () {
-    let
-      self = this,
-      plateUploadForm = self.plateUploadModal.plateUploadForm,
-      plateUploadedImage = self.plateUploadModal.uploadedImage,
-      currentUser = self.authorizationService.getCurrentUser();
-
-    if (!currentUser || !plateUploadForm.valid || !plateUploadedImage['isUploaded']) return;
-    let fReader = new FileReader();
-
-    fReader.onloadend = function (onReadyEvent) {
-      let formValue = plateUploadForm.value;
-
-      self.accessPointService.postRequest('/add_plate', {
-        name: formValue.name,
-        environment: self.environmentService.getCurrent(),
-        email: formValue.email,
-        image: onReadyEvent.target['result'],
-        extension: plateUploadedImage['fileExtension'],
-        contentType: plateUploadedImage['contentType'],
-        address: formValue.address || '',
-        recipe: formValue.recipe || '',
-        restaurantName: formValue.restaurantName || '',
-        author: currentUser['_id']
-      }, {
-        onSuccess: (res) => {
-          console.log(res);
-          SharedService.getSharedComponent('globalOverlay').toggle(true);
-          SharedService.getSharedComponent('plateUploadModal').toggle(false);
-          SharedService.getSharedComponent('growl').addItem(res);
-        },
-        onFail: err => {
-          SharedService.getSharedComponent('globalOverlay').toggle(true);
-          SharedService.getSharedComponent('plateUploadModal').toggle(false);
-          SharedService.getSharedComponent('growl').addItem(err);
-        }
-      });
-    };
-
-    SharedService.getSharedComponent('globalOverlay').toggle(false);
-
-    fReader.readAsBinaryString(plateUploadedImage['originalImage']);
-  }
 
   public get isAdminRoute () {
     let self = this;

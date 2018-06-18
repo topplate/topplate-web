@@ -48,10 +48,12 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
       link: [ROUTES.CONTACTS]
     },
     {
-      label: 'privacy term'
+      label: 'privacy term',
+      link: [ROUTES.PRIVACY_TERM]
     },
     {
-      label: 'copyright'
+      label: 'copyright',
+      link: [ROUTES.COPYRIGHT]
     },
     {
       label: 'log out',

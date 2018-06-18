@@ -25,8 +25,6 @@ export class EnvironmentGuard implements CanActivate {
       self = this,
       currentEnv = self.environmentService.getCurrent();
 
-    console.log(currentEnv);
-
     if (!currentEnv) {
       self.router.navigate([ROUTES.SELECT_ENV]);
       return false;

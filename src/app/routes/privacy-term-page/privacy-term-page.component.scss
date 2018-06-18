@@ -1,0 +1,19 @@
+@import "../../app.component";
+
+.privacy-term-page_header {
+  width: $full-size;
+  height: 350px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  color: $white;
+  text-align: center;
+  background-size: cover;
+  background-image: url(../../../assets/privacy-term-page-bg.jpg);
+}
+
+.privacy-term-page_body {
+  padding: 50px;
+  color: $white;
+}

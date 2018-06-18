@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation} from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewEncapsulation} from '@angular/core';
 import { Route, ActivatedRoute, Router } from '@angular/router';
 import { AppD3Service } from '../../services/d3.service';
 import { ConstantsService } from '../../services/constants.service';
@@ -30,7 +30,8 @@ export class SearchPageComponent implements OnInit {
   constructor (
     private accessPointService: AccessPointService,
     private environmentService: EnvironmentService,
-    private platesService: PlatesService
+    private platesService: PlatesService,
+    private ref: ElementRef
   ) {}
 
   public items: PlateModel[] = [];
@@ -44,6 +45,8 @@ export class SearchPageComponent implements OnInit {
     showRecipeBanner: true
   };
 
+  private rootElement: any;
+
   public searchTerm: Subject<string> = new Subject<string>();
 
   public environmentChangeWatcher: any;
@@ -54,6 +57,10 @@ export class SearchPageComponent implements OnInit {
       key = event.which;
 
     self.searchTerm.next(event.target['value']);
+  }
+
+  public focus () {
+    this.rootElement.select('.search-plate_input-target').node().focus();
   }
 
   private doSearch (term, env) {
@@ -95,5 +102,9 @@ export class SearchPageComponent implements OnInit {
         self.doSearch(currentVal, currentEnv);
       }
     });
+
+    self.rootElement = d3.select(this.ref.nativeElement);
+
+    self.focus();
   }
 }

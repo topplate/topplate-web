@@ -5,12 +5,15 @@ const CONSTANTS = {
   'ROUTES': {
     'HOME': '',
     'SELECT_ENV': 'select-environment',
+    'HOW_IT_WORKS': 'how-it-works',
     'PLATES': 'plates',
     'WINNERS': 'winners',
     'PLATE': 'plate',
     'PROFILE': 'profile',
     'CHARITY_CHOICE': 'charity-choice',
     'CONTACTS': 'contacts',
+    'COPYRIGHT': 'copyright',
+    'PRIVACY_TERM': 'privacy-term',
     'SEARCH': 'search',
     'EMPTY': 'empty',
     'OTHERWISE': '**'

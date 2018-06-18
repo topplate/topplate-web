@@ -29,6 +29,24 @@ export class PlatePreviewComponent implements OnInit, DoCheck, OnDestroy {
     return this.model[this.model.liked ? 'onDislikeClick' : 'onLikeClick']();
   }
 
+  public get showGeo () {
+    return this.model && this.settings.showGeo && this.model.address.replace(/\s/g, '').length;
+  }
+
+  public onMouseOver () {
+    let
+      tooltip = this.rootElem.select('.plate-preview_contentGeo-full'),
+      metaElem = this.rootElem.select('.plate-preview_contentMeta'),
+      metaElemSize = metaElem.node().getBoundingClientRect().width,
+      tooltipSize = tooltip.node().getBoundingClientRect().width;
+
+    tooltip.classed('isVisible', tooltipSize > metaElemSize);
+  }
+
+  public onMouseOut () {
+    this.rootElem.select('.plate-preview_contentGeo-full').classed('isVisible', false);
+  }
+
   ngOnInit () {
 
     const self = this;

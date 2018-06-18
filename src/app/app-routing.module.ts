@@ -31,6 +31,9 @@ import { AdminUsersComponent } from './routes/admin-users/admin-users.component'
 import { AdminPlatesComponent } from './routes/admin-plates/admin-plates.component';
 import { AdminRequestsComponent } from './routes/admin-requests/admin-requests.component';
 import { AdminContactsComponent } from './routes/admin-contacts/admin-contacts.component';
+import { HowItWorksPageComponent } from './routes/how-it-works-page/how-it-works-page.component';
+import { PrivacyTermPageComponent } from './routes/privacy-term-page/privacy-term-page.component';
+import { CopyrightPageComponent } from './routes/copyright-page/copyright-page.component';
 
 const
   CONSTANTS = ConstantsService.getConstants(),
@@ -75,7 +78,10 @@ const
     AdminUsersComponent,
     AdminPlatesComponent,
     AdminRequestsComponent,
-    AdminContactsComponent
+    AdminContactsComponent,
+    HowItWorksPageComponent,
+    PrivacyTermPageComponent,
+    CopyrightPageComponent
   ],
 
   schemas: [
@@ -112,6 +118,15 @@ const appRoutes: Routes = [
     },
     resolve: {
       plates: PlatesResolver
+    }
+  },
+  {
+    path: ROUTES.HOW_IT_WORKS,
+    component: HowItWorksPageComponent,
+    canActivate: [EnvironmentGuard],
+    data: {
+      showHomeButton: true,
+      label: 'How it works'
     }
   },
   {
@@ -168,6 +183,22 @@ const appRoutes: Routes = [
     },
     resolve: {
       contactsData: ContactsResolver
+    }
+  },
+  {
+    path: ROUTES.COPYRIGHT,
+    component: CopyrightPageComponent,
+    data: {
+      showHomeButton: true,
+      label: 'Copyright'
+    }
+  },
+  {
+    path: ROUTES.PRIVACY_TERM,
+    component: PrivacyTermPageComponent,
+    data: {
+      showHomeButton: true,
+      label: 'Privacy term'
     }
   },
   {

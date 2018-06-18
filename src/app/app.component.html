@@ -11,49 +11,6 @@
 
 <app-tp-plate-upload-modal></app-tp-plate-upload-modal>
 
-<!--<app-modal class="top-plate_plateUploadModal" (ngSubmit)="onPlateSubmit()" [(state)]="plateUploadModal.state">-->
-  <!--<div class="plate-uploader_content roboto-light uppercase">-->
-    <!--<form [formGroup]="plateUploadModal.plateUploadForm" class="plate-uploader_form">-->
-      <!--<div class="plate-uploader_contentHeader">-->
-        <!--<div class="cooking-icon"></div>-->
-        <!--<div class="submit-photo"></div>-->
-        <!--&lt;!&ndash;<p class="plate-uploader_contentHeader_label uppercase">submit photo</p>&ndash;&gt;-->
-      <!--</div>-->
-      <!--<fieldset>-->
-        <!--<div class="plate-uploader_textInput">-->
-          <!--<input type="text" formControlName="name" placeholder="NAME OR ALIAS*">-->
-        <!--</div>-->
-        <!--<div class="plate-uploader_textInput" [hidden]="!plateUploadModal.showEmailField">-->
-          <!--<input type="email" formControlName="email" placeholder="EMAIL ADDRESS*">-->
-          <!--<span class="plate-uploader_textInputComment uppercase">topplate.com will not share your address but we need to be able to contact you if you win!</span>-->
-        <!--</div>-->
-        <!--<div class="plate-uploader_textInput">-->
-          <!--<input type="text" formControlName="address" placeholder="CITY, STATE*">-->
-        <!--</div>-->
-      <!--</fieldset>-->
-      <!--<fieldset>-->
-        <!--<app-image-uploader class="plate-uploader_imageInput" [(model)]="plateUploadModal.uploadedImage">-->
-          <!--<input type="checkbox" formControlName="image" title="if image is uploaded">-->
-        <!--</app-image-uploader>-->
-      <!--</fieldset>-->
-      <!--<fieldset>-->
-        <!--<div class="plate-uploader_recipe">-->
-          <!--<div class="plate-uploader_textInput plate-uploader_recipeInput">-->
-            <!--<textarea formControlName="recipe" cols="30" rows="5" placeholder="ADD RECIPE"></textarea>-->
-          <!--</div>-->
-        <!--</div>-->
-        <!--<div class="plate-uploader_textInput" [hidden]="!plateUploadModal.showRestaurantNameField">-->
-          <!--<input type="text" formControlName="restaurantName" placeholder="RESTAURANT NAME*">-->
-        <!--</div>-->
-      <!--</fieldset>-->
-      <!--<button type="submit" class="plate-uploader_button"-->
-              <!--[ngClass]="{'isReady': plateUploadModal.isReadyToSubmit}"-->
-              <!--(click)="onPlateSubmit()">SUBMIT</button>-->
-    <!--</form>-->
-  <!--</div>-->
-
-<!--</app-modal>-->
-
 <div class="top-plate_globalOverlay" [hidden]="isReadyToBeShown">
   <i class="top-plate_globalOverlayIcon fa fa-circle-o-notch fa-spin"></i>
 </div>
