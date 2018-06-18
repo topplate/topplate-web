@@ -19,10 +19,10 @@ const
 export class AdminEntranceComponent implements OnInit {
 
   public adminLoginForm: FormGroup = new FormGroup({
-    // login: new FormControl('', Validators.required),
-    // password: new FormControl('', Validators.required)
-    login: new FormControl('The_Chosen_One', Validators.required),
-    password: new FormControl('Enter_The_Matrix', Validators.required)
+    login: new FormControl('', Validators.required),
+    password: new FormControl('', Validators.required)
+    // login: new FormControl('The_Chosen_One', Validators.required),
+    // password: new FormControl('Enter_The_Matrix', Validators.required)
   });
 
   public submit () {

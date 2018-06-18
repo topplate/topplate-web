@@ -49,6 +49,14 @@
     display: none;
   }
 
+  .top-plate_imageUploader_closeBtn {
+    display: block;
+    width: 40px;
+    height: 40px;
+    background-size: cover;
+    background-image: url(../../../assets/icons/close_icon.png);
+  }
+
   .top-plate_imageUploader_icon {
     display: inline-block;
     width: 50px;
