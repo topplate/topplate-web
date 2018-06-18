@@ -2,7 +2,7 @@
 
   <div *ngIf="!isAdminRoute">
 
-    <div class="tp-header_envSwitch">
+    <div class="tp-header_envSwitch" [hidden]="!showSwitch">
       <app-tp-switch [items]="switchItems" [events]="switchEvents"></app-tp-switch>
     </div>
 
@@ -37,8 +37,6 @@
         </li>
       </ul>
     </div>
-
-
   </div>
 
   <div class="tp-header_admin-links-wrapper" *ngIf="isAdminRoute && loggedAsAdmin">

@@ -91,6 +91,8 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
     }
   ];
 
+  public showSwitch: Boolean = false;
+
   public switchObserver: any;
 
   public switchItems: Object[] = this.environmentService.getAvailableEnvironments().map(str => {
@@ -192,6 +194,7 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
         self.isAdminRoute = self.currentStateData['isAdminRoute'];
         SharedService.isAdminRoute = self.isAdminRoute;
         linksToObserve.forEach(link => link['isHidden'] = !self.currentStateData['showHomeButton']);
+        self.showSwitch = self.currentStateData['showEnvironmentSwitch'] === true;
       }
     });
   }

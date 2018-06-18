@@ -106,6 +106,7 @@ const appRoutes: Routes = [
     component: PlatesPageComponent,
     canActivate: [EnvironmentGuard],
     data: {
+      showEnvironmentSwitch: true,
       showHomeButton: false,
       label: 'Plates'
     },
@@ -128,6 +129,7 @@ const appRoutes: Routes = [
     path: ROUTES.WINNERS,
     component: WinnersPageComponent,
     data: {
+      showEnvironmentSwitch: true,
       showHomeButton: true,
       label: 'Winners'
     },
@@ -173,6 +175,7 @@ const appRoutes: Routes = [
     component: SearchPageComponent,
     canActivate: [EnvironmentGuard],
     data: {
+      showEnvironmentSwitch: true,
       showHomeButton: true,
       label: 'Search'
     }
