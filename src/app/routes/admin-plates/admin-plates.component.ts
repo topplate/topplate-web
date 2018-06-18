@@ -3,7 +3,7 @@ import {AccessPointService} from '../../services/access-point.service';
 import {GridComponentModel} from '../../models/grid-component.model';
 import {FilterComponentModel} from '../../models/filter-component.model';
 import {SharedService} from '../../services/shared.service';
-import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
   selector: 'app-admin-plates',
@@ -150,7 +150,10 @@ export class AdminPlatesComponent implements OnInit, OnDestroy {
       {
         onSuccess: listOfPlates => {
           SharedService.getSharedComponent('globalOverlay').toggle(true);
-          this.platesGrid.refreshRows(listOfPlates);
+          this.platesGrid.refreshRows(listOfPlates.map(plate => {
+            plate.canLike = false;
+            return plate;
+          }));
         },
         onFail: err => {
           SharedService.getSharedComponent('globalOverlay').toggle(true);

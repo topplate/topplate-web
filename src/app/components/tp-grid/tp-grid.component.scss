@@ -47,6 +47,13 @@
       text-align: center;
     }
 
+    .tp-grid-body-row {
+      cursor: pointer;
+      &:hover {
+        background: rgba(255, 255, 255, .3);
+      }
+    }
+
     .tp-grid-cell-list {
       padding: 0;
 

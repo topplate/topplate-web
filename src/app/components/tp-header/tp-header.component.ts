@@ -56,6 +56,10 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
       link: [ROUTES.COPYRIGHT]
     },
     {
+      label: 'admin',
+      link: [CONSTANTS.ADMIN_ROUTES.ADMIN_ENTRANCE]
+    },
+    {
       label: 'log out',
       action: 'onSignOutButtonClick'
     }
