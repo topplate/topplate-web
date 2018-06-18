@@ -217,15 +217,18 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
       events = self.events || {};
 
     if (clickedItem.link) self.router.navigate(clickedItem.link);
-    else if (clickedItem.action) typeof events[clickedItem.action] === 'function' && events[clickedItem.action].call();
+    else if (clickedItem.action) typeof this[clickedItem.action] === 'function' && this[clickedItem.action]();
   }
 
   public onSignInButtonClick () {
-    let
-      self = this,
-      events = self.events || {};
+    let self = this;
+    SharedService.getSharedComponent('signInModal').toggle(true);
+  }
 
-    typeof events['onSignInButtonClick'] === 'function' && events['onSignInButtonClick'].call();
+  public onSignOutButtonClick () {
+    this.authorizationService.signOut().catch(err =>
+      SharedService.getSharedComponent('growl').addItem(err)
+    );
   }
 
   public onProfileButtonClick () {

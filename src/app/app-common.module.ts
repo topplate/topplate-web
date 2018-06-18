@@ -1,6 +1,7 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BigNumberPipe } from './pipes/big-number.pipe';
 import { SplittedStringPipe } from './pipes/splitted-string.pipe';
 import { HeaderComponent } from './components/header/header.component';
@@ -18,11 +19,16 @@ import { TpScrollableComponent } from './components/tp-scrollable/tp-scrollable.
 import { TpGrowlComponent } from './components/tp-growl/tp-growl.component';
 import { TpFilterComponent } from './components/tp-filter/tp-filter.component';
 import { TpGridComponent } from './components/tp-grid/tp-grid.component';
+import { TpSignInModalComponent } from './components/tp-sign-in-modal/tp-sign-in-modal.component';
+import { TpPlateUploadModalComponent } from './components/tp-plate-upload-modal/tp-plate-upload-modal.component';
+import { TpCollectionComponent } from './components/tp-collection/tp-collection.component';
 
 @NgModule({
   imports: [
     CommonModule,
-    RouterModule
+    RouterModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
 
   providers: [],
@@ -44,7 +50,10 @@ import { TpGridComponent } from './components/tp-grid/tp-grid.component';
     TpScrollableComponent,
     TpGrowlComponent,
     TpFilterComponent,
-    TpGridComponent
+    TpGridComponent,
+    TpSignInModalComponent,
+    TpPlateUploadModalComponent,
+    TpCollectionComponent
   ],
 
   schemas: [
@@ -68,7 +77,9 @@ import { TpGridComponent } from './components/tp-grid/tp-grid.component';
     TpScrollableComponent,
     TpGrowlComponent,
     TpFilterComponent,
-    TpGridComponent
+    TpGridComponent,
+    TpSignInModalComponent,
+    TpPlateUploadModalComponent
   ]
 })
 

@@ -1,0 +1,15 @@
+<div class="tp-collection-list-header roboto-light uppercase">Ingredients</div>
+
+<ul class="tp-collection-list roboto-light uppercase" *ngIf="model.length">
+  <li class="tp-collection-item" *ngFor="let item of model.getItems()" (click)="model.removeItem(item)">
+    <span class="tp-collection-item-label">{{item.text}}</span>
+    <i class="tp-collection-item-remove-btn"></i>
+  </li>
+</ul>
+
+<div class="tp-collection-list-addItem roboto-light uppercase">
+  <input class="tp-collection-list-addItem-input roboto-light uppercase" title="add ingredient"
+     placeholder="ADD INGREDIENT"
+     name="ingredient" [(ngModel)]="newItem" (keyup)="onKeyUp($event)">
+  <i class="tp-collection-item-add-btn" [ngClass]="{'isEnabled': isValid}" (click)="addItem()"></i>
+</div>

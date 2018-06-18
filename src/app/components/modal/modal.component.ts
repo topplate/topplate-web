@@ -28,6 +28,8 @@ export class ModalComponent implements OnInit, DoCheck, OnDestroy {
 
   private elements: Object = {};
 
+  private resizeTimer: any = null;
+
   public closeModal () {
     let self = this;
     self.state.next(false);
@@ -35,6 +37,16 @@ export class ModalComponent implements OnInit, DoCheck, OnDestroy {
 
   public onContentClick (event) {
     event && event.stopPropagation();
+  }
+
+  private setResizeInterval (fn) {
+    this.clearResizeInterval();
+    if (typeof fn === 'function') this.resizeTimer = setInterval(() => fn(), 100);
+  }
+
+  private clearResizeInterval () {
+    if (this.resizeTimer) clearInterval(this.resizeTimer);
+    this.resizeTimer = null;
   }
 
   private refreshDOM () {
@@ -64,6 +76,7 @@ export class ModalComponent implements OnInit, DoCheck, OnDestroy {
         if (state) setTimeout(() => self.refreshScroller(), 500);
         else {
           elements['rail'].classed('isOpened', false);
+          self.clearResizeInterval();
         }
       });
   }
@@ -79,13 +92,13 @@ export class ModalComponent implements OnInit, DoCheck, OnDestroy {
       scrollLimit = contentHeight - fullHeight,
       caretHeight = fullHeight < contentHeight ? (fullHeight / contentHeight) * fullHeight : 0,
       railSize = fullHeight - caretHeight,
-      caretPosition = 0;
+      caretPosition = caretHeight ? (wrapperNode.scrollTop / scrollLimit) * railSize : 0;
 
     if (!caretHeight) return elements['rail'].classed('isOpened', false) && null;
 
     elements['rail'].classed('isOpened', true);
     elements['caret']
-      .style('transform', 'translate(0, 0)')
+      .style('transform', 'translate(0, ' + caretPosition + 'px)')
       .style('height', caretHeight + 'px')
       .on('mousedown', () => {
         let
@@ -142,6 +155,11 @@ export class ModalComponent implements OnInit, DoCheck, OnDestroy {
       elements['caret']
         .transition().duration(100).ease(d3.easeCubicOut)
         .style('transform', 'translate(0, ' + caretPosition + 'px)');
+    });
+
+    self.setResizeInterval(() => {
+      let currentContentHeight = elements['content'].node().clientHeight + (fixedPadding * 2);
+      if (currentContentHeight !== contentHeight) this.refreshScroller();
     });
   }
 

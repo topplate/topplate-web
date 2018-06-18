@@ -1,0 +1,59 @@
+@import '../../app.component';
+
+.tp-collection {
+
+  .tp-collection-list-header {
+    margin-top: 10px;
+  }
+
+  .tp-collection-list {
+    display: block;
+    padding: 0;
+
+    .tp-collection-item {
+      @include styled-input();
+      position: relative;
+      list-style: none;
+      text-align: left;
+      margin-top: 10px;
+
+      .tp-collection-item-remove-btn {
+        display: block;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 40px;
+        height: 100%;
+        border: 1px solid #fff;
+        cursor: pointer;
+        background-color: rgba(255, 255, 255, .5);
+        background-size: cover;
+        background-image: url(../../../assets/icons/close_icon.png);
+      }
+    }
+  }
+
+  .tp-collection-list-addItem {
+    position: relative;
+    margin-top: 20px;
+
+    .tp-collection-list-addItem-input {
+      @include styled-input();
+      padding-right: 40px;
+    }
+
+    .tp-collection-item-add-btn {
+      display: block;
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 40px;
+      height: 100%;
+      border: 1px solid #fff;
+      cursor: pointer;
+      background-color: rgba(255, 255, 255, .5);
+      background-size: cover;
+      background-image: url(../../../assets/icons/add_icon.png);
+    }
+  }
+}

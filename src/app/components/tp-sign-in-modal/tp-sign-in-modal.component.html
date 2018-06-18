@@ -1,0 +1,39 @@
+<app-modal class="top-plate_signInModal" [(state)]="state">
+
+  <div class="top-plate_signInModal_content roboto-light">
+    <div class="welcome-banner"></div>
+    <p class="top-plate_signInModal_environmentSelectorLabel">Choose your environment</p>
+
+    <div class="top-plate_signInModal_logInMethods">
+      <div class="top-plate_signInModal_logInMethod btn-{{method.className}}"
+           *ngFor="let method of logInMethods"
+           (click)="method.onClick && method.onClick()"
+           [ngClass]="method.className">
+        <span class="top-plate_signInModal_logInMethod_label">{{method.label}}</span>
+        <i class="top-plate_signInModal_logInMethod_icon fa fa-{{method.icon}}"></i>
+      </div>
+    </div>
+
+    <div class="top-plate_signInModal_bottomBlock">
+      <div class="top-plate_signInModal_termsAndPrivacy">
+        <small class="roboto-light">By using our service, you agree to our<br><a>Privacy Police</a> and <a>Terms of Service</a></small>
+      </div>
+
+      <div class="top-plate_signInModal_subscribe">
+        <label (click)="wantToSubscribe = !wantToSubscribe">
+          <span class="top-plate_signInModal_subscribeCheckbox"
+                [ngClass]="{'isChecked': wantToSubscribe}">
+            <i class="fa fa-check"></i>
+          </span>
+          <small class="roboto-light">Subscribe for updates</small>
+        </label>
+      </div>
+
+      <a class="top-plate_signInModal_close roboto-light"
+         (click)="toggleState(false)">SKIP TO TRY WITHOUT PERSONALIZATION</a>
+    </div>
+
+  </div>
+
+</app-modal>
+

@@ -38,21 +38,49 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private rootElem: any;
 
-  public headerLinks: any;
-
-  public headerEvents: any;
+  public headerLinks: any[] = [
+    {
+      label: 'home page',
+      icon: 'home',
+      navigateTo: [ROUTES.PLATES],
+      showWhen: 'showHomeButton'
+    },
+    {
+      label: 'how it works',
+      icon: 'how-it-works',
+      navigateTo: [CONSTANTS.ADMIN_ROUTES.ADMIN_ENTRANCE]
+    },
+    {
+      label: 'plate of the week',
+      icon: 'plate-of-week',
+      navigateTo: [ROUTES.WINNERS]
+    },
+    {
+      label: 'charity choice',
+      icon: 'charity-choice',
+      navigateTo: [ROUTES.CHARITY_CHOICE]
+    },
+    {
+      label: 'upload photo',
+      icon: 'upload-photo',
+      onClick: () => SharedService.getSharedComponent(
+        this.authorizationService.getCurrentUser() ? 'plateUploadModal' : 'signInModal'
+      ).toggle(true)
+    },
+    {
+      label: 'search plate',
+      icon: 'search-plate',
+      navigateTo: [ROUTES.SEARCH]
+    }
+  ];
 
   public isReadyToBeShown: Boolean = false;
 
   public environments: any;
 
-  public logInMethods: any;
-
-  public signInModal: any;
-
   public plateUploadModal: any;
 
-  public appGrowl: Object = {
+  public appGrowl: any = {
     events: {
       onReady: growlApi => {
         this.appGrowl['api'] = growlApi;
@@ -62,18 +90,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     api: null
   };
 
-  public banner: Object;
-
-  private refreshUploadModalState () {
-    let
-      self = this,
-      plateUploadModal = self.plateUploadModal,
-      plateUploadForm = plateUploadModal.plateUploadForm,
-      isUploaded = plateUploadModal.uploadedImage['isUploaded'];
-
-    plateUploadModal.isReadyToSubmit = plateUploadForm.valid && isUploaded;
-
-  }
+  public banner: any;
 
   private getUploadPlateForm () {
     let
@@ -92,13 +109,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     return form;
-  }
-
-  public selectEnvironment (clickedEnv) {
-    let self = this;
-    SharedService.setEnvironment(clickedEnv.name);
-    self.signInModal.selectedEnvironment = SharedService.getEnvironment();
-    self.environments.forEach(env => env.isSelected = clickedEnv.name === env.name);
   }
 
   public onPlateSubmit () {
@@ -151,146 +161,15 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit () {
-    let
-      self = this,
-      plateUploadForm;
+    let self = this;
 
     self.rootElem = d3.select(self.reference.nativeElement).classed(ROOT_ELEM_CLASS, true);
-    self.signInModal = {
-      state: new BehaviorSubject(false),
-      wantToSubscribe: false
-    };
-    self.plateUploadModal = {
-      state: new BehaviorSubject(false),
-      isReadyToSubmit: false,
-      // plateUploadForm: self.getUploadPlateForm(),
-
-      plateUploadForm: new FormGroup({
-        name: new FormControl('', Validators.required),
-        email: new FormControl('', [
-          Validators.required,
-          Validators.pattern(/^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i)
-        ]),
-        address: new FormControl('', Validators.required),
-        image: new FormControl(),
-        recipe: new FormControl(),
-        restaurantName: new FormControl()
-      }),
-      showEmailField: true,
-      showRestaurantNameField: true,
-      uploadedImage: {
-        onChange: () => self.refreshUploadModalState()
-      }
-    };
-
-    self.headerLinks = [
-      {
-        label: 'home page',
-        icon: 'home',
-        navigateTo: [ROUTES.PLATES],
-        showWhen: 'showHomeButton'
-      },
-      {
-        label: 'how it works',
-        icon: 'how-it-works',
-        navigateTo: [CONSTANTS.ADMIN_ROUTES.ADMIN_ENTRANCE]
-      },
-      {
-        label: 'plate of the week',
-        icon: 'plate-of-week',
-        navigateTo: [ROUTES.WINNERS]
-      },
-      {
-        label: 'charity choice',
-        icon: 'charity-choice',
-        navigateTo: [ROUTES.CHARITY_CHOICE]
-      },
-      {
-        label: 'upload photo',
-        icon: 'upload-photo',
-        onClick: () => {
-          let
-            plateUploadModal = self.plateUploadModal,
-            currentUser = self.authorizationService.getCurrentUser(),
-            currentEnv = SharedService.getEnvironment();
-
-          if (!currentUser) return self.headerEvents.onSignInButtonClick();
-
-          plateUploadModal.plateUploadForm.reset();
-          typeof plateUploadModal.uploadedImage.reset === 'function' && plateUploadModal.uploadedImage.reset();
-          plateUploadModal.showRestaurantNameField = currentEnv === ENVIRONMENTS.RESTAURANT;
-
-          if (currentUser && currentUser['email']) {
-            plateUploadModal.showEmailField = false;
-            plateUploadModal.plateUploadForm.controls['email'].setValue(currentUser['email']);
-          } else {
-            plateUploadModal.showEmailField = true;
-          }
-
-          self.plateUploadModal.state.next(true);
-        }
-      },
-      {
-        label: 'search plate',
-        icon: 'search-plate',
-        navigateTo: [ROUTES.SEARCH]
-      }
-    ];
-
-    self.headerEvents = {
-      onSignInButtonClick: () => {
-        self.signInModal.state.next(true);
-      },
-      onSignOutButtonClick: () => {
-        self.authorizationService.signOut().catch(err => console.log(err));
-      }
-    };
-
-    self.environments = [ENVIRONMENTS.RESTAURANT, ENVIRONMENTS.HOMEMADE].map((env, i) => {
-      return {
-        name: env,
-        label: env.toUpperCase(),
-        isSelected: env === SharedService.getEnvironment()
-      };
-    });
-
-    self.logInMethods = [
-      {
-        name: GoogleLoginProvider.PROVIDER_ID,
-        icon: 'google-plus',
-        className: 'signIn-google',
-        label: 'CONNECT WITH GOOGLE',
-        onClick: () => {
-          self.authorizationService.signIn(GoogleLoginProvider.PROVIDER_ID)
-            .then(res => self.signInModal.state.next(false) )
-            .catch(err => console.log(err));
-        }
-      },
-      {
-        name: FacebookLoginProvider.PROVIDER_ID,
-        icon: 'facebook',
-        className: 'signIn-facebook',
-        label: 'CONNECT WITH FACEBOOK',
-        onClick: () => {
-          // console.log(self.socialAuthService.authState);
-          self.authorizationService.signIn(FacebookLoginProvider.PROVIDER_ID)
-            .then(res => self.signInModal.state.next(false))
-            .catch(err => console.log(err));
-        }
-      },
-      {
-        name: 'email',
-        icon: 'envelope-o',
-        className: 'signIn-email',
-        label: 'CONNECT WITH EMAIL'
-      }
-    ];
 
     self.accessPointService.getRequest('/get_banner', {
       asHtml: 'true'
     }, {
       onSuccess: banner => self.banner = banner,
-      onFail: err => console.log(err)
+      onFail: err => SharedService.getSharedComponent('growl').addItem(err)
     });
 
     self.socialAuthService.authState.subscribe(
@@ -316,22 +195,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       },
       err => SharedService.getSharedComponent('growl').addItem(err)
     );
-
-    plateUploadForm = self.plateUploadModal.plateUploadForm;
-
-    plateUploadForm.valueChanges
-      .subscribe(
-        value => self.refreshUploadModalState(),
-        err => SharedService.getSharedComponent('growl').addItem(err)
-      );
-
-    SharedService.setSharedComponent('signInModal', {
-      toggle: state => self.signInModal.state.next(state)
-    });
-
-    SharedService.setSharedComponent('plateUploadModal', {
-      toggle: state => self.plateUploadModal.state.next(state)
-    });
 
     SharedService.setSharedComponent('globalOverlay', {
       toggle: state => self.isReadyToBeShown = state

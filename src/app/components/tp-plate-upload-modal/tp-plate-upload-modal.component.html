@@ -1,0 +1,61 @@
+<app-modal class="top-plate_plateUploadModal" [(state)]="state">
+  <div class="plate-uploader_content roboto-light uppercase">
+
+    <div class="plate-uploader_contentHeader">
+      <div class="cooking-icon"></div>
+      <div class="submit-photo"></div>
+    </div>
+
+    <form [formGroup]="restaurantPlateForm" *ngIf="restaurantEnvironmentIsSelected">
+      <fieldset>
+        <div class="plate-uploader_textInput">
+          <input type="text" formControlName="name" placeholder="NAME OR ALIAS*">
+        </div>
+        <div class="plate-uploader_textInput">
+          <input type="text" formControlName="address" placeholder="CITY, STATE*">
+        </div>
+      </fieldset>
+      <fieldset>
+        <app-image-uploader class="plate-uploader_imageInput" [(model)]="uploadedImage">
+          <input type="checkbox" formControlName="image" title="if image is uploaded">
+        </app-image-uploader>
+      </fieldset>
+      <fieldset>
+        <div class="plate-uploader_textInput">
+          <input type="text" formControlName="restaurantName" placeholder="RESTAURANT NAME*">
+        </div>
+      </fieldset>
+      <button type="submit" class="plate-uploader_button"
+        [ngClass]="{'isReady': isReadyToBeSubmitted}"
+        (click)="onPlateSubmit()">SUBMIT</button>
+    </form>
+
+    <form [formGroup]="homemadePlateForm" *ngIf="!restaurantEnvironmentIsSelected">
+      <fieldset>
+        <div class="plate-uploader_textInput">
+          <input type="text" formControlName="name" placeholder="NAME OR ALIAS*">
+        </div>
+        <div class="plate-uploader_textInput">
+          <input type="text" formControlName="address" placeholder="CITY, STATE*">
+        </div>
+      </fieldset>
+      <fieldset>
+        <app-image-uploader class="plate-uploader_imageInput" [(model)]="uploadedImage">
+          <input type="checkbox" formControlName="image" title="if image is uploaded">
+        </app-image-uploader>
+      </fieldset>
+      <fieldset>
+        <div class="plate-uploader_recipe">
+          <div class="plate-uploader_textInput plate-uploader_recipeInput">
+            <textarea formControlName="recipe" cols="30" rows="5" placeholder="ADD RECIPE"></textarea>
+          </div>
+        </div>
+        <app-tp-collection [model]="ingredientsCollection"></app-tp-collection>
+      </fieldset>
+      <button type="submit" class="plate-uploader_button"
+              [ngClass]="{'isReady': isReadyToBeSubmitted}"
+              (click)="onPlateSubmit()">SUBMIT</button>
+    </form>
+  </div>
+
+</app-modal>
