@@ -24,19 +24,18 @@ export class AdminAuthGuard implements CanActivate {
       self = this,
       checkAuthUrl = '/check_admin_authorization';
 
+    if (!self.authorizationService.getAdminUser()) self.authorizationService.restoreAdminUser();
+
     return new Promise((resolve) => {
       self.accessPointService.getRequest(
         checkAuthUrl,
         {},
         {
-          onSuccess: () => {
-            resolve(true);
-          },
+          onSuccess: () => resolve(true),
           onFail: err => {
             SharedService.getSharedComponent('growl').addItem(err);
             self.authorizationService.clearAdminUser();
-            self.router.navigate([ADMIN_ROUTES.ADMIN_ENTRANCE])
-              .then(() => {console.log('werwerwerwer'); });
+            self.router.navigate([ADMIN_ROUTES.ADMIN_ENTRANCE]);
             resolve(false);
           }
         }

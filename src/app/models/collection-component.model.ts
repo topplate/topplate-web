@@ -35,6 +35,7 @@ export class CollectionComponentModel {
   public removeItem (item) {
     if (typeof item === 'object' && item.hasOwnProperty('_getIndex')) delete this._items[item._getIndex()];
     else Object.keys(this._items).forEach(key => this._items[key].value === item  && delete this._items[key]);
+    return this;
   }
 
   public clearList () {

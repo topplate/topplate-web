@@ -52,7 +52,7 @@
         </div>
         <app-tp-collection [model]="ingredientsCollection"></app-tp-collection>
       </fieldset>
-      <button type="submit" class="plate-uploader_button"
+      <button type="button" class="plate-uploader_button"
               [ngClass]="{'isReady': isReadyToBeSubmitted}"
               (click)="onPlateSubmit()">SUBMIT</button>
     </form>

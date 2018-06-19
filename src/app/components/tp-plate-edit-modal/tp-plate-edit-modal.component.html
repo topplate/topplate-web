@@ -1,0 +1,19 @@
+<app-modal class="top-plate_plateEditModal" [(state)]="state">
+  <div class="plate-edit_content roboto-light uppercase">
+    <h1>Edit plate</h1>
+    <form [formGroup]="homemadePlateForm">
+      <fieldset>
+        <div class="plate-edit_recipe">
+          <div class="plate-edit_textInput plate-edit_recipeInput">
+            <textarea formControlName="recipe" cols="30" rows="5" placeholder="ADD RECIPE"></textarea>
+          </div>
+        </div>
+        <app-tp-collection [model]="ingredientsCollection"></app-tp-collection>
+      </fieldset>
+      <div class="plate-edit_buttons">
+        <button class="plate-edit_button isReady" type="button" (click)="onCancel()">CANCEL</button>
+        <button type="button" class="plate-edit_button" [ngClass]="{'isReady': isReadyToBeSubmitted}" (click)="onPlateSubmit()">SUBMIT</button>
+      </div>
+    </form>
+  </div>
+</app-modal>

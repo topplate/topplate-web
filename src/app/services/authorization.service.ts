@@ -69,17 +69,19 @@ export class AuthorizationService {
     AuthorizationService.clearAdminAuthToken();
   }
 
+  public restoreAdminUser () {
+    let
+      savedToken = AuthorizationService.loadAdminAuthToken(),
+      adminUser = {};
+
+    if (!savedToken) return;
+
+    adminUser[ADMIN_KEY] = savedToken;
+    this.setAdminUser(adminUser);
+  }
+
   constructor (
     private socialAuthService: AuthService,
-  ) {
-    // let
-    //   adminToken = AuthorizationService.loadAdminAuthToken(),
-    //   adminUser = {};
-    //
-    // if (adminToken) {
-    //   adminUser[ADMIN_KEY] = adminToken;
-    //   this.setAdminUser(adminUser);
-    // }
-  }
+  ) {}
 }
 

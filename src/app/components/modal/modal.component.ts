@@ -94,6 +94,11 @@ export class ModalComponent implements OnInit, DoCheck, OnDestroy {
       railSize = fullHeight - caretHeight,
       caretPosition = caretHeight ? (wrapperNode.scrollTop / scrollLimit) * railSize : 0;
 
+    self.setResizeInterval(() => {
+      let currentContentHeight = elements['content'].node().clientHeight + (fixedPadding * 2);
+      if (currentContentHeight !== contentHeight) this.refreshScroller();
+    });
+
     if (!caretHeight) return elements['rail'].classed('isOpened', false) && null;
 
     elements['rail'].classed('isOpened', true);
@@ -155,11 +160,6 @@ export class ModalComponent implements OnInit, DoCheck, OnDestroy {
       elements['caret']
         .transition().duration(100).ease(d3.easeCubicOut)
         .style('transform', 'translate(0, ' + caretPosition + 'px)');
-    });
-
-    self.setResizeInterval(() => {
-      let currentContentHeight = elements['content'].node().clientHeight + (fixedPadding * 2);
-      if (currentContentHeight !== contentHeight) this.refreshScroller();
     });
   }
 

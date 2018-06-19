@@ -79,6 +79,19 @@ export class PlatePageComponent implements OnInit, OnDestroy {
     self.platesService.refreshPlatesList([self.selectedPlate].concat(self.relatedPlates));
   }
 
+  public get showEditButton () {
+    return this.selectedPlate && this.selectedPlate.environment === CONSTANTS.ENVIRONMENTS.HOMEMADE;
+  }
+
+  public editPlate () {
+    let currentUser = this.authorizationService.getCurrentUser();
+    if (!currentUser) {
+      SharedService.getSharedComponent('growl').addItem({warning: true, message: 'Please, sign in'});
+      SharedService.getSharedComponent('signInModal').toggle(true);
+      return;
+    } else SharedService.getSharedComponent('plateEditModal').open(this.selectedPlate);
+  }
+
   constructor (
     private router: Router,
     private activatedRoute: ActivatedRoute,

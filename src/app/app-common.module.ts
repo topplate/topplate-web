@@ -22,6 +22,7 @@ import { TpGridComponent } from './components/tp-grid/tp-grid.component';
 import { TpSignInModalComponent } from './components/tp-sign-in-modal/tp-sign-in-modal.component';
 import { TpPlateUploadModalComponent } from './components/tp-plate-upload-modal/tp-plate-upload-modal.component';
 import { TpCollectionComponent } from './components/tp-collection/tp-collection.component';
+import { TpPlateEditModalComponent } from './components/tp-plate-edit-modal/tp-plate-edit-modal.component';
 
 @NgModule({
   imports: [
@@ -53,7 +54,8 @@ import { TpCollectionComponent } from './components/tp-collection/tp-collection.
     TpGridComponent,
     TpSignInModalComponent,
     TpPlateUploadModalComponent,
-    TpCollectionComponent
+    TpCollectionComponent,
+    TpPlateEditModalComponent
   ],
 
   schemas: [
@@ -79,7 +81,9 @@ import { TpCollectionComponent } from './components/tp-collection/tp-collection.
     TpFilterComponent,
     TpGridComponent,
     TpSignInModalComponent,
-    TpPlateUploadModalComponent
+    TpPlateUploadModalComponent,
+    TpCollectionComponent,
+    TpPlateEditModalComponent
   ]
 })
 

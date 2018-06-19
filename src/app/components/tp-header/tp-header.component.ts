@@ -65,20 +65,11 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
     }
   ];
 
-  public profileMenuItems: Object[] = [
-    {
-      label: 'my profile'
-    },
-    {
-      label: 'log out'
-    }
-  ];
-
   public adminLinks: any[] = [
-    {
-      label: 'general',
-      url: [ADMIN_ROUTES.MANAGE_GENERAL]
-    },
+    // {
+    //   label: 'general',
+    //   url: [ADMIN_ROUTES.MANAGE_GENERAL]
+    // },
     {
       label: 'users',
       url: [ADMIN_ROUTES.MANAGE_USERS]
@@ -92,9 +83,16 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
       url: [ADMIN_ROUTES.MANAGE_REQUESTS]
     },
     {
-      label: 'contacts',
-      url: [ADMIN_ROUTES.MANAGE_CONTACTS]
-    }
+      label: 'sign out',
+      action: () => {
+        this.authorizationService.clearAdminUser();
+        this.router.navigate([ROUTES.PLATES]);
+      }
+    },
+    // {
+    //   label: 'contacts',
+    //   url: [ADMIN_ROUTES.MANAGE_CONTACTS]
+    // }
   ];
 
   public showSwitch: Boolean = false;
@@ -218,6 +216,7 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
 
   public onAdminLinkClick (link) {
     if (link.url) this.router.navigate(link.url);
+    else if (link.action && typeof link.action === 'function') link.action();
   }
 
   public onMenuItemClick (clickedItem) {

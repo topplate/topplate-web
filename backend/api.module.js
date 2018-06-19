@@ -480,18 +480,12 @@ function refreshRoutes () {
     }
   });
 
-  app.post('/edit_plate', (req, res) => {
-    let
-      reqBody = req.body,
-      authToken = req.headers['access-token'],
-      user = global.authModule.getAuthorizedUser(authToken);
-
-    if (!user) sendError(res, {status: 401, message: 'Not authorized'});
-    else global.dbModule
-      .updatePlate(user._id, reqBody.plateId, reqBody.fields || {})
+  app.post('/edit_plate', (req, res) => checkAuthorization(req, true)
+    .then(user => user.updatePlate(req.body.plateId, req.body.fields || {})
       .then(updateResult => res.send(updateResult))
-      .catch(err => sendError(res, err));
-  });
+      .catch(err => sendError(res, err))
+    )
+    .catch(err => sendError(res, err)));
 
   app.get('/search_plates', (req, res) => {
     checkAuthorization(req, true)
