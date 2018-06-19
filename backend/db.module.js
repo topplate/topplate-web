@@ -500,7 +500,7 @@ module.exports.createRequest = (requestData) => {
 
   requestEntity.save(err => {
     if (err) deferred.reject(err);
-    else deferred.resolve({message: 'Thank you for you request'});
+    else deferred.resolve({message: 'Thank you for your request'});
   });
 
   return deferred.promise;

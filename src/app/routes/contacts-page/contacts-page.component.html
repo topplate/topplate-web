@@ -8,7 +8,7 @@
         <input type="email" formControlName="email" placeholder="EMAIL ADDRESS*">
       </div>
       <div class="contacts-page_textInput">
-        <textarea formControlName="message" cols="30" rows="5" placeholder="YOUR MESSAGE"></textarea>
+        <textarea formControlName="message" cols="30" rows="5" placeholder="YOUR MESSAGE" maxlength="140"></textarea>
       </div>
       <div class="contacts-page_button">
         <button type="submit" (click)="sendRequest()">SEND</button>
