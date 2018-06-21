@@ -1,0 +1,51 @@
+@import "../../app.component";
+
+.admin-charities {
+  padding: 100px;
+  color: $white;
+}
+
+.admin-charities-modal-content {
+  width: 572px;
+  background: rgba(43, 43, 43, .5);
+  border: 1px solid $cyan;
+  padding: 34px 68px;
+  color: $white;
+  text-align: center;
+
+  input, textarea {
+    @include styled-input();
+    margin-top: 20px;
+    text-transform: uppercase;
+  }
+
+  .admin-charities-modal-content-image {
+    height: 286px;
+    background-size: cover;
+  }
+}
+
+.admin-charities-modal_imageInput {
+  height: 286px;
+}
+
+.admin-charities-controllers,
+.admin-charities-modal-content {
+  button {
+    display: block;
+    width: 300px;
+    background: $transparent;
+    border: 1px solid $cyan;
+    color: $white;
+    font-size: 14px;
+    margin: $btn-margin 0;
+    line-height: $form-elem-height - 2;
+    opacity: .7;
+    cursor: not-allowed;
+
+    &.isReady {
+      opacity: 1;
+      cursor: pointer;
+    }
+  }
+}

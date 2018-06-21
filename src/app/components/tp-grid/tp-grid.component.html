@@ -2,10 +2,19 @@
 <table class="tp-grid-table table table-stripped">
   <thead class="tp-grid-static-header">
     <tr>
-      <td class="tp-grid-header-cell" [ngClass]="{isSelected: col.isSelected}"
+      <td class="tp-grid-header-cell" [ngClass]="{
+            isSortable: col.isSortable,
+            isSelected: col.isSelected,
+            isReversed: col.isReversed
+          }"
           *ngFor="let col of model.cols" (click)="model.emitEvent('onColumnClick', col)">
         <div class="tp-grid-header-cell-inner">
           <span class="tp-grid-header-cell-label">{{col.label}}</span>
+          <div class="tp-grid-header-cell-icon" *ngIf="col.isSortable">
+            <i class="fa fa-sort" *ngIf="!col.isSelected"></i>
+            <i class="fa fa-caret-down" *ngIf="col.isSelected && !col.isReversed"></i>
+            <i class="fa fa-caret-up" *ngIf="col.isSelected && col.isReversed"></i>
+          </div>
         </div>
       </td>
     </tr>
@@ -13,7 +22,7 @@
   <tbody>
     <tr class="tp-grid-body-row" *ngFor="let row of model.rows"  (click)="model.emitEvent('onRowClick', row.data)">
       <td *ngFor="let cell of row.cells" class="tp-grid-type-{{cell.type}}">
-        <span class="tp-grid-cell-label" *ngIf="cell.type === 'string' || cell.type ==='boolean'">{{cell.value}}</span>
+        <span class="tp-grid-cell-label" *ngIf="cell.type === 'string' || cell.type ==='boolean' || cell.type === 'number'">{{cell.value}}</span>
         <ul class="tp-grid-cell-list" *ngIf="cell.type === 'list' || cell.type === 'object'">
           <li class="tp-grid-cell-list-item" *ngFor="let item of cell.value">
             <span class="tp-grid-cell-label">{{item}}</span>
@@ -32,6 +41,11 @@
           *ngFor="let col of model.cols" (click)="model.emitEvent('onColumnClick', col)">
         <div class="tp-grid-header-cell-inner">
           <span class="tp-grid-header-cell-label">{{col.label}}</span>
+          <div class="tp-grid-header-cell-icon" *ngIf="col.isSortable">
+            <i class="fa fa-sort" *ngIf="!col.isSelected"></i>
+            <i class="fa fa-caret-down" *ngIf="col.isSelected && !col.isReversed"></i>
+            <i class="fa fa-caret-up" *ngIf="col.isSelected && col.isReversed"></i>
+          </div>
         </div>
       </td>
     </tr>

@@ -45,11 +45,6 @@ export class ImageUploaderComponent implements OnInit, DoCheck {
       self.rootElem
         .select('.top-plate_imageUploader_background')
         .style('background-image', 'url(' + self.model.dataUrl + ')');
-
-      self.rootElem
-        .select('.top-plate_imageUploader_checkbox')
-        .select('input[type=checkbox').node().checked = true;
-
       typeof self.model['onChange'] === 'function' && self.model['onChange']();
     };
 
@@ -61,10 +56,6 @@ export class ImageUploaderComponent implements OnInit, DoCheck {
     delete this.model.originalImage;
     delete this.model.dataUrl;
     delete this.model.isUploaded;
-    this.rootElem
-      .select('.top-plate_imageUploader_checkbox')
-      .select('input[type=checkbox').node().checked = false;
-
     typeof this.model['onChange'] === 'function' && this.model['onChange']();
   }
 

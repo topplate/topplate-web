@@ -30,36 +30,42 @@ export class CharityChoicePageComponent implements OnInit {
 
   public charityItems: Object[];
 
-  public voteForItem (item) {
-    let self = this;
+  public get canVote () {
+    let currentUser = this.authorizationService.getCurrentUser();
+    return !!(currentUser && currentUser['canVote']);
+  }
 
-    self.accessPointService.postRequest(
-      'vote_for_charity',
-      {id : item._id},
-      {
-        onSuccess: res => {
-          item['votes'] = res['charityVotes'];
-          item['numberOfVotes'] = item['votes'].length;
-        },
-        onFail: err => {
-          console.log(err);
+  public voteForItem (item) {
+    let
+      self = this,
+      currentUser = this.authorizationService.getCurrentUser();
+
+    if (!currentUser) {
+      SharedService.getSharedComponent('signInModal').toggle(true);
+      SharedService.getSharedComponent('growl').addItem({message: 'Please sign in', warning: true});
+    } else {
+      SharedService.getSharedComponent('globalOverlay').toggle(false);
+      self.accessPointService.postRequest(
+        'vote_for_charity',
+        {id : item._id},
+        {
+          onSuccess: res => {
+            item['votes'] += 1;
+            currentUser['canVote'] = false;
+            SharedService.getSharedComponent('globalOverlay').toggle(true);
+            SharedService.getSharedComponent('growl').addItem(res);
+          },
+          onFail: err => {
+            SharedService.getSharedComponent('globalOverlay').toggle(true);
+            SharedService.getSharedComponent('growl').addItem(err);
+          }
         }
-      }
-    );
+      );
+    }
   }
 
   ngOnInit () {
-    let
-      self = this,
-      routeData = self.activatedRoute.snapshot.data;
-
-    self.charityItems = routeData['charityItems'].map(item => {
-      item['numberOfVotes'] = item['votes'].length;
-      item['liked'] = item['liked'];
-      return item;
-    });
-
-    console.log(self.charityItems);
+    this.charityItems = this.activatedRoute.snapshot.data['charityItems'];
   }
 }
 

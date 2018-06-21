@@ -94,18 +94,42 @@ module.exports.getUser = (query, fields = {}) => {
   return deferred.promise;
 };
 
-module.exports.getUsers = (filter) =>  {
+module.exports.getUsers = (queryParams) =>  {
   let
     deferred = Q.defer(),
     query = {};
 
-  if (filter !== 'all') query['isSuspended'] = filter === 'suspended';
+  if (queryParams.filter !== 'all') query['isSuspended'] = queryParams.filter === 'suspended';
 
   models.User.find(query)
-    .then(users => deferred.resolve(users.map(user => user.getNormalizedForAdmin())))
+    .then(users => getUsersResponse(users))
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
+
+  function getUsersResponse (users) {
+    let
+      normalizedResponse = users.map(user => user.getNormalizedForAdmin()),
+      sortBy = queryParams.name;
+
+    if (!sortBy) deferred.resolve(normalizedResponse);
+    else {
+      let
+        isReversed = queryParams.isReversed === 'true',
+        sortedItems = normalizedResponse.sort((a, b) => {
+          let propA = a[sortBy], propB = b[sortBy];
+
+          if (queryParams.type === 'string') {
+            propA = (propA + '').toLowerCase();
+            propB = (propB + '').toLowerCase();
+          }
+
+          return propA < propB ? 1 : (propA > propB ? -1 : 0);
+        });
+
+      return deferred.resolve(isReversed ? sortedItems.reverse() : sortedItems);
+    }
+  }
 };
 
 module.exports.updateUserData = (id, data) => {
@@ -296,7 +320,7 @@ module.exports.getPlatesByAuthor = (userId, env, skip = 0, lim = 11, size = 'med
   return deferred.promise;
 };
 
-module.exports.getPlatesAdmin = (statusFilter, periodFilter, envFilter) => {
+module.exports.getPlatesAdmin = (statusFilter, periodFilter, envFilter, colName, colType, colReversed) => {
   let
     deferred = Q.defer(),
     query = {};
@@ -306,10 +330,32 @@ module.exports.getPlatesAdmin = (statusFilter, periodFilter, envFilter) => {
   if (envFilter !== 'all') query['environment'] = envFilter;
 
   models.Plate.find(query)
-    .then(plates => deferred.resolve(plates.map(plate => plate.getNormalized())))
+    .then(plates => getPlatesAdminResponse(plates))
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
+
+  function getPlatesAdminResponse (plates) {
+    let normalizedItems = plates.map(plate => plate.getNormalized());
+
+    if (!colName) deferred.resolve(normalizedItems);
+    else {
+      let
+        isReversed = colReversed === 'true',
+        sortedItems = normalizedItems.sort((a, b) => {
+          let propA = a[colName], propB = b[colName];
+
+          if (colType === 'string') {
+            propA = (propA + '').toLowerCase();
+            propB = (propB + '').toLowerCase();
+          }
+
+          return propA < propB ? 1 : (propA > propB ? -1 : 0);
+        });
+
+      return deferred.resolve(isReversed ? sortedItems.reverse() : sortedItems);
+    }
+  }
 };
 
 module.exports.togglePlateStatus = (plateId, nesStatus) => {
@@ -416,19 +462,41 @@ module.exports.refreshPlates = () => {
   }
 };
 
-module.exports.getCharityItems = () => {
+module.exports.getCharityItems = (activeOnly = true, sortByQuery) => {
   let
-    deferred = Q.defer();
+    deferred = Q.defer(),
+    query = {};
 
-  models.Charity.find({})
-    .then(items => deferred.resolve(items.map(item => {
-        let itemReplica = {};
-        ['_id', 'createdAt', 'description', 'image', 'name', 'votes'].forEach(key => itemReplica[key] = item[key]);
-        return itemReplica;
-    })))
+  if (activeOnly) query['status'] = true;
+
+  models.Charity.find(query)
+    .then(items => getSortedResponse(items))
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
+
+  function getSortedResponse (items) {
+    let normalizedItems = items.map(item => item.getNormalized());
+
+    if (!sortByQuery) deferred.resolve(normalizedItems);
+    else {
+      let
+        sortingProperty = sortByQuery.name,
+        isReversed = sortByQuery.isReversed === 'true',
+        sortedItems = normalizedItems.sort((a, b) => {
+          let propA = a[sortingProperty], propB = b[sortingProperty];
+
+          if (sortByQuery.type === 'string') {
+            propA = (propA + '').toLowerCase();
+            propB = (propB + '').toLowerCase();
+          }
+
+          return propA < propB ? 1 : (propA > propB ? -1 : 0);
+        });
+
+      return deferred.resolve(isReversed ? sortedItems.reverse() : sortedItems);
+    }
+  }
 };
 
 module.exports.voteForCharityItem = (userId, itemId) => {
@@ -440,6 +508,61 @@ module.exports.voteForCharityItem = (userId, itemId) => {
       .then(res => deferred.resolve(res))
       .catch(err => deferred.reject(err))
     )
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+};
+
+module.exports.updateCharityItem = (reqBody) => {
+  let deferred = Q.defer();
+
+  models.Charity.findOne({_id: reqBody._id})
+    .then(charityItem => {
+      if (!charityItem) deferred.reject({message: 'Can not find ' + reqBody._id, status: 418});
+      else {
+        ['name', 'description', 'link'].forEach(key => charityItem[key] = reqBody.hasOwnProperty(key) ?
+          reqBody[key] : charityItem[key]);
+
+        charityItem.save(err => {
+          if (err) deferred.reject(err);
+          else deferred.resolve({message: reqBody._id + ' was updated!'});
+        });
+      }
+    })
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+};
+
+module.exports.addCharityItem = (reqBody) => {
+
+  let
+    deferred = Q.defer(),
+    rootDir = './src/uploaded',
+    imageName = 'charity' + (new Date()).getTime() + '.' + getFileExtension(reqBody.contentType),
+    imageBinaryData = isBuffer(reqBody.image) ? reqBody.image : new Buffer(reqBody.image, 'binary');
+
+  if (!fs.existsSync(rootDir)) fs.mkdirSync(rootDir);
+
+  jimp.read(imageBinaryData)
+    .then(jimpFile => jimpFile.write(rootDir + '/' + imageName, (err) => {
+      if (err) deferred.reject(err);
+      else {
+
+        models.Charity.collection.insertOne({
+          name: reqBody.name,
+          description: reqBody.description,
+          image: imageName,
+          link: reqBody.link,
+          votes: {},
+          status: true
+        })
+          .then((insertRes) => models.Charity.findOne({_id: insertRes.insertedId})
+            .then(newItem => deferred.resolve(newItem.getNormalized()))
+            .catch(err => deferred.reject(err)))
+          .catch(err => deferred.reject(err));
+      }
+    }))
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
@@ -620,7 +743,7 @@ function refreshUserSchema () {
     currentToken: String,
     uploadedPlates: [String],
     likedPlates: [String],
-    charityVotes: [String],
+    charityVotes: Object,
     warnings: [String],
     isRobot: {
       type: Boolean,
@@ -756,7 +879,8 @@ function refreshUserSchema () {
         user: user[provider],
         token: user.currentToken,
         likedPlates: plates,
-        email: user.email
+        email: user.email,
+        canVote: !user.charityVotes[getMonthName()]
       });
     });
 
@@ -824,7 +948,8 @@ function refreshUserSchema () {
       _id: user._id,
       user: userData,
       likedPlates: plates,
-      warning: user.warnings
+      warning: user.warnings,
+      canVote: !user.charityVotes[getMonthName()]
     };
   };
 
@@ -857,16 +982,9 @@ function refreshUserSchema () {
 
   models.User = mongoose.model('User', userSchema);
 
-  // models.User.find({})
-  //   .then(users => {
-  //     users.forEach(user => {
-  //       user.isSuspended = false;
-  //       user.save(err => {
-  //         if (err) console.log(err);
-  //         else console.log(user._id + ' is updated');
-  //       });
-  //     })
-  //   });
+  // models.User.collection.updateMany({}, {$set: {charityVotes: {}}})
+  //   .then(() => console.log('users were updated'))
+  //   .catch(err => console.log(err));
 }
 
 function refreshPlateSchema () {
@@ -1044,7 +1162,12 @@ function refreshCharitySchema () {
     name: String,
     description: String,
     image: String,
-    votes: [String]
+    link: String,
+    votes: Object,
+    status: {
+      type: Boolean,
+      default: true
+    }
   }, {
     collection: 'charities',
     timestamps: true
@@ -1053,64 +1176,69 @@ function refreshCharitySchema () {
   charitySchema.methods.vote = function (votingId) {
     let
       charity = this,
+      currentMonthName = getMonthName(),
       deferred = Q.defer();
 
-    if (charity.votes.indexOf(votingId) > -1) deferred.resolve(getNormalizedResponse(null, charity.votes));
-    else {
-      charity.votes.push(votingId);
-      charity.save(err => {
-        if (err) deferred.reject(err);
-        else models.User.findOne({_id: votingId})
-          .then(user => {
-            user.charityVotes = user.charityVotes || [];
-            user.charityVotes.push(charity._id);
-            user.save(err => {
-              if (err) deferred.reject(err);
-              else deferred.resolve(getNormalizedResponse(user.charityVotes, charity.votes));
-            });
-          });
-      });
-    }
-    return deferred.promise;
+    models.User.findOne({_id: votingId})
+      .then(user => {
+        if (user.charityVotes[currentMonthName]) deferred.reject({
+          message: 'User can vote only one time during month', status: 418
+        });
+        else {
+          user.charityVotes[currentMonthName] = charity._id;
+          charity.votes[currentMonthName] = charity.votes[currentMonthName] || [];
+          charity.votes[currentMonthName].push(votingId);
 
-    function getNormalizedResponse (userCharityVotes, charityVotes) {
-      return {
-        userVotes: userCharityVotes,
-        charityVotes: charityVotes
-      };
-    }
+          models.User.collection.updateOne({_id: votingId}, {$set: {charityVotes: user.charityVotes}})
+            .then(() => models.Charity.collection.updateOne({_id: charity._id}, {$set: {votes: charity.votes}})
+              .then(() => deferred.resolve({message: 'Thank you for your vote!'}))
+              .catch(err => deferred.reject(err))
+            )
+            .catch(err => deferred.reject(err));
+        }
+      })
+      .catch(err => deferred.reject(err));
+
+    return deferred.promise;
+  };
+
+  charitySchema.methods.getTotalVotes = function () {
+    let
+      charity = this,
+      totalVotes = 0;
+
+    Object.keys(charity.votes).forEach(key => totalVotes += charity.votes[key].length);
+
+    return totalVotes;
+  };
+
+  charitySchema.methods.getMonthlyVotes = function () {
+    let
+      charity = this,
+      currentMonthName = getMonthName(),
+      votes = charity.votes[currentMonthName];
+
+    return (votes && votes.length) || 0;
+  };
+
+  charitySchema.methods.getNormalized = function () {
+    let
+      item = this,
+      itemReplica = {};
+
+    ['_id', 'createdAt', 'description', 'link', 'image', 'name'].forEach(key => itemReplica[key] = item[key]);
+    itemReplica['votes'] = item.getTotalVotes();
+    itemReplica['votesMonthly'] = item.getMonthlyVotes();
+    itemReplica['status'] = item.status ? 'Active' : 'Inactive';
+
+    return itemReplica;
   };
 
   models.Charity = mongoose.model('Charity', charitySchema);
 
-  models.Charity.find({})
-    .then(res => !res.length && models.Charity.collection.insert([
-      {
-        name: 'Live United',
-        description: `LIVE UNITED. It\'s a credo. A mission. A goal. A constant reminder that when we reach out a hand to one, we influence the condition of all.`,
-        image: 'assets/charity/live_united.jpg',
-        votes: []
-      },
-      {
-        name: 'Task Force for Global Health',
-        description: `TASK FORCE FOR GLOBAL HEALTH. We help control and eliminate debilitating infectious diseases and strengthen systems that protect and promote health.`,
-        image: 'assets/charity/task_force.jpg',
-        votes: []
-      },
-      {
-        name: 'Salvation Army',
-        description: `The story of The Salvation Army, a Christian Church working worldwide for more than 150 years.`,
-        image: 'assets/charity/salvation_army.jpg',
-        votes: []
-      },
-      {
-        name: 'St. Jude Children\'s Research Hospital',
-        description: `ST. JUDE CHILDREN'S RESEARCH HOSPITAL. St. Jude is leading the way the world understands, treats and defeats childhood cancer and other life-threatening diseases.`,
-        image: 'assets/charity/st_jude.jpg',
-        votes: []
-      }
-    ]))
-    .catch(err => console.log(err));
+  // models.Charity.collection.updateMany({}, {$set: {votes: {}}})
+  //   .then(() => console.log('charities were updated'))
+  //   .catch(err => console.log(err));
 }
 
 function refreshWinnerSchema () {
@@ -1189,6 +1317,12 @@ function getWeekName () {
   let date = moment();
   return date.year() + '_' + date.month() + '_' + date.week();
 }
+
+function getMonthName () {
+  let date = moment();
+  return date.year() + '_' + date.month();
+}
+
 
 function getSorted (arr, prop) {
   return arr.sort((a, b) => {

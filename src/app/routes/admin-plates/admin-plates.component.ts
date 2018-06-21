@@ -80,11 +80,13 @@ export class AdminPlatesComponent implements OnInit, OnDestroy {
   public platesGrid: GridComponentModel = new GridComponentModel([
     {
       name: 'name',
-      label: 'Plate name'
+      label: 'Plate name',
+      sortable: true
     },
     {
       name: 'environment',
-      label: 'Environment'
+      label: 'Environment',
+      sortable: true
     },
     {
       name: 'author',
@@ -94,7 +96,9 @@ export class AdminPlatesComponent implements OnInit, OnDestroy {
     },
     {
       name: 'likes',
-      label: 'Total likes'
+      label: 'Total likes',
+      type: 'number',
+      sortable: true
     },
     {
       name: 'hasRecipe',
@@ -103,12 +107,17 @@ export class AdminPlatesComponent implements OnInit, OnDestroy {
     },
     {
       name: 'status',
-      label: 'Status'
+      label: 'Status',
+      sortable: true
     }
   ], {
     onRowClick: row => {
       this.modalContent = row;
       this.modalState.next(true);
+    },
+    onColumnClick: col => {
+      this.platesGrid.toggleColumn(col);
+      this.loadItems();
     }
   });
 
@@ -139,14 +148,24 @@ export class AdminPlatesComponent implements OnInit, OnDestroy {
 
   private loadItems () {
     if (!this.isReady) return;
-    SharedService.getSharedComponent('globalOverlay').toggle(false);
-    this.accessPointService.getRequest(
-      '/get_plates_admin',
-      {
+
+    let params = {
         statusFilter: this.statusFilter.getSelectedButton().name,
         periodFilter: this.periodFilter.getSelectedButton().name,
         environmentFilter: this.envFilter.getSelectedButton().name
       },
+      selectedColumn = this.platesGrid.getSelectedColumn();
+
+    if (selectedColumn) {
+      params['name'] = selectedColumn.name;
+      params['type'] = selectedColumn.type;
+      params['isReversed'] = selectedColumn.isReversed;
+    }
+
+    SharedService.getSharedComponent('globalOverlay').toggle(false);
+    this.accessPointService.getRequest(
+      '/get_plates_admin',
+      params,
       {
         onSuccess: listOfPlates => {
           SharedService.getSharedComponent('globalOverlay').toggle(true);

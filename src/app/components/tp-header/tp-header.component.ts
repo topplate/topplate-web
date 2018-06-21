@@ -83,6 +83,10 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
       url: [ADMIN_ROUTES.MANAGE_REQUESTS]
     },
     {
+      label: 'charities',
+      url: [ADMIN_ROUTES.MANAGE_CHARITIES]
+    },
+    {
       label: 'sign out',
       action: () => {
         this.authorizationService.clearAdminUser();

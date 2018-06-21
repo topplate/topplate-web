@@ -24,7 +24,7 @@ export class GridComponentModel {
           getRow: () => row
         };
 
-      if (type === 'string') cell.value = datum;
+      if (type === 'string' || type === 'number') cell.value = datum;
       else if (type === 'list') cell.value = Array.isArray(datum) ? datum : [datum];
       else if (type === 'object') cell.value = col['keys'].map(key => (datum || {})[key]);
       else if (type === 'boolean') cell.value = !!datum;
@@ -40,7 +40,7 @@ export class GridComponentModel {
   }
 
   public addRows (rows = []) {
-    rows.forEach(row => this.rows.push(GridComponentModel.getNewRow(row, this.cols)));
+    (Array.isArray(rows) ? rows : [rows]).forEach(row => this.rows.push(GridComponentModel.getNewRow(row, this.cols)));
   }
 
   public refreshRows (rows = []) {
@@ -58,18 +58,38 @@ export class GridComponentModel {
     if (indexOfRowToReplace > -1) this.rows.splice(indexOfRowToReplace, 1);
   }
 
+  public toggleColumn (clickedCol) {
+    if (!clickedCol.isSortable) return;
+    if (clickedCol.isSelected) clickedCol.isReversed = !clickedCol.isReversed;
+    else this.cols.forEach(col => col.isSelected = col.index === clickedCol.index);
+  }
+
   public emitEvent (eventName, eventData) {
     let event = this.events[eventName];
     return typeof event === 'function' && event(eventData);
   }
 
+  public getSelectedColumn () {
+    let selectedColumn = this.cols.filter(col => col.isSelected)[0];
+
+    return selectedColumn ? {
+      name: selectedColumn.name,
+      type: selectedColumn.type,
+      isReversed: selectedColumn.isReversed,
+      isSelected: selectedColumn.isSelected
+    } : null;
+  }
+
   constructor (cols, events) {
     cols.forEach((col, i) => this.cols.push({
-      index: col.index,
+      index: col.index || i,
       name: col.name,
       label: col.label || col.name,
       type: col.type || 'string',
-      keys: col.keys || []
+      keys: col.keys || [],
+      isSelected: false,
+      isReversed: false,
+      isSortable: col.sortable || false
     }));
 
     this.events = (typeof events === 'object' && events) || {};

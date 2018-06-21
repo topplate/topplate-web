@@ -50,7 +50,7 @@ export class TpGrowlComponent implements OnInit {
     componentAPI['addItem'] = itemData => {
       let newItem = {
         index: 'growl-item_' + (counter++),
-        label: itemData.message,
+        label: (itemData.error && itemData.error.message) || itemData.message,
         type: itemData.status ? 'error' : (itemData.warning ? 'warning' : 'message'),
         status: itemData.status,
         isActive: false,

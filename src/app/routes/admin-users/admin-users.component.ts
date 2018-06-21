@@ -32,11 +32,13 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
   public usersGrid: GridComponentModel = new GridComponentModel([
     {
       name: 'name',
-      label: 'Username'
+      label: 'Username',
+      sortable: true
     },
     {
       name: 'email',
-      label: 'Email'
+      label: 'Email',
+      sortable: true
     },
     {
       name: 'uploadedPlates',
@@ -50,13 +52,18 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
     },
     {
       name: 'status',
-      label: 'Status'
+      label: 'Status',
+      sortable: true
     }
   ], {
     onRowClick: row => {
       this.modalContentWarning = '';
       this.modalContent = row;
       this.modalModel.next(true);
+    },
+    onColumnClick: col => {
+      this.usersGrid.toggleColumn(col);
+      this.loadItems();
     }
   });
 
@@ -117,10 +124,21 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
   }
 
   private loadItems () {
+    let query = {
+        filter: this.usersFilter.getSelectedButton().name
+      },
+      selectedColumn = this.usersGrid.getSelectedColumn();
+
+    if (selectedColumn) {
+      query['name'] = selectedColumn.name;
+      query['type'] = selectedColumn.type;
+      query['isReversed'] = selectedColumn.isReversed;
+    }
+
     SharedService.getSharedComponent('globalOverlay').toggle(false);
     this.accessPointService.getRequest(
       '/get_users',
-      { filter: this.usersFilter.getSelectedButton().name },
+      query,
       {
         onSuccess: listOfUsers => {
           SharedService.getSharedComponent('globalOverlay').toggle(true);

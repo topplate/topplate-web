@@ -313,10 +313,10 @@ function refreshRoutes () {
   });
 
   app.get('/get_charity_choice_banners', (req, res) => {
-    checkAuthorization(req, true)
+    checkAuthorization(req)
       .then(user => {
         let userCharityVotes = {};
-        user.charityVotes.forEach(charityId => userCharityVotes[charityId] = true);
+        // user.charityVotes.forEach(charityId => userCharityVotes[charityId] = true);
         getCharityChoiceBanners(userCharityVotes);
       })
       .catch(err => {
@@ -324,17 +324,17 @@ function refreshRoutes () {
         else sendError(res, err);
       });
 
-    function getCharityChoiceBanners (userCharityVotes = {}) {
+    function getCharityChoiceBanners () {
       global.dbModule.getCharityItems()
         .then(items => {
-          items.forEach(item => item['voted'] = userCharityVotes[item._id] || false);
+          // items.forEach(item => item['voted'] = userCharityVotes[item._id] || false);
           res.send(items);
         })
         .catch(err => sendError(res, err));
     }
   });
 
-  app.post('/vote_for_charity', (req, res) => checkAuthorization(req)
+  app.post('/vote_for_charity', (req, res) => checkAuthorization(req, true)
     .then(user => {
       global.dbModule.voteForCharityItem(user._id, req.body.id)
         .then(voteRes => res.send(voteRes))
@@ -362,7 +362,7 @@ function refreshRoutes () {
       fields,
       form;
 
-    checkAuthorization(req)
+    checkAuthorization(req, true)
       .then(user => {
         registeredUser = user;
         getFormData(req)
@@ -393,7 +393,7 @@ function refreshRoutes () {
     }
   });
 
-  app.post('/add_plate', (req, res) => checkAuthorization(req)
+  app.post('/add_plate', (req, res) => checkAuthorization(req, true)
     .then(user => dbModule.createPlate(req.body, user._id)
       .then(creationRes => res.send(creationRes))
       .catch(err => sendError(res, err)))
@@ -401,7 +401,7 @@ function refreshRoutes () {
   );
 
   app.get('/get_plate', (req, res) => {
-    checkAuthorization(req, true)
+    checkAuthorization(req)
       .then(user => getPlate(user.getLikedPlates()))
       .catch(err => err.status === 401 ? getPlate() : sendError(res, err));
 
@@ -421,7 +421,7 @@ function refreshRoutes () {
   });
 
   app.get('/get_plates', (req, res) => {
-    checkAuthorization(req, true)
+    checkAuthorization(req)
       .then(user => getPlates(user.getLikedPlates()))
       .catch(err => err.status === 401 ? getPlates() : sendError(res, err));
 
@@ -459,7 +459,7 @@ function refreshRoutes () {
   );
 
   app.get('/get_plates_by_author', (req, res) => {
-    checkAuthorization(req, true)
+    checkAuthorization(req)
       .then(user => getPlatesByAuthor(user.getLikedPlates()))
       .catch(err => err.status === 401 ? getPlatesByAuthor() : sendError(res, err));
 
@@ -488,7 +488,7 @@ function refreshRoutes () {
     .catch(err => sendError(res, err)));
 
   app.get('/search_plates', (req, res) => {
-    checkAuthorization(req, true)
+    checkAuthorization(req)
       .then(user => searchPlates(user.getLikedPlates()))
       .catch(err => err.status === 401 ? searchPlates() : sendError(res, err));
 
@@ -552,7 +552,7 @@ function refreshRoutes () {
   );
 
   app.get('/get_users', (req, res) => checkAdminAuthorization(req)
-    .then(() => global.dbModule.getUsers(req.query.filter)
+    .then(() => global.dbModule.getUsers(req.query)
       .then(users => res.send(users))
       .catch(err => sendError(res, err))
     )
@@ -564,7 +564,10 @@ function refreshRoutes () {
         global.dbModule.getPlatesAdmin(
           req.query.statusFilter,
           req.query.periodFilter,
-          req.query.environmentFilter
+          req.query.environmentFilter,
+          req.query.name,
+          req.query.type,
+          req.query.isReversed
         )
           .then(plates => res.send(plates))
           .catch(err => sendError(res, err))
@@ -604,6 +607,30 @@ function refreshRoutes () {
     .catch(err => sendError(res, err))
   );
 
+  app.get('/get_charities_admin', (req, res) => checkAdminAuthorization(req)
+    .then(() => global.dbModule.getCharityItems(false, req.query)
+      .then(charityItems => res.send(charityItems))
+      .catch(err => sendError(res, err))
+    )
+    .catch(err => sendError(res, err))
+  );
+
+  app.post('/update_charity_item', (req, res) => checkAdminAuthorization(req)
+    .then(() => global.dbModule.updateCharityItem(req.body)
+      .then(updateRes => res.send(updateRes))
+      .catch(err => sendError(res, err))
+    )
+    .catch(err => sendError(res, err))
+  );
+
+  app.post('/add_charity_item', (req, res) => checkAdminAuthorization(req)
+    .then(() => global.dbModule.addCharityItem(req.body)
+      .then(updateRes => res.send(updateRes))
+      .catch(err => sendError(res, err))
+    )
+    .catch(err => sendError(res, err))
+  );
+
   /** Default redirect */
   app.get('*', (req, res) => {
     console.log('redirect to index page');
@@ -611,16 +638,20 @@ function refreshRoutes () {
   });
 }
 
-function checkAuthorization (req, reload = false) {
+function checkAuthorization (req, checkStatus = false) {
   let
     deferred = Q.defer(),
     authToken = req.headers['access-token'],
     user = global.authModule.getAuthorizedUser(authToken);
 
   if (!user) deferred.reject({status: 401, message: 'Not authorized'});
-  else reload ? global.dbModule.getModels().User.findOne({_id: user._id})
-    .then(reloadedUser => deferred.resolve(reloadedUser))
-    .catch(err => deferred.reject(err)):  deferred.resolve(user);
+  else global.dbModule.getModels().User.findOne({_id: user._id})
+    .then(reloadedUser => {
+      if (checkStatus && reloadedUser.isSuspended) deferred
+        .reject({status: 403, message: 'Your account is suspended. Please contact Administrator'});
+      else deferred.resolve(reloadedUser);
+    })
+    .catch(err => deferred.reject(err));
 
   return deferred.promise;
 }
@@ -655,17 +686,17 @@ function signIn (req, res, provider) {
   dbModule.getUser({email: userData.email})
     .then(user => {
       if (!user) dbModule.createUser(userData)
-        .then(resMessage => {
-          dbModule.getUser({email: userData.email})
-            .then(newUser => newUser.login(userData)
-              .then(loginRes => {
-                authModule.saveAuthToken(newUser, token);
-                res.send(loginRes);
-              }).catch(err => sendError(res, err))
-            ).catch(err => sendError(res, err));
-        }).catch(err => {
-          sendError(res, err)
-        });
+        .then(() => dbModule.getUser({email: userData.email})
+          .then(newUser => newUser.login(userData)
+            .then(loginRes => {
+              authModule.saveAuthToken(newUser, token);
+              res.send(loginRes);
+            })
+            .catch(err => sendError(res, err))
+          )
+          .catch(err => sendError(res, err))
+        )
+        .catch(err => sendError(res, err));
       else user.login(userData)
         .then(loginRes => {
           authModule.saveAuthToken(user, token);

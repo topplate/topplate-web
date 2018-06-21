@@ -1,0 +1,59 @@
+<div class="admin-charities">
+  <h1>Charities</h1>
+  <div class="admin-charities-controllers">
+    <button class="admin-charities-modal_button isReady" type="button" (click)="selectAddMode()">ADD CHARITY</button>
+  </div>
+   <app-tp-grid [model]="charitiesGrid"></app-tp-grid>
+</div>
+
+<app-modal class="admin-charities-modal" [(state)]="modalState">
+
+  <div class="admin-charities-modal-content" *ngIf="modalContent && modalMode === 'edit'">
+    <div class="admin-charities-modal-content-image" [ngStyle]="{'background-image': 'url(' + modalContent.image + ')'}"></div>
+    <form [formGroup]="charityEditForm">
+      <fieldset>
+        <div class="admin-charities-modal-form-item">
+          <input formControlName="name" title="charity name" placeholder="CHARITY NAME">
+        </div>
+        <div class="admin-charities-modal-form-item">
+          <textarea formControlName="description" cols="30" rows="5" placeholder="CHARITY DESCRIPTION"></textarea>
+        </div>
+        <div class="admin-charities-modal-form-item">
+          <input formControlName="link" title="charity link" placeholder="CHARITY LINK">
+        </div>
+      </fieldset>
+      <div class="admin-charities-modal_buttons">
+        <button class="admin-charities-modal_button isReady" type="button" (click)="onCancel()">CANCEL</button>
+        <button type="button" class="admin-charities-modal_button" [ngClass]="{'isReady': charityEditForm.valid}"
+          (click)="onSubmitEdit()">EDIT</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="admin-charities-modal-content" *ngIf="modalContent && modalMode === 'add'">
+    <app-image-uploader class="admin-charities-modal_imageInput" [(model)]="addCharityFormImage">
+      <span>charity image</span>
+    </app-image-uploader>
+    <form [formGroup]="charityAddForm">
+      <fieldset>
+        <div class="admin-charities-modal-form-item">
+          <input formControlName="name" title="charity name" placeholder="CHARITY NAME">
+        </div>
+        <div class="admin-charities-modal-form-item">
+          <textarea formControlName="description" cols="30" rows="5" placeholder="CHARITY DESCRIPTION"></textarea>
+        </div>
+        <div class="admin-charities-modal-form-item">
+          <input formControlName="link" title="charity link" placeholder="CHARITY LINK">
+        </div>
+      </fieldset>
+      <div class="admin-charities-modal_buttons">
+        <button class="admin-charities-modal_button isReady" type="button" (click)="onCancel()">CANCEL</button>
+        <button type="button" class="admin-charities-modal_button"
+            [ngClass]="{'isReady': charityAddForm.valid && addCharityFormImage['isUploaded']}"
+            (click)="onSubmitAdd()">ADD</button>
+      </div>
+    </form>
+  </div>
+
+</app-modal>
+

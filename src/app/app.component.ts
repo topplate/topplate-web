@@ -116,7 +116,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
           self.authorizationService.setCurrentUser(userData);
           self.accessPointService.postRequest('login_' + userData.provider, userData, {
             onSuccess: res => {
-              self.authorizationService.getCurrentUser()['_id'] = res._id;
+              let currentUser = self.authorizationService.getCurrentUser();
+              currentUser['_id'] = res._id;
+              currentUser['canVote'] = res.canVote;
               self.platesService.refreshLikedPlates();
             },
             onFail: err => SharedService.getSharedComponent('growl').addItem(err)

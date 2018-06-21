@@ -25,7 +25,8 @@ const CONSTANTS = {
     'MANAGE_PLATES': 'manage-plates',
     'MANAGE_GENERAL': 'manage-general',
     'MANAGE_REQUESTS': 'manage-requests',
-    'MANAGE_CONTACTS': 'manage-contacts'
+    'MANAGE_CONTACTS': 'manage-contacts',
+    'MANAGE_CHARITIES': 'manage-charities'
   },
 
   'REST_API': {

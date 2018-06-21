@@ -7,10 +7,7 @@
   <span class="top-plate_imageUploader_label roboto-light uppercase">
     <span class="top-plate_imageUploader_closeBtn" *ngIf="model['isUploaded']"></span>
     <span class="top-plate_imageUploader_icon" *ngIf="!model['isUploaded']"></span>
-    <span *ngIf="!model['isUploaded']"><br>upload<br>plate photo</span>
+    <span *ngIf="!model['isUploaded']"><br>upload<br><ng-content></ng-content></span>
   </span>
 </label>
 
-<label class="top-plate_imageUploader_checkbox">
-  <ng-content></ng-content>
-</label>

@@ -34,6 +34,7 @@ import { AdminContactsComponent } from './routes/admin-contacts/admin-contacts.c
 import { HowItWorksPageComponent } from './routes/how-it-works-page/how-it-works-page.component';
 import { PrivacyTermPageComponent } from './routes/privacy-term-page/privacy-term-page.component';
 import { CopyrightPageComponent } from './routes/copyright-page/copyright-page.component';
+import { AdminCharitiesComponent } from './routes/admin-charities/admin-charities.component';
 
 const
   CONSTANTS = ConstantsService.getConstants(),
@@ -81,7 +82,8 @@ const
     AdminContactsComponent,
     HowItWorksPageComponent,
     PrivacyTermPageComponent,
-    CopyrightPageComponent
+    CopyrightPageComponent,
+    AdminCharitiesComponent
   ],
 
   schemas: [
@@ -254,6 +256,14 @@ const appRoutes: Routes = [
   {
     path: ADMIN_ROUTES.MANAGE_REQUESTS,
     component: AdminRequestsComponent,
+    canActivate: [AdminAuthGuard],
+    data: {
+      isAdminRoute: true
+    }
+  },
+  {
+    path: ADMIN_ROUTES.MANAGE_CHARITIES,
+    component: AdminCharitiesComponent,
     canActivate: [AdminAuthGuard],
     data: {
       isAdminRoute: true
