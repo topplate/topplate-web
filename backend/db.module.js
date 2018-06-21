@@ -472,19 +472,13 @@ module.exports.getCharityItems = (activeOnly = true, sortByQuery) => {
   if (activeOnly) query['status'] = true;
 
   models.Charity.find(query)
-    .then(items => {
-
-      console.log(items, query);
-      getSortedResponse(items);
-    })
+    .then(items => getSortedResponse(items))
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
 
   function getSortedResponse (items) {
     let normalizedItems = items.map(item => item.getNormalized());
-
-    console.log(normalizedItems);
 
     if (!sortByQuery) deferred.resolve(normalizedItems);
     else {
@@ -1280,9 +1274,9 @@ function refreshCharitySchema () {
 
   models.Charity = mongoose.model('Charity', charitySchema);
 
-  // models.Charity.collection.updateMany({}, {$set: {votes: {}}})
-  //   .then(() => console.log('charities were updated'))
-  //   .catch(err => console.log(err));
+  models.Charity.collection.updateMany({}, {$set: {status: true}})
+    .then(() => console.log('charities were updated'))
+    .catch(err => console.log(err));
 }
 
 function refreshWinnerSchema () {
