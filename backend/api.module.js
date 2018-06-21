@@ -320,11 +320,7 @@ function refreshRoutes () {
 
   app.get('/get_charity_choice_banners', (req, res) => {
     checkAuthorization(req)
-      .then(user => {
-        let userCharityVotes = {};
-        // user.charityVotes.forEach(charityId => userCharityVotes[charityId] = true);
-        getCharityChoiceBanners(userCharityVotes);
-      })
+      .then(() => getCharityChoiceBanners())
       .catch(err => {
         if (err.status === 401) getCharityChoiceBanners();
         else sendError(res, err);
@@ -332,10 +328,7 @@ function refreshRoutes () {
 
     function getCharityChoiceBanners () {
       global.dbModule.getCharityItems()
-        .then(items => {
-          // items.forEach(item => item['voted'] = userCharityVotes[item._id] || false);
-          res.send(items);
-        })
+        .then(items => res.send(items))
         .catch(err => sendError(res, err));
     }
   });

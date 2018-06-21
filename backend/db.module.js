@@ -480,6 +480,8 @@ module.exports.getCharityItems = (activeOnly = true, sortByQuery) => {
   function getSortedResponse (items) {
     let normalizedItems = items.map(item => item.getNormalized());
 
+    console.log(normalizedItems);
+
     if (!sortByQuery) deferred.resolve(normalizedItems);
     else {
       let
