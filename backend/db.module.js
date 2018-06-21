@@ -982,9 +982,9 @@ function refreshUserSchema () {
 
   models.User = mongoose.model('User', userSchema);
 
-  models.User.collection.updateMany({}, {$set: {charityVotes: {}}})
-    .then(() => console.log('users were updated'))
-    .catch(err => console.log(err));
+  // models.User.collection.updateMany({}, {$set: {charityVotes: {}}})
+  //   .then(() => console.log('users were updated'))
+  //   .catch(err => console.log(err));
 }
 
 function refreshPlateSchema () {
@@ -1236,9 +1236,9 @@ function refreshCharitySchema () {
 
   models.Charity = mongoose.model('Charity', charitySchema);
 
-  models.Charity.collection.updateMany({}, {$set: {votes: {}}})
-    .then(() => console.log('charities were updated'))
-    .catch(err => console.log(err));
+  // models.Charity.collection.updateMany({}, {$set: {votes: {}}})
+  //   .then(() => console.log('charities were updated'))
+  //   .catch(err => console.log(err));
 }
 
 function refreshWinnerSchema () {
