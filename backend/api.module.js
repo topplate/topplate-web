@@ -104,7 +104,7 @@ function refreshRoutes () {
       userModel = global.dbModule.getModels().User,
       authModule = global.authModule,
       isForm = /^multipart\/form-data/.test(contentType),
-      firstName, lastName, email, image, password, imageContentType, token;
+      firstName, lastName, email, image, password, imageContentType, gender,  token;
 
     prepareUserData()
       .then(message => userModel.findOne({email: email})
@@ -122,6 +122,7 @@ function refreshRoutes () {
           lastName = formData.fields.lastName;
           email = formData.fields.email;
           password = formData.fields.password;
+          gender = formData.fields.gender;
           imageContentType = formData.fields.contentType;
           image = formData.files.image.path;
 
@@ -134,6 +135,7 @@ function refreshRoutes () {
         email = reqBody.email;
         password = reqBody.password;
         imageContentType = reqBody.contentType;
+        gender = reqBody.gender;
         image = isBuffer(reqBody.image) ? reqBody.image : new Buffer(reqBody.image, 'binary');
 
         deferred.resolve({message: 'user data prepared'});
@@ -164,8 +166,10 @@ function refreshRoutes () {
           .then(localToken => saveImage()
             .then(imageSource => {
               global.dbModule.createUser({
-                name: name,
+                firstName: firstName,
+                lastName: lastName,
                 email: email,
+                gender: gender,
                 image: imageSource,
                 token: localToken,
                 password: hashedPassword,
@@ -173,8 +177,10 @@ function refreshRoutes () {
               })
                 .then(() => userModel.findOne({email: email})
                   .then(newUser => newUser.login({
-                    name: name,
+                    firstName: firstName,
+                    lastName: lastName,
                     email: email,
+                    gender: gender,
                     image: imageSource,
                     token: localToken,
                     hashedPassword: hashedPassword,

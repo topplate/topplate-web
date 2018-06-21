@@ -58,8 +58,10 @@ module.exports.createUser = userData => {
         };
 
         if (usePassword) creationData[initialData.provider] = {
+          name: initialData.firstName + ' ' + initialData.lastName,
           firstName: initialData.firstName,
           lastName: initialData.lastName,
+          gender: initialData.gender,
           image: initialData.image,
           hashedPassword: initialData.password
         };
@@ -722,8 +724,10 @@ function refreshUserSchema () {
     },
     local: {
       image: String,
+      name: String,
       lastName: String,
       firstName: String,
+      gender: String,
       hashedPassword: String
     },
     google: {
@@ -743,7 +747,10 @@ function refreshUserSchema () {
     currentToken: String,
     uploadedPlates: [String],
     likedPlates: [String],
-    charityVotes: Object,
+    charityVotes: {
+      type: Object,
+      default: {}
+    },
     warnings: [String],
     isRobot: {
       type: Boolean,
@@ -860,8 +867,11 @@ function refreshUserSchema () {
 
     if (provider === 'local') {
       if (!user[provider]) user[provider] = {
-        name: userData.name,
+        name: userData.firstName + ' ' + userData.lastName,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
         image: userData.image,
+        gender: userData.gender,
         hashedPassword: userData.hashedPassword
       };
     } else {
@@ -981,6 +991,34 @@ function refreshUserSchema () {
   };
 
   models.User = mongoose.model('User', userSchema);
+
+  models.User.findOne({email: 'michael.myers@gmail.com'})
+    .then(testUser => {
+      if (testUser) console.log('special user already created');
+      else authModule.getHashedPassword('test')
+        .then(hashedPassword => {
+
+          let newUser = new models.User({
+            email: 'michael.myers@gmail.com',
+            isRobot: true,
+            local: {
+              name: 'Michael Myers',
+              firstName: 'Michael',
+              lastName: 'Myers',
+              gender: 'male',
+              image: 'assets/user_icons/michael_myers.png',
+              hashedPassword: hashedPassword
+            }
+          });
+
+          newUser.save(err => {
+            if (err) console.log(err);
+            else console.log('special user created');
+          });
+        })
+        .catch(err => console.log(err));
+    })
+    .catch(err => console.log(err));
 
   // models.User.collection.updateMany({}, {$set: {charityVotes: {}}})
   //   .then(() => console.log('users were updated'))
