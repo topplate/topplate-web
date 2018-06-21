@@ -472,7 +472,11 @@ module.exports.getCharityItems = (activeOnly = true, sortByQuery) => {
   if (activeOnly) query['status'] = true;
 
   models.Charity.find(query)
-    .then(items => getSortedResponse(items))
+    .then(items => {
+
+      console.log(items, query);
+      getSortedResponse(items);
+    })
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
