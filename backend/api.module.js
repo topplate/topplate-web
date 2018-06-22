@@ -65,7 +65,6 @@ function refreshRoutes () {
     let
       reqBody = req.body,
       email = reqBody.email,
-      // password = reqBody.password,
       userModel = global.dbModule.getModels().User,
       authModule = global.authModule;
 
@@ -99,133 +98,42 @@ function refreshRoutes () {
   app.post('/create_local_user', (req, res) => {
 
     let
-      contentType = req.headers['content-type'],
-      reqBody = req.body,
       userModel = global.dbModule.getModels().User,
       authModule = global.authModule,
-      isForm = /^multipart\/form-data/.test(contentType),
-      firstName, lastName, email, image, password, imageContentType, gender,  token;
+      keys = ['firstName', 'lastName', 'email', 'password', 'gender', 'contentType', 'image'],
+      parsedUserData;
 
-    prepareUserData()
-      .then(message => userModel.findOne({email: email})
-        .then(user => user ? updateExistingUser(user) : createNewUser())
-        .catch(err => sendError(res, err))
-      )
+    prepareUserData(req, keys)
+      .then(userData => {
+        parsedUserData = userData;
+        userModel.findOne({email: userData.email})
+          .then(user => user ? updateExistingUser(user, parsedUserData) : createNewUser(parsedUserData))
+          .catch(err => sendError(res, err))
+      })
       .catch(err => sendError(res, err));
 
-    function prepareUserData () {
-      let deferred = Q.defer();
-
-      if (isForm) getFormData(req)
-        .then(formData => {
-          firstName = formData.fields.firstName;
-          lastName = formData.fields.lastName;
-          email = formData.fields.email;
-          password = formData.fields.password;
-          gender = formData.fields.gender;
-          imageContentType = formData.fields.contentType;
-          image = formData.files.image.path;
-
-          deferred.resolve({message: 'user data prepared'});
-        })
-        .catch(err => deferred.reject(err));
-      else {
-        firstName = reqBody.firstName;
-        lastName = reqBody.lastName;
-        email = reqBody.email;
-        password = reqBody.password;
-        imageContentType = reqBody.contentType;
-        gender = reqBody.gender;
-        image = isBuffer(reqBody.image) ? reqBody.image : new Buffer(reqBody.image, 'binary');
-
-        deferred.resolve({message: 'user data prepared'});
-      }
-      return deferred.promise;
-    }
-
-    function saveImage () {
-      let
-        deferred = Q.defer(),
-        rootDir = './src/uploaded',
-        imageName = 'avatar' + (new Date()).getTime() + '.' + global.dbModule.getFileExtension(imageContentType);
-
-      if (!fs.existsSync(rootDir)) fs.mkdirSync(rootDir);
-
-      jimp.read(image)
-        .then(jimpFile => jimpFile.write(rootDir + '/' + imageName, (err) => {
-          if (err) deferred.reject(err);
-          else deferred.resolve(imageName);
-        }));
-
-      return deferred.promise;
-    }
-
-    function createNewUser () {
-      authModule.getHashedPassword(password)
-        .then(hashedPassword => authModule.getLocalToken()
-          .then(localToken => saveImage()
-            .then(imageSource => {
-              global.dbModule.createUser({
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                gender: gender,
-                image: imageSource,
-                token: localToken,
-                password: hashedPassword,
-                provider: 'local'
-              })
-                .then(() => userModel.findOne({email: email})
-                  .then(newUser => newUser.login({
-                    firstName: firstName,
-                    lastName: lastName,
-                    email: email,
-                    gender: gender,
-                    image: imageSource,
-                    token: localToken,
-                    hashedPassword: hashedPassword,
-                    provider: 'local',
-                  })
-                    .then(loginRes => {
-                      authModule.saveAuthToken(newUser, localToken);
-                      res.send(loginRes);
-                    })
-                    .catch(err => sendError(res, err))
-                  )
-                  .catch(err => sendError(res,err))
-                )
-                .catch(err => sendError(res,err))
-            })
-            .catch(err => sendError(res,err))
-          )
-          .catch(err => sendError(res,err))
-        )
-        .catch(err => sendError(res,err));
-    }
-
-    function updateExistingUser (user) {
-
+    function updateExistingUser (user, userData) {
       if (user.local && user.local.hashedPassword) sendError(res, {
         message: 'User with same email already registered',
         status: 409
       });
 
-      else authModule.getHashedPassword(password)
+      else authModule.getHashedPassword(userData.password)
         .then(hashedPassword => authModule.getLocalToken()
-          .then(localToken => saveImage()
+          .then(localToken => saveImage(userData.image, userData.contentType, 'avatar')
             .then(imageSource => {
               user['local'] = user.local || {};
-              user.local.firstName = firstName;
-              user.local.lastName = lastName;
+              user.local.name = userData.firstName + ' ' + userData.lastName;
+              user.local.firstName = userData.firstName;
+              user.local.lastName = userData.lastName;
               user.local.image = imageSource;
               user.local.hashedPassword = hashedPassword;
-
               user.save(err => {
                 if (err) sendError(res, err);
                 else user.login({
-                  firstName: firstName,
-                  lastName: lastName,
-                  email: email,
+                  firstName: userData.firstName,
+                  lastName: userData.lastName,
+                  email: userData.email,
                   token: localToken,
                   hashedPassword: hashedPassword,
                   provider: 'local',
@@ -237,13 +145,59 @@ function refreshRoutes () {
                   .catch(err => sendError(res, err));
               });
             })
-            .catch(err => sendError(err))
+            .catch(err => sendError(res, err))
+          )
+          .catch(err => sendError(res, err))
+        )
+        .catch(err => sendError(res, err));
+    }
+
+    function createNewUser (userData) {
+      authModule.getHashedPassword(userData.password)
+        .then(hashedPassword => authModule.getLocalToken()
+          .then(localToken => saveImage(userData.image, userData.contentType, 'avatar')
+            .then(imageSource => {
+              userData.password = hashedPassword;
+              userData.token = localToken;
+              userData.image = imageSource;
+              userData.provider = 'local';
+
+              global.dbModule.createUser(userData)
+                .then(() => userModel.findOne({email: userData.email})
+                  .then(newUser => newUser.login(userData)
+                    .then(loginRes => {
+                      authModule.saveAuthToken(newUser, localToken);
+                      res.send(loginRes);
+                    })
+                    .catch(err => sendError(res, err))
+                  )
+                  .catch(err => sendError(res, err))
+                )
+                .catch(err => sendError(res, err));
+            })
+            .catch(err => sendError(res, err))
           )
           .catch(err => sendError(res, err))
         )
         .catch(err => sendError(res, err));
     }
   });
+
+  app.post('/update_user_profile', (req, res) => checkAuthorization(req, true)
+    .then(user => prepareUserData(req, ['firstName', 'lastName', 'gender', 'contentType', 'image'])
+      .then(userData => saveImage(userData.image, userData.contentType, 'avatar')
+        .then(imageSource => user.updateProfile({
+          image: imageSource || null,
+          firstName: userData.firstName || null,
+          lastName: userData.lastName || null,
+          gender: userData.gender || null
+        })
+          .then(updateRes => res.send(updateRes))
+          .catch(err => sendError(res, err)))
+        .catch(err => sendError(res, err)))
+      .catch(err => sendError(res, err)))
+    .catch(err => sendError(res, err))
+  );
 
   app.post('/login_google', (req, res) => signIn(req, res, 'google'));
 
@@ -732,9 +686,54 @@ function getFormData (req) {
   return deferred.promise;
 }
 
-function saveUserAvatar (image) {
-  let deferred = Q.defer();
+function prepareUserData (req, keys) {
+  let
+    deferred = Q.defer(),
+    userData = {},
+    contentType = req.headers['content-type'],
+    reqBody = {},
+    isForm = /^multipart\/form-data/.test(contentType);
 
+  if (isForm) getFormData(req)
+    .then(formData => {
+      keys.forEach(key => formData.fields.hasOwnProperty(key) && (userData[key] = formData.fields[key]));
+      if (formData.files && formData.files.image && formData.files.image.path) userData['image'] = formData.files.image.path;
+      deferred.resolve(userData);
+    })
+    .catch(err => deferred.reject(err));
 
+  else {
+    Object.keys(req.body).forEach(key => reqBody[key] = req.body[key]);
+    keys.forEach(key => {
+      reqBody.hasOwnProperty(key) && (userData[key] = key === 'image' ?
+        isBuffer(reqBody[key]) ? reqBody[key] : new Buffer(reqBody[key], 'binary') :
+        reqBody[key]
+      );
+    });
+    deferred.resolve(userData);
+  }
+
+  return deferred.promise;
 }
 
+function saveImage (image, contentType, prefix) {
+
+  let deferred = Q.defer();
+
+  if (!image || !contentType) deferred.resolve(null);
+  else {
+    let
+      rootDir = './src/uploaded',
+      imageName = (prefix || 'image') + (new Date()).getTime() + '.' + global.dbModule.getFileExtension(contentType);
+
+    if (!fs.existsSync(rootDir)) fs.mkdirSync(rootDir);
+
+    jimp.read(image)
+      .then(jimpFile => jimpFile.write(rootDir + '/' + imageName, (err) => {
+        if (err) deferred.reject(err);
+        else deferred.resolve(imageName);
+      }));
+  }
+
+  return deferred.promise;
+}

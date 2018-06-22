@@ -720,7 +720,10 @@ function refreshUserSchema () {
     },
     customProfile: {
       image: String,
-      name: String
+      name: String,
+      lastName: String,
+      firstName: String,
+      gender: String,
     },
     local: {
       image: String,
@@ -884,14 +887,7 @@ function refreshUserSchema () {
 
     user.save(err => {
       if (err) deferred.reject(err);
-      else deferred.resolve({
-        _id: user._id,
-        user: user[provider],
-        token: user.currentToken,
-        likedPlates: plates,
-        email: user.email,
-        canVote: !user.charityVotes[getMonthName()]
-      });
+      else deferred.resolve(user.getNormalized());
     });
 
     return deferred.promise;
@@ -945,12 +941,15 @@ function refreshUserSchema () {
       providerData = user[lastLoggedProvider],
       userData = {};
 
-    if (lastLoggedProvider === 'local') {
-      userData['name'] = providerData.firstName + ' ' + providerData.lastName;
-      userData['firstName'] = providerData.firstName;
-      userData['lastName'] = providerData.lastName;
-      userData['image'] = providerData.image;
-    } else userData = providerData;
+    if (user.hasCustomProfile()) userData = user.customProfile;
+    else {
+      if (lastLoggedProvider === 'local') {
+        userData['name'] = providerData.firstName + ' ' + providerData.lastName;
+        userData['firstName'] = providerData.firstName;
+        userData['lastName'] = providerData.lastName;
+        userData['image'] = providerData.image;
+      } else userData = providerData;
+    }
 
     user.likedPlates.forEach(key => plates[key] = true);
 
@@ -959,6 +958,7 @@ function refreshUserSchema () {
       user: userData,
       likedPlates: plates,
       warning: user.warnings,
+      email: user.email,
       canVote: !user.charityVotes[getMonthName()]
     };
   };
@@ -990,35 +990,64 @@ function refreshUserSchema () {
     return plates;
   };
 
+  userSchema.methods.updateProfile = function (profileUpdateData) {
+    let
+      user = this,
+      deferred = Q.defer(),
+      provider = user.lastLogged.provider,
+      userData = user[provider],
+      profile = user.customProfile || {};
+
+    ['firstName', 'lastName', 'image', 'gender'].forEach(key => {
+      profile[key] = profileUpdateData.hasOwnProperty(key) && profileUpdateData[key] !== null ?
+        profileUpdateData[key] : (profile.hasOwnProperty(key) && profile[key] !== null ?
+          profile[key] : (userData[key] || ''));
+    });
+
+    profile['name'] = profile['firstName'] + ' ' + profile['lastName'];
+
+    models.User.collection.updateOne({_id: user._id}, {$set: {customProfile: profile}})
+      .then(() => deferred.resolve({message: 'User profile updated'}))
+      .catch(err => deferred.reject(err));
+
+    return deferred.promise;
+  };
+
+  userSchema.methods.hasCustomProfile = function () {
+    return this.customProfile && ['name', 'firstName', 'lastName', 'gender', 'image'].every(key => {
+      return this.customProfile[key] !== null && this.customProfile[key] !== undefined;
+    });
+  };
+
   models.User = mongoose.model('User', userSchema);
 
-  models.User.findOne({email: 'michael.myers@gmail.com'})
-    .then(testUser => {
-      if (testUser) console.log('special user already created');
-      else authModule.getHashedPassword('test')
-        .then(hashedPassword => {
-
-          let newUser = new models.User({
-            email: 'michael.myers@gmail.com',
-            isRobot: true,
-            local: {
-              name: 'Michael Myers',
-              firstName: 'Michael',
-              lastName: 'Myers',
-              gender: 'male',
-              image: 'assets/user_icons/michael_myers.png',
-              hashedPassword: hashedPassword
-            }
-          });
-
-          newUser.save(err => {
-            if (err) console.log(err);
-            else console.log('special user created');
-          });
-        })
-        .catch(err => console.log(err));
-    })
-    .catch(err => console.log(err));
+  // models.User.findOne({email: 'michael.myers@gmail.com'})
+  //   .then(testUser => {
+  //     if (testUser) console.log('special user already created');
+  //     else authModule.getHashedPassword('test')
+  //       .then(hashedPassword => {
+  //
+  //         let newUser = new models.User({
+  //           email: 'michael.myers@gmail.com',
+  //           isRobot: true,
+  //           local: {
+  //             name: 'Michael Myers',
+  //             firstName: 'Michael',
+  //             lastName: 'Myers',
+  //             gender: 'male',
+  //             image: 'assets/user_icons/michael_myers.png',
+  //             hashedPassword: hashedPassword
+  //           }
+  //         });
+  //
+  //         newUser.save(err => {
+  //           if (err) console.log(err);
+  //           else console.log('special user created');
+  //         });
+  //       })
+  //       .catch(err => console.log(err));
+  //   })
+  //   .catch(err => console.log(err));
 
   // models.User.collection.updateMany({}, {$set: {charityVotes: {}}})
   //   .then(() => console.log('users were updated'))
@@ -1274,9 +1303,9 @@ function refreshCharitySchema () {
 
   models.Charity = mongoose.model('Charity', charitySchema);
 
-  models.Charity.collection.updateMany({}, {$set: {status: true}})
-    .then(() => console.log('charities were updated'))
-    .catch(err => console.log(err));
+  // models.Charity.collection.updateMany({}, {$set: {status: true}})
+  //   .then(() => console.log('charities were updated'))
+  //   .catch(err => console.log(err));
 }
 
 function refreshWinnerSchema () {
