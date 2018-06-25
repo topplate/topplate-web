@@ -52,12 +52,23 @@ function refreshRoutes () {
   });
 
   app.get('/get-user-profile', (req, res) => {
+    checkAuthorization(req, true)
+      .then(user => getUserProfile(true))
+      .catch(err => {
+        if (err.status === 401) getUserProfile(false);
+        else sendError(res, err);
+      });
 
-    let query = req.query;
-
-    global.dbModule.getUser({_id: query.id})
-      .then(user => res.send(user.getNormalized()))
-      .catch(err => sendError(res, err));
+    function getUserProfile (selfProfile) {
+      let query = req.query;
+      global.dbModule.getUser({_id: query.id})
+        .then(user => {
+          let normalizedData = user.getNormalized();
+          if (selfProfile) normalizedData['token'] = user.currentToken;
+          res.send(normalizedData);
+        })
+        .catch(err => sendError(res, err));
+    }
   });
 
   app.post('/login_local', (req, res) => {
@@ -82,6 +93,7 @@ function refreshRoutes () {
                 })
                   .then(loginRes => {
                     authModule.saveAuthToken(user, localToken);
+                    loginRes['token'] = localToken;
                     res.send(loginRes);
                   })
                   .catch(err => sendError(res, err))
@@ -140,6 +152,7 @@ function refreshRoutes () {
                 })
                   .then(loginRes => {
                     authModule.saveAuthToken(user, localToken);
+                    loginRes['token'] = localToken;
                     res.send(loginRes);
                   })
                   .catch(err => sendError(res, err));
@@ -167,6 +180,7 @@ function refreshRoutes () {
                   .then(newUser => newUser.login(userData)
                     .then(loginRes => {
                       authModule.saveAuthToken(newUser, localToken);
+                      loginRes['token'] = localToken;
                       res.send(loginRes);
                     })
                     .catch(err => sendError(res, err))
@@ -643,6 +657,7 @@ function signIn (req, res, provider) {
           .then(newUser => newUser.login(userData)
             .then(loginRes => {
               authModule.saveAuthToken(newUser, token);
+              loginRes['token'] = token;
               res.send(loginRes);
             })
             .catch(err => sendError(res, err))
@@ -653,6 +668,7 @@ function signIn (req, res, provider) {
       else user.login(userData)
         .then(loginRes => {
           authModule.saveAuthToken(user, token);
+          loginRes['token'] = token;
           res.send(loginRes)
         })
         .catch(err => sendError(res, err));

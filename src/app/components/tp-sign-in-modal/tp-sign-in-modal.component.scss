@@ -127,4 +127,18 @@
       }
     }
   }
+
+  .login-local-form {
+    display: block;
+
+    input {
+      @include styled-input();
+      margin-top: 10px;
+      display: block;
+    }
+
+    button {
+      @include styled-button();
+    }
+  }
 }

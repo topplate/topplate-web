@@ -12,6 +12,14 @@
         <span class="top-plate_signInModal_logInMethod_label">{{method.label}}</span>
         <i class="top-plate_signInModal_logInMethod_icon fa fa-{{method.icon}}"></i>
       </div>
+
+      <form [formGroup]="loginLocalForm" *ngIf="showLocalLoginForm">
+        <fieldset class="login-local-form">
+          <input type="text" formControlName="email" title="email" placeholder="EMAIL" />
+          <input type="password" formControlName="password" title="password" placeholder="PASSWORD" />
+          <button [ngClass]="{isReady: loginLocalForm.valid}" (click)="onLoginLocalFormSubmit()">SIGN IN</button>
+        </fieldset>
+      </form>
     </div>
 
     <div class="top-plate_signInModal_bottomBlock">
