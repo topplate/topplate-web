@@ -53,7 +53,13 @@ function refreshRoutes () {
 
   app.get('/get-user-profile', (req, res) => {
     checkAuthorization(req, true)
-      .then(user => getUserProfile(user._id === req.query.id))
+      .then(user => {
+
+        console.log(user._id.toString() === req.query.id, user._id, req.query.id);
+
+        getUserProfile(user._id.toString() === req.query.id);
+
+      })
       .catch(err => {
         if (err.status === 401) getUserProfile(false);
         else sendError(res, err);
@@ -77,7 +83,8 @@ function refreshRoutes () {
       reqBody = req.body,
       email = reqBody.email,
       userModel = global.dbModule.getModels().User,
-      authModule = global.authModule;
+      authModule = global.authModule,
+      provider = 'local';
 
     userModel.findOne({email: email})
       .then(user => {
@@ -89,11 +96,12 @@ function refreshRoutes () {
                 .then(localToken => user.login({
                   email: email,
                   token: localToken,
-                  provider: 'local'
+                  provider: provider
                 })
                   .then(loginRes => {
                     authModule.saveAuthToken(user, localToken);
                     loginRes['token'] = localToken;
+                    loginRes['provider'] = provider;
                     res.send(loginRes);
                   })
                   .catch(err => sendError(res, err))
@@ -113,6 +121,7 @@ function refreshRoutes () {
       userModel = global.dbModule.getModels().User,
       authModule = global.authModule,
       keys = ['firstName', 'lastName', 'email', 'password', 'gender', 'contentType', 'image'],
+      provider = 'local',
       parsedUserData;
 
     prepareUserData(req, keys)
@@ -134,7 +143,7 @@ function refreshRoutes () {
         .then(hashedPassword => authModule.getLocalToken()
           .then(localToken => saveImage(userData.image, userData.contentType, 'avatar')
             .then(imageSource => {
-              user['local'] = user.local || {};
+              user[provider] = user[provider] || {};
               user.local.name = userData.firstName + ' ' + userData.lastName;
               user.local.firstName = userData.firstName;
               user.local.lastName = userData.lastName;
@@ -148,11 +157,12 @@ function refreshRoutes () {
                   email: userData.email,
                   token: localToken,
                   hashedPassword: hashedPassword,
-                  provider: 'local',
+                  provider: provider,
                 })
                   .then(loginRes => {
                     authModule.saveAuthToken(user, localToken);
                     loginRes['token'] = localToken;
+                    loginRes['provider'] = provider;
                     res.send(loginRes);
                   })
                   .catch(err => sendError(res, err));
@@ -173,7 +183,7 @@ function refreshRoutes () {
               userData.password = hashedPassword;
               userData.token = localToken;
               userData.image = imageSource;
-              userData.provider = 'local';
+              userData.provider = provider;
 
               global.dbModule.createUser(userData)
                 .then(() => userModel.findOne({email: userData.email})
@@ -181,6 +191,7 @@ function refreshRoutes () {
                     .then(loginRes => {
                       authModule.saveAuthToken(newUser, localToken);
                       loginRes['token'] = localToken;
+                      loginRes['provider'] = provider;
                       res.send(loginRes);
                     })
                     .catch(err => sendError(res, err))
@@ -231,9 +242,7 @@ function refreshRoutes () {
 
   app.post('/logout', (req, res) => {
     let authToken = req.headers['access-token'];
-
     global.authModule.clearAuthToken(null, authToken);
-    console.log('logged out');
     res.send({message: 'logged out'});
   });
 
@@ -658,6 +667,7 @@ function signIn (req, res, provider) {
             .then(loginRes => {
               authModule.saveAuthToken(newUser, token);
               loginRes['token'] = token;
+              loginRes['provider'] = provider;
               res.send(loginRes);
             })
             .catch(err => sendError(res, err))
