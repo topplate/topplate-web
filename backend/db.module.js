@@ -948,6 +948,7 @@ function refreshUserSchema () {
         userData['firstName'] = providerData.firstName;
         userData['lastName'] = providerData.lastName;
         userData['image'] = providerData.image;
+        userData['gender'] = providerData.gender;
       } else userData = providerData;
     }
 

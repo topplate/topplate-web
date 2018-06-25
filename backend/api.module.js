@@ -53,13 +53,7 @@ function refreshRoutes () {
 
   app.get('/get-user-profile', (req, res) => {
     checkAuthorization(req, true)
-      .then(user => {
-
-        console.log(user._id.toString() === req.query.id, user._id, req.query.id);
-
-        getUserProfile(user._id.toString() === req.query.id);
-
-      })
+      .then(user => getUserProfile(user._id.toString() === req.query.id))
       .catch(err => {
         if (err.status === 401) getUserProfile(false);
         else sendError(res, err);
@@ -147,6 +141,7 @@ function refreshRoutes () {
               user.local.name = userData.firstName + ' ' + userData.lastName;
               user.local.firstName = userData.firstName;
               user.local.lastName = userData.lastName;
+              user.local.gender = userData.gender;
               user.local.image = imageSource;
               user.local.hashedPassword = hashedPassword;
               user.save(err => {
