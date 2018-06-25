@@ -189,7 +189,7 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
           self.currentUser = self.authorizationService.getCurrentUser();
           self.isAuthorized = !!res;
         },
-        err => console.log(err)
+        err => SharedService.getSharedComponent('growl').addItem(err)
       );
 
     self.switchObserver = self.environmentService.getSubscription(env => {

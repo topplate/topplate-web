@@ -4,6 +4,7 @@ import { AccessPointService } from './access-point.service';
 import { AppD3Service } from './d3.service';
 import { AuthService, FacebookLoginProvider, GoogleLoginProvider } from 'angular5-social-login';
 import { AppConfig } from '../app.config';
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
 
 const
   CONSTANTS = ConstantsService.getConstants(),
@@ -22,6 +23,8 @@ export class AuthorizationService {
   private currentUser: Object;
 
   private adminUser: Object | null = null;
+
+  private authSubscription: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   private static loadAdminAuthToken () {
     return localStorage.getItem(ADMIN_KEY);

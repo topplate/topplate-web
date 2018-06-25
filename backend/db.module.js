@@ -952,6 +952,7 @@ function refreshUserSchema () {
     }
 
     user.likedPlates.forEach(key => plates[key] = true);
+    userData['email'] = user.email;
 
     return {
       _id: user._id,

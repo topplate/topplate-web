@@ -75,9 +75,11 @@ export class TpSignInModalComponent implements OnInit {
         password: this.loginLocalForm.value.password
       },
       {
-        onSuccess: res => {
+        onSuccess: userData => {
+          SharedService.setToken(userData.token);
           SharedService.getSharedComponent('globalOverlay').toggle(true);
-          console.log(res.token);
+          this.authorizationService.setCurrentUser(userData);
+          this.toggleState(false);
         },
         onFail: err => {
           SharedService.getSharedComponent('globalOverlay').toggle(true);
@@ -89,7 +91,7 @@ export class TpSignInModalComponent implements OnInit {
 
   constructor (
     private authorizationService: AuthorizationService,
-    private accessPointService: AccessPointService
+    private accessPointService: AccessPointService,
   ) {}
 
   ngOnInit () {
