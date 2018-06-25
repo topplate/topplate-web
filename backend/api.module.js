@@ -53,7 +53,7 @@ function refreshRoutes () {
 
   app.get('/get-user-profile', (req, res) => {
     checkAuthorization(req, true)
-      .then(user => getUserProfile(true))
+      .then(user => getUserProfile(user._id === req.query.id))
       .catch(err => {
         if (err.status === 401) getUserProfile(false);
         else sendError(res, err);
