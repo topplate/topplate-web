@@ -914,21 +914,27 @@ function refreshUserSchema () {
     return global.authModule.compareHashes.call(this, password);
   };
 
-  userSchema.methods.changePassword = function (newPassword) {
+  userSchema.methods.changePassword = function (reqParams) {
     let
+      user = this,
       deferred = Q.defer(),
-      context = this;
+      localProfile = user.local;
 
-    if (!newPassword || !context.passwordHash) deferred.reject({ status: 500, message: 'Something went wrong'});
-    else {
-      methods.connect();
-      context.passwordHash = global.authModule.getHashedPassword.call(context, newPassword);
-      context.save(err => {
-        methods.disconnect();
-        if (err) deferred.reject(err);
-        else deferred.resolve('password changed');
-      });
-    }
+    if (!localProfile) deferred.reject({message: 'Can not get local profile', status: 500});
+
+    else global.authModule.comparePasswords(reqParams['password'], localProfile.hashedPassword)
+      .then(checkResult => {
+        if (checkResult) global.authModule.getHashedPassword(reqParams['newPassword'])
+          .then(hashedPassword => {
+            localProfile['hashedPassword'] = hashedPassword;
+            models.User.collection.updateOne({_id: user._id}, {$set: {local: localProfile}})
+              .then(() => deferred.resolve({message: 'User password updated'}))
+              .catch(err => deferred.reject(err));
+          })
+          .catch(err => deferred.reject(err));
+        else deferred.reject({message: 'Wrong password', status: 401});
+      })
+      .catch(err => deferred.reject(err));
 
     return deferred.promise;
   };

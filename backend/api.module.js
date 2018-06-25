@@ -219,6 +219,14 @@ function refreshRoutes () {
     .catch(err => sendError(res, err))
   );
 
+  app.post('/update_password', (req, res) => checkAuthorization(req, true)
+    .then(user => user.changePassword(req.body)
+      .then(updateRes => res.send(updateRes))
+      .catch(err => sendError(res, err))
+    )
+    .catch(err => sendError(res, err))
+  );
+
   app.post('/login_google', (req, res) => signIn(req, res, 'google'));
 
   app.post('/login_facebook', (req, res) => signIn(req, res, 'facebook'));
