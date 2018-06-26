@@ -1211,7 +1211,8 @@ function refreshPlateSchema () {
       hasRecipe: !!plate.recipe,
       environment: plate.environment,
       canLike: plate.canLike,
-      status: plate.isReady
+      status: plate.isReady,
+      createdAt: plate.createdAt
     }
   };
 
