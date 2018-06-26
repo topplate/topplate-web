@@ -1212,7 +1212,7 @@ function refreshPlateSchema () {
       environment: plate.environment,
       canLike: plate.canLike,
       status: plate.isReady,
-      createdAt: plate.createdAt
+      createdAt: moment(plate.createdAt).format('YYYY-MM-DD[T]hh:mm:ss')
     }
   };
 
