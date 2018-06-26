@@ -89,11 +89,9 @@ function clearAuthToken (userEmail, userToken) {
 }
 
 function getAuthorizedUser (token) {
-
   let
     userData = authTokens[token],
     registeredToken = userData && userData.email && authEmails[userData.email];
-
   return token && registeredToken === token && userData;
 }
 

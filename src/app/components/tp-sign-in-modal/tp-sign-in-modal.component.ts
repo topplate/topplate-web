@@ -20,6 +20,8 @@ export class TpSignInModalComponent implements OnInit {
   public showLocalLoginForm: Boolean = false;
 
   public loginLocalForm: FormGroup = new FormGroup({
+    // email: new FormControl('michael.myers@gmail.com', Validators.required),
+    // password: new FormControl('tttest', Validators.required)
     email: new FormControl('', Validators.required),
     password: new FormControl('', Validators.required)
   });
@@ -76,9 +78,8 @@ export class TpSignInModalComponent implements OnInit {
       },
       {
         onSuccess: userData => {
-          SharedService.setToken(userData.token);
           SharedService.getSharedComponent('globalOverlay').toggle(true);
-          this.authorizationService.setCurrentUser(userData);
+          this.authorizationService.signIn('local', userData);
           this.toggleState(false);
         },
         onFail: err => {

@@ -23,8 +23,8 @@
       </div>
       <div class="tp-header_profileButton" *ngIf="currentUser" (click)="onProfileButtonClick()">
         <div class="tp-header_profile-userIcon"
-             [ngStyle]="{'background-image': 'url(' + currentUser['image'] + ')'}"></div>
-        <span class="tp-header_profile-userName roboto-light uppercase">{{currentUser['name']}}</span>
+             [ngStyle]="{'background-image': 'url(' + currentUser.user['image'] + ')'}"></div>
+        <span class="tp-header_profile-userName roboto-light uppercase">{{currentUser.user['name']}}</span>
       </div>
     </div>
 

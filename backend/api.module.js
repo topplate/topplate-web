@@ -227,6 +227,16 @@ function refreshRoutes () {
     .catch(err => sendError(res, err))
   );
 
+  app.post('/restore_local_session', (req, res) => {
+    checkAuthorization(req, true)
+      .then(user => {
+        let normalizedData = user.getNormalized();
+        normalizedData['token'] = user.currentToken;
+        res.send(normalizedData);
+      })
+      .catch(err => sendError(res, err));
+  });
+
   app.post('/login_google', (req, res) => signIn(req, res, 'google'));
 
   app.post('/login_facebook', (req, res) => signIn(req, res, 'facebook'));

@@ -183,14 +183,10 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
       self = this,
       linksToObserve = self.items.filter(item => item.hasOwnProperty('showWhen'));
 
-    self.authorizationService.getState()
-      .subscribe(
-        res => {
-          self.currentUser = self.authorizationService.getCurrentUser();
-          self.isAuthorized = !!res;
-        },
-        err => SharedService.getSharedComponent('growl').addItem(err)
-      );
+    this.authorizationService.getCurrentUserSubscription(currentUser => {
+      this.currentUser = currentUser;
+      this.isAuthorized = !!currentUser;
+    });
 
     self.switchObserver = self.environmentService.getSubscription(env => {
       self.switchItems.forEach(item => item['isSelected'] = item['name'] === env);

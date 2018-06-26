@@ -109,37 +109,39 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       onFail: err => SharedService.getSharedComponent('growl').addItem(err)
     });
 
-    self.socialAuthService.authState.subscribe(
-      userData => {
-        if (userData) {
-          SharedService.setToken(userData.token);
-          self.authorizationService.setCurrentUser(userData);
-          self.accessPointService.postRequest('login_' + userData.provider, userData, {
-            onSuccess: res => {
-              let currentUser = self.authorizationService.getCurrentUser();
-              currentUser['_id'] = res._id;
-              currentUser['canVote'] = res.canVote;
-              self.platesService.refreshLikedPlates();
-            },
-            onFail: err => SharedService.getSharedComponent('growl').addItem(err)
-          });
-        } else {
-          SharedService.clearToken();
-          self.authorizationService.setCurrentUser(null);
-          self.accessPointService.postRequest('logout', null, {
-            onSuccess: res => self.platesService.refreshLikedPlates(),
-            onFail: err => SharedService.getSharedComponent('growl').addItem(err)
-          });
-        }
-      },
-      err => SharedService.getSharedComponent('growl').addItem(err)
-    );
+    self.authorizationService.getCurrentUserSubscription(() => self.platesService.refreshLikedPlates());
+
+    // self.socialAuthService.authState.subscribe(
+    //   userData => {
+    //     if (userData) {
+    //       SharedService.setToken(userData.token);
+    //       self.authorizationService.setCurrentUser(userData);
+    //       self.accessPointService.postRequest('login_' + userData.provider, userData, {
+    //         onSuccess: res => {
+    //           let currentUser = self.authorizationService.getCurrentUser();
+    //           currentUser['_id'] = res._id;
+    //           currentUser['canVote'] = res.canVote;
+    //           self.platesService.refreshLikedPlates();
+    //         },
+    //         onFail: err => SharedService.getSharedComponent('growl').addItem(err)
+    //       });
+    //     } else {
+    //       SharedService.clearToken();
+    //       self.authorizationService.setCurrentUser(null);
+    //       self.accessPointService.postRequest('logout', null, {
+    //         onSuccess: res => self.platesService.refreshLikedPlates(),
+    //         onFail: err => SharedService.getSharedComponent('growl').addItem(err)
+    //       });
+    //     }
+    //   },
+    //   err => SharedService.getSharedComponent('growl').addItem(err)
+    // );
 
     SharedService.setSharedComponent('globalOverlay', {
       toggle: state => self.isReadyToBeShown = state
     });
 
-    setTimeout(() => SharedService.getSharedComponent('globalOverlay').toggle(true), 2000);
+    setTimeout(() => SharedService.getSharedComponent('globalOverlay').toggle(true), 3000);
   }
 
   ngOnDestroy () {}
