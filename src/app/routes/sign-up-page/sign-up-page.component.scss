@@ -1,0 +1,44 @@
+@import "../../app.component";
+
+.sign-up-page_header {
+
+  width: $full-size;
+  padding: 50px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  color: $white;
+  text-align: center;
+  background-size: cover;
+  background-image: url(../../../assets/sign-up-page-bg.jpg);
+
+  .sign-up-page_avatar-uploader {
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    margin: 0 auto;
+  }
+}
+
+.sign-up-form {
+  display: block;
+  width: 500px;
+  padding: 50px;
+  margin: 0 auto;
+
+  .sign-up-form-gender-selector {
+    height: $form-elem-height;
+    line-height: $form-elem-height - 2;
+    border: 1px solid $cyan-darkest;
+  }
+
+  input {
+    @include styled-input();
+  }
+
+  button {
+    @include styled-button();
+  }
+}
+

@@ -35,6 +35,9 @@ import { HowItWorksPageComponent } from './routes/how-it-works-page/how-it-works
 import { PrivacyTermPageComponent } from './routes/privacy-term-page/privacy-term-page.component';
 import { CopyrightPageComponent } from './routes/copyright-page/copyright-page.component';
 import { AdminCharitiesComponent } from './routes/admin-charities/admin-charities.component';
+import { SignUpPageComponent } from './routes/sign-up-page/sign-up-page.component';
+import { EditProfilePageComponent } from './routes/edit-profile-page/edit-profile-page.component';
+import { ChangePasswordPageComponent } from './routes/change-password-page/change-password-page.component';
 
 const
   CONSTANTS = ConstantsService.getConstants(),
@@ -83,7 +86,10 @@ const
     HowItWorksPageComponent,
     PrivacyTermPageComponent,
     CopyrightPageComponent,
-    AdminCharitiesComponent
+    AdminCharitiesComponent,
+    SignUpPageComponent,
+    EditProfilePageComponent,
+    ChangePasswordPageComponent
   ],
 
   schemas: [
@@ -211,6 +217,32 @@ const appRoutes: Routes = [
       showEnvironmentSwitch: true,
       showHomeButton: true,
       label: 'Search'
+    }
+  },
+  {
+    path: ROUTES.SIGN_UP,
+    component: SignUpPageComponent,
+    data: {
+      showHomeButton: true,
+      label: 'Sign up'
+    }
+  },
+  {
+    path: ROUTES.EDIT_PROFILE,
+    component: EditProfilePageComponent,
+    canActivate: [AuthGuard],
+    data: {
+      showHomeButton: true,
+      label: 'Edit profile'
+    }
+  },
+  {
+    path: ROUTES.CHANGE_PASSWORD,
+    component: ChangePasswordPageComponent,
+    canActivate: [AuthGuard],
+    data: {
+      showHomeButton: true,
+      label: 'Change password'
     }
   },
   {

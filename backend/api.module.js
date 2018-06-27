@@ -204,15 +204,15 @@ function refreshRoutes () {
   });
 
   app.post('/update_user_profile', (req, res) => checkAuthorization(req, true)
-    .then(user => prepareUserData(req, ['firstName', 'lastName', 'gender', 'contentType', 'image'])
+    .then(user => prepareUserData(req, ['firstName', 'lastName', 'gender', 'contentType', 'image', 'imageSource'])
       .then(userData => saveImage(userData.image, userData.contentType, 'avatar')
         .then(imageSource => user.updateProfile({
-          image: imageSource || null,
+          image: imageSource || userData.imageSource || null,
           firstName: userData.firstName || null,
           lastName: userData.lastName || null,
           gender: userData.gender || null
         })
-          .then(updateRes => res.send(updateRes))
+          .then(updatedUser => res.send(updatedUser))
           .catch(err => sendError(res, err)))
         .catch(err => sendError(res, err)))
       .catch(err => sendError(res, err)))
@@ -232,6 +232,7 @@ function refreshRoutes () {
       .then(user => {
         let normalizedData = user.getNormalized();
         normalizedData['token'] = user.currentToken;
+        normalizedData['provider'] = 'local';
         res.send(normalizedData);
       })
       .catch(err => sendError(res, err));
@@ -692,6 +693,7 @@ function signIn (req, res, provider) {
         .then(loginRes => {
           authModule.saveAuthToken(user, token);
           loginRes['token'] = token;
+          loginRes['provider'] = provider;
           res.send(loginRes)
         })
         .catch(err => sendError(res, err));

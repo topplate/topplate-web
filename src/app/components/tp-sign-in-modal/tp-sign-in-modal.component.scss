@@ -43,6 +43,7 @@
       margin-bottom: $form-elem-margin;
       cursor: pointer;
       opacity: .8;
+      padding-left: $form-elem-height;
       @include use-transition($normal);
 
       .top-plate_signInModal_logInMethod_icon {
@@ -139,6 +140,9 @@
 
     button {
       @include styled-button();
+      display: inline-block;
+      width: $half-size;
+      vertical-align: top;
     }
   }
 }

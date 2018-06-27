@@ -143,7 +143,7 @@ $form-element-default-color: $grey-dark;
 @mixin styled-input {
   padding: 0 20px;
   display: block;
-  background: transparent;
+  background: $half-transparent;
   width: $full-size;
   line-height: $form-elem-height - 2;
   border: 1px solid $cyan-darkest;
@@ -155,7 +155,7 @@ $form-element-default-color: $grey-dark;
 @mixin styled-button {
   display: block;
   width: $full-size;
-  background: $transparent;
+  background: $transparent-white;
   border: 1px solid $cyan;
   color: $white;
   font-size: 14px;
@@ -167,6 +167,12 @@ $form-element-default-color: $grey-dark;
   &.isReady {
     opacity: 1;
     cursor: pointer;
+    @include use-transition();
+
+    &:hover {
+      background: $cyan;
+      color: $black;
+    }
   }
 }
 

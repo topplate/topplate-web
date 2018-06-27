@@ -42,21 +42,9 @@
     }
 
     .plate-edit_button {
+      @include styled-button();
       display: inline-block;
       width: $half-size;
-      background: $transparent;
-      border: 1px solid $cyan;
-      color: $white;
-      font-size: 14px;
-      margin-top: $btn-margin;
-      line-height: $form-elem-height - 2;
-      opacity: .7;
-      cursor: not-allowed;
-
-      &.isReady {
-        opacity: 1;
-        cursor: pointer;
-      }
     }
   }
 }

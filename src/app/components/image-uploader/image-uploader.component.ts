@@ -1,12 +1,8 @@
 import { Component, OnInit, DoCheck, OnDestroy, Input, ElementRef, ViewEncapsulation } from '@angular/core';
 import { AppD3Service } from '../../services/d3.service';
 import { ConstantsService } from '../../services/constants.service';
-import {Observable} from 'rxjs/Observable';
 
 const
-  CONSTANTS = ConstantsService.getConstants(),
-  ROUTES = CONSTANTS.ROUTES,
-  TYPES = CONSTANTS.TYPES,
   ROOT_ELEM_CLASS = 'top-plate_imageUploader',
   d3 = AppD3Service.getD3();
 
@@ -17,10 +13,6 @@ const
   encapsulation: ViewEncapsulation.None
 })
 export class ImageUploaderComponent implements OnInit, DoCheck {
-
-  constructor (
-    private reference: ElementRef
-  ) { }
 
   @Input() public model: any;
 
@@ -33,15 +25,13 @@ export class ImageUploaderComponent implements OnInit, DoCheck {
       originalImage = onChangeEvent.target.files.item(0),
       fReader = new FileReader();
 
-    console.log(originalImage);
-
     fReader.onload = function (readEvent) {
       self.model.originalImage = originalImage;
       self.model.dataUrl = readEvent.target['result'];
       self.model.fileExtension = originalImage.name.split('.').pop();
       self.model.contentType = originalImage.type;
       self.model.isUploaded = true;
-
+      self.model['defaultImage'] && delete self.model['defaultImage'];
       self.rootElem
         .select('.top-plate_imageUploader_background')
         .style('background-image', 'url(' + self.model.dataUrl + ')');
@@ -59,13 +49,29 @@ export class ImageUploaderComponent implements OnInit, DoCheck {
     typeof this.model['onChange'] === 'function' && this.model['onChange']();
   }
 
+  public get hasImage () {
+    return this.model && (this.model['isUploaded'] || this.model['defaultImage']);
+  }
+
+  constructor (
+    private reference: ElementRef
+  ) {}
+
   ngOnInit () {
     this.rootElem = d3.select(this.reference.nativeElement).classed(ROOT_ELEM_CLASS, true);
   }
 
   ngDoCheck () {
     let self = this;
-    if (!self.model || self.model.reset) return;
-    else self.model.reset = () => self.clearUploadedImage();
+    if (!self.model) return;
+    else if (self.model.reset) {
+
+
+
+      this.model['defaultImage'] && this.rootElem
+        .select('.top-plate_imageUploader_background')
+        .style('background-image', 'url(' + this.model['defaultImage'] + ')');
+      return;
+    } else self.model.reset = () => self.clearUploadedImage();
   }
 }

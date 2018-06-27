@@ -10,7 +10,7 @@ $tp-switch-color: #fdf016;
   width: $full-size;
   text-align: center;
   font-size: 10px;
-  line-height: 12px;
+  line-height: 25px;
   color:$white;
   background: #090e0d;
   white-space: nowrap;
@@ -21,7 +21,7 @@ $tp-switch-color: #fdf016;
     text-align: center;
     vertical-align: middle;
     cursor: pointer;
-    line-height: 25px;
+    line-height: inherit;
 
     &.isSelected {
       cursor: default;

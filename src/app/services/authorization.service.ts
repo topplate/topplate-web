@@ -61,14 +61,6 @@ export class AuthorizationService {
     return this.httpClient.post('/logout', {}, {headers: headers}).toPromise();
   }
 
-  private restoreLocalSession (usedProviders) {
-    let headers = new HttpHeaders()
-      .append('Content-type', 'application/json')
-      .append('Access-Token', usedProviders[LOCAL_USER] || '');
-
-    return this.httpClient.post('restore_local_session', {}, {headers: headers}).toPromise();
-  }
-
   private refreshSocialAuthObserver () {
     this.getState().subscribe(userData => {
       if (userData) {
@@ -83,6 +75,16 @@ export class AuthorizationService {
         })
         .catch(err => SharedService.getSharedComponent('growl').addItem(err));
     });
+  }
+
+  public restoreLocalSession () {
+    let
+      usedProviders = AuthorizationService.getUsedProviders(),
+      headers = new HttpHeaders()
+        .append('Content-type', 'application/json')
+        .append('Access-Token', usedProviders[LOCAL_USER] || '');
+
+    return this.httpClient.post('restore_local_session', {}, {headers: headers}).toPromise();
   }
 
   public getState () {
@@ -117,6 +119,7 @@ export class AuthorizationService {
   }
 
   public setCurrentUser (userData) {
+    if (userData && userData.token !== SharedService.getToken()) SharedService.setToken(userData.token);
     this.currentUser.next(userData);
   }
 
@@ -158,12 +161,10 @@ export class AuthorizationService {
     private httpClient: HttpClient
   ) {
 
-    let
-      lastUsedProvider = AuthorizationService.getLastUsedProvider(),
-      usedProviders = AuthorizationService.getUsedProviders();
+    let lastUsedProvider = AuthorizationService.getLastUsedProvider();
 
     this.refreshSocialAuthObserver();
-    lastUsedProvider === LOCAL_PROVIDER && this.restoreLocalSession(usedProviders)
+    lastUsedProvider === LOCAL_PROVIDER && this.restoreLocalSession()
       .then(userData => this.signIn(LOCAL_PROVIDER, userData))
       .catch(err => err.status !== 401 && SharedService.getSharedComponent('growl').addItem(err));
   }

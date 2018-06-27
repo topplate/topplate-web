@@ -1,0 +1,27 @@
+<div class="sign-up-page_header">
+  <div class="sign-up-page_header-inner">
+    <h1>CREATE ACCOUNT</h1>
+    <app-image-uploader class="sign-up-page_avatar-uploader" [model]="userAvatar">
+      <span>your avatar</span>
+    </app-image-uploader>
+  </div>
+</div>
+
+<form [formGroup]="signUpForm" class="sign-up-form roboto-light">
+  <fieldset>
+    <app-tp-switch class="sign-up-form-gender-selector" [items]="genderSwitchItems" [events]="genderSwitchEvents"></app-tp-switch>
+    <br>
+    <input type="email" class="uppercase" title="Email" formControlName="email" placeholder="EMAIL">
+    <br>
+    <input type="text" class="uppercase" title="First name" formControlName="firstName" placeholder="FIRST NAME">
+    <br>
+    <input type="text" class="uppercase" title="Last name" formControlName="lastName" placeholder="LAST NAME">
+    <br>
+    <input type="password" title="Password" formControlName="password" placeholder="PASSWORD">
+    <br>
+    <input type="password" title="Repeat password" formControlName="passwordRepeat" placeholder="REPEAT PASSWORD">
+    <br>
+    <button type="button" [ngClass]="{isReady: isReadyToBeSubmitted}" (click)="onSubmitForm()">CREATE PROFILE</button>
+  </fieldset>
+</form>
+

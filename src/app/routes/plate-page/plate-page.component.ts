@@ -79,8 +79,17 @@ export class PlatePageComponent implements OnInit, OnDestroy {
     self.platesService.refreshPlatesList([self.selectedPlate].concat(self.relatedPlates));
   }
 
+  public get isSelfPlate () {
+    let
+      currentUser = this.authorizationService.getCurrentUser(),
+      plateAuthorId = this.selectedPlate && this.selectedPlate.author && this.selectedPlate.author.id;
+    return currentUser && plateAuthorId && (currentUser._id === plateAuthorId);
+  }
+
   public get showEditButton () {
-    return this.selectedPlate && this.selectedPlate.environment === CONSTANTS.ENVIRONMENTS.HOMEMADE;
+    return this.selectedPlate &&
+      this.selectedPlate.environment === CONSTANTS.ENVIRONMENTS.HOMEMADE &&
+      this.selectedPlate.author && this.isSelfPlate;
   }
 
   public editPlate () {

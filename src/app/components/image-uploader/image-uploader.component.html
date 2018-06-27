@@ -1,13 +1,13 @@
-<div class="top-plate_imageUploader_background" [hidden]="!model['isUploaded']"></div>
+<div class="top-plate_imageUploader_background" [hidden]="!hasImage"></div>
 
 <label class="top-plate_imageUploader_trigger"
       (click)="clearUploadedImage()"
-      [ngClass]="{'hasImage': model['isUploaded']}">
+      [ngClass]="{'hasImage': hasImage}">
   <input type="file" (change)="onChange($event)" *ngIf="!model['isUploaded']" accept=".jpg, .png, .jpeg">
   <span class="top-plate_imageUploader_label roboto-light uppercase">
-    <span class="top-plate_imageUploader_closeBtn" *ngIf="model['isUploaded']"></span>
-    <span class="top-plate_imageUploader_icon" *ngIf="!model['isUploaded']"></span>
-    <span *ngIf="!model['isUploaded']"><br>upload<br><ng-content></ng-content></span>
+    <span class="top-plate_imageUploader_closeBtn" *ngIf="hasImage"></span>
+    <span class="top-plate_imageUploader_icon" *ngIf="!hasImage"></span>
+    <span *ngIf="!hasImage"><br>upload<br><ng-content></ng-content></span>
   </span>
 </label>
 

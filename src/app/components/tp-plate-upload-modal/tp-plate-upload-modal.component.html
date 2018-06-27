@@ -9,10 +9,10 @@
     <form [formGroup]="restaurantPlateForm" *ngIf="restaurantEnvironmentIsSelected">
       <fieldset>
         <div class="plate-uploader_textInput">
-          <input type="text" formControlName="name" placeholder="NAME OR ALIAS*">
+          <input type="text" formControlName="name" placeholder="NAME OR ALIAS*" maxlength="25">
         </div>
         <div class="plate-uploader_textInput">
-          <input type="text" formControlName="address" placeholder="CITY, STATE*">
+          <input type="text" formControlName="address" placeholder="CITY, STATE*" maxlength="25">
         </div>
       </fieldset>
       <fieldset>
@@ -22,7 +22,7 @@
       </fieldset>
       <fieldset>
         <div class="plate-uploader_textInput">
-          <input type="text" formControlName="restaurantName" placeholder="RESTAURANT NAME*">
+          <input type="text" formControlName="restaurantName" placeholder="RESTAURANT NAME*" maxlength="25">
         </div>
       </fieldset>
       <button type="submit" class="plate-uploader_button"
@@ -33,10 +33,10 @@
     <form [formGroup]="homemadePlateForm" *ngIf="!restaurantEnvironmentIsSelected">
       <fieldset>
         <div class="plate-uploader_textInput">
-          <input type="text" formControlName="name" placeholder="NAME OR ALIAS*">
+          <input type="text" formControlName="name" placeholder="NAME OR ALIAS*" maxlength="25">
         </div>
         <div class="plate-uploader_textInput">
-          <input type="text" formControlName="address" placeholder="CITY, STATE*">
+          <input type="text" formControlName="address" placeholder="CITY, STATE*" maxlength="25">
         </div>
       </fieldset>
       <fieldset>
@@ -47,7 +47,7 @@
       <fieldset>
         <div class="plate-uploader_recipe">
           <div class="plate-uploader_textInput plate-uploader_recipeInput">
-            <textarea formControlName="recipe" cols="30" rows="5" placeholder="ADD RECIPE"></textarea>
+            <textarea formControlName="recipe" cols="30" rows="5" placeholder="ADD RECIPE" maxlength="140"></textarea>
           </div>
         </div>
         <app-tp-collection [model]="ingredientsCollection"></app-tp-collection>

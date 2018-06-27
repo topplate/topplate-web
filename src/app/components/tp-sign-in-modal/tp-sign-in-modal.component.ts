@@ -1,10 +1,16 @@
 import { Component, OnInit } from '@angular/core';
+import {ConstantsService} from '../../services/constants.service';
+import {Router} from '@angular/router';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {FacebookLoginProvider, GoogleLoginProvider} from 'angular5-social-login';
 import {AuthorizationService} from '../../services/authorization.service';
 import {SharedService} from '../../services/shared.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {AccessPointService} from '../../services/access-point.service';
+
+const
+  CONSTANTS = ConstantsService.getConstants(),
+  ROUTES = CONSTANTS.ROUTES;
 
 @Component({
   selector: 'app-tp-sign-in-modal',
@@ -62,7 +68,13 @@ export class TpSignInModalComponent implements OnInit {
 
   public toggleState (state) {
     this.showLocalLoginForm = false;
+    this.loginLocalForm.reset();
     this.state.next(state);
+  }
+
+  public onSignUpButtonClick () {
+    this.toggleState(false);
+    this.router.navigate([ROUTES.SIGN_UP]);
   }
 
   public onLoginLocalFormSubmit () {
@@ -93,6 +105,7 @@ export class TpSignInModalComponent implements OnInit {
   constructor (
     private authorizationService: AuthorizationService,
     private accessPointService: AccessPointService,
+    private router: Router
   ) {}
 
   ngOnInit () {

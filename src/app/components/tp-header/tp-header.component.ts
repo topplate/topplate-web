@@ -61,6 +61,7 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
     },
     {
       label: 'log out',
+      authorizedUsersOnly: true,
       action: 'onSignOutButtonClick'
     }
   ];
@@ -84,7 +85,7 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
     },
     {
       label: 'charities',
-      url: [ADMIN_ROUTES.MANAGE_CHARITIES]
+      url: [ADMIN_ROUTES.MANAGE_CHARITIES],
     },
     {
       label: 'sign out',

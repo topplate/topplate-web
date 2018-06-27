@@ -21,58 +21,53 @@ const
 })
 export class ContactsPageComponent implements OnInit {
 
+  public contactForm: FormGroup = new FormGroup({
+    name: new FormControl('', Validators.required),
+    email: new FormControl('', [
+      Validators.required,
+      Validators.pattern(/^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i)
+    ]),
+    message: new FormControl('', Validators.required)
+  });
+
+  public contactsData: Object;
+
+  public get isReadyToBeSubmitted () {
+    return this.contactForm.valid;
+  }
+
+  public sendRequest () {
+    if (!this.isReadyToBeSubmitted) return;
+    let formValue = this.contactForm.value;
+    SharedService.getSharedComponent('globalOverlay').toggle(false);
+    this.accessPointService.postRequest(
+      '/create_request',
+      {
+        name: formValue.name,
+        email: formValue.email,
+        message: formValue.message
+      },
+      {
+        onSuccess: resMessage => {
+          this.contactForm.reset();
+          SharedService.getSharedComponent('globalOverlay').toggle(true);
+          SharedService.getSharedComponent('growl').addItem(resMessage);
+        },
+        onFail: err => {
+          SharedService.getSharedComponent('globalOverlay').toggle(true);
+          SharedService.getSharedComponent('growl').addItem(err);
+        }
+      }
+    );
+  }
+
   constructor (
     private accessPointService: AccessPointService,
     private activatedRoute: ActivatedRoute
   ) {}
 
-  public contactForm: FormGroup;
-
-  public contactsData: Object;
-
-  public sendRequest () {
-    let formValue = this.contactForm.value;
-
-    if (!this.contactForm.valid) SharedService.getSharedComponent('growl')
-      .addItem({message: 'Email and request required', status: 500});
-
-    else {
-      SharedService.getSharedComponent('globalOverlay').toggle(false);
-      this.accessPointService.postRequest(
-        '/create_request',
-        {
-          name: formValue.name,
-          email: formValue.email,
-          message: formValue.message
-        },
-        {
-          onSuccess: resMessage => {
-            this.contactForm.reset();
-            SharedService.getSharedComponent('globalOverlay').toggle(true);
-            SharedService.getSharedComponent('growl').addItem(resMessage);
-          },
-          onFail: err => {
-            SharedService.getSharedComponent('globalOverlay').toggle(true);
-            SharedService.getSharedComponent('growl').addItem(err);
-          }
-        }
-      );
-    }
-  }
-
   ngOnInit () {
-    let
-      self = this,
-      contactForm = self.contactForm = new FormGroup({
-        name: new FormControl('', Validators.required),
-        email: new FormControl('', [
-          Validators.required,
-          Validators.pattern(/^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i)
-        ]),
-        message: new FormControl('', Validators.required)
-      }),
-      routeData = self.activatedRoute.snapshot.data;
-
-    self.contactsData = routeData['contactsData'];
+    let routeData = this.activatedRoute.snapshot.data;
+    this.contactsData = routeData['contactsData'];
   }
 }

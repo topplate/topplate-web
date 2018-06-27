@@ -17,6 +17,7 @@
         <fieldset class="login-local-form">
           <input type="text" formControlName="email" title="email" placeholder="EMAIL" />
           <input type="password" formControlName="password" title="password" placeholder="PASSWORD" />
+          <button class="isReady" (click)="onSignUpButtonClick()">SIGN UP</button>
           <button [ngClass]="{isReady: loginLocalForm.valid}" (click)="onLoginLocalFormSubmit()">SIGN IN</button>
         </fieldset>
       </form>

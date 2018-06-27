@@ -25,12 +25,27 @@ $has-recipe-banner-height: 32px;
       width: $full-size;
       height: $full-size;
 
+      .plate-preview_contentGeo-invisible {
+        position: fixed;
+        top: -20px;
+        left: 0;
+        font-size: 10px;
+        opacity: 0;
+        white-space: nowrap;
+
+        .fa {
+          margin-right: 5px;
+        }
+      }
+
       .plate-preview_contentGeo-full {
         position: absolute;
         display: inline-block;
-        white-space: nowrap;
+        white-space: normal;
+        width: $full-size - 10;
         opacity: 0;
-        bottom: -30px;
+        top: $full-size;
+        bottom: auto;
         left: 50%;
         font-size: 10px;
         padding: 5px 10px;
@@ -46,6 +61,7 @@ $has-recipe-banner-height: 32px;
 
         &.isVisible {
           opacity: 1;
+          top: auto;
           bottom: 40px;
         }
 

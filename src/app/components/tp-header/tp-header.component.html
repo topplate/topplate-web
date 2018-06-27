@@ -32,7 +32,9 @@
       <i class="fa fa-bars"></i>
       <ul class="tp-header_menuItems">
         <li class="tp-header_menuItem roboto-light uppercase"
-            *ngFor="let menuItem of menuItems" (click)="onMenuItemClick(menuItem)">
+            *ngFor="let menuItem of menuItems"
+            [hidden]="!isAuthorized && menuItem['authorizedUsersOnly']"
+            (click)="onMenuItemClick(menuItem)">
           <span>{{menuItem['label']}}</span>
         </li>
       </ul>

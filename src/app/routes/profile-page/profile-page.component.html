@@ -5,6 +5,10 @@
          [ngStyle]="{'background-image': 'url(' + profile['user']['image'] + ')'}"
     ></div>
     <div class="profile-page_name uppercase roboto-light">{{profile['user']['name']}}</div>
+    <div class="profile-page_actions" *ngIf="actionsAvailable">
+      <button type="button" class="isReady" (click)="editProfile()">EDIT PROFILE</button>
+      <button type="button" class="isReady" (click)="changePassword()" *ngIf="showChangePasswordButton">CHANGE PASSWORD</button>
+    </div>
   </div>
 </div>
 <app-tp-infinite-list [customSettings]="settings" [events]="infiniteScrollEvents"></app-tp-infinite-list>

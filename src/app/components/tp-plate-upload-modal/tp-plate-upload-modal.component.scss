@@ -55,21 +55,7 @@
     }
 
     .plate-uploader_button {
-      display: block;
-      width: $full-size;
-      background: $transparent;
-      border: 1px solid $cyan;
-      color: $white;
-      font-size: 14px;
-      margin-top: $btn-margin;
-      line-height: $form-elem-height - 2;
-      opacity: .7;
-      cursor: not-allowed;
-
-      &.isReady {
-        opacity: 1;
-        cursor: pointer;
-      }
+      @include styled-button();
     }
   }
 }

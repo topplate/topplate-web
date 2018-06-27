@@ -40,14 +40,12 @@ export class TpSwitchComponent implements OnInit, DoCheck {
     return items && items.length && items.filter(item => item['isSelected'])[0];
   }
 
-  public toggle () {
+  public toggle (clickedItem) {
     let
       self = this,
       events = self.events || {};
 
-    if (!self.selectedOne) return;
-
-    events['onClick'] && events['onClick']();
+    events['onClick'] && events['onClick'](clickedItem);
   }
 
   ngOnInit () {

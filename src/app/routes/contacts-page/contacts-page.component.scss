@@ -24,48 +24,18 @@
   }
 
   .contacts-page_form {
-    .contacts-page_formInput,
-    .contacts-page_textInput {
-      position: relative;
-      display: block;
-      font-size: 14px;
-      margin-top: 10px;
 
-      input, textarea {
-        padding: 0 20px;
-        display: block;
-        background: rgba(0, 0, 0, .5);
-        width: $full-size;
-        line-height: $form-elem-height - 2;
-        border: 1px solid $white;
-        outline: none;
-        color: $white;
-        text-align: center;
-        text-transform: uppercase;
-      }
-
-      textarea {
-        padding: 10px 20px;
-        line-height: 20px;
-      }
+    input, textarea {
+      @include styled-input();
     }
-    .contacts-page_button {
-      margin-top: 10px;
-      text-align: right;
 
-      button {
-        display: inline-block;
-        padding: 10px 20px;
-        border: 1px solid $white;
-        color: $white;
-        background: $transparent-white;
-        cursor: pointer;
-        @include use-transition($normal);
+    textarea {
+      padding: 10px 20px;
+      line-height: 20px;
+    }
 
-        &:hover {
-          background: $cyan;
-        }
-      }
+    button {
+      @include styled-button();
     }
   }
 }

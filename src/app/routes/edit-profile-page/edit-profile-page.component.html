@@ -1,0 +1,20 @@
+<div class="edit-profile-page_header">
+  <div class="edit-profile-page_header-inner">
+    <h1>EDIT PROFILE</h1>
+    <app-image-uploader class="edit-profile-page_avatar-uploader" [model]="userAvatar">
+      <span>your avatar</span>
+    </app-image-uploader>
+  </div>
+</div>
+
+<form [formGroup]="editProfileForm" class="edit-profile-form roboto-light">
+  <fieldset>
+    <app-tp-switch class="edit-profile-form-gender-selector" [items]="genderSwitchItems" [events]="genderSwitchEvents"></app-tp-switch>
+    <br>
+    <input type="text" class="uppercase" title="First name" formControlName="firstName" placeholder="FIRST NAME">
+    <br>
+    <input type="text" class="uppercase" title="Last name" formControlName="lastName" placeholder="LAST NAME">
+    <br>
+    <button type="button" [ngClass]="{isReady: isReadyToBeSubmitted}" (click)="onSubmitForm()">UPDATE PROFILE</button>
+  </fieldset>
+</form>

@@ -6,6 +6,8 @@ import { SharedService } from '../../services/shared.service';
 import { AccessPointService } from '../../services/access-point.service';
 import { AuthorizationService } from '../../services/authorization.service';
 import { EnvironmentService } from '../../services/environment.service';
+import {PlatesService} from '../../services/plates.service';
+import {PlateModel} from '../../models/plate.model';
 
 const
   CONSTANTS = ConstantsService.getConstants(),
@@ -20,14 +22,7 @@ const
 })
 export class ProfilePageComponent implements OnInit {
 
-  constructor (
-    private activatedRoute: ActivatedRoute,
-    private accessPointService: AccessPointService,
-    private authorizationService: AuthorizationService,
-    private router: Router
-  ) {}
-
-  public plates: Object[];
+  public plates: PlateModel[] = [];
 
   public profile: Object;
 
@@ -38,49 +33,7 @@ export class ProfilePageComponent implements OnInit {
   public infiniteScrollAPI: any;
 
   private refreshPlates (plates) {
-    let self = this;
-    self.plates = self.plates || [];
-    return plates.map(plate => {
-      plate['onLinkClick'] = () => self.router.navigate([ROUTES.PLATE + '/', plate._id]);
-      plate['onLikeClick'] = () => {
-        let currentUser = self.authorizationService.getCurrentUser();
-        if (!currentUser) return;
-
-        // self.accessPointService.postRequest('/edit_plate',
-        //   {
-        //     plateId: plate._id,
-        //     fields: {
-        //       recipe: 'this is a test',
-        //       ingredients: [
-        //         '8 of something',
-        //         '3 of some other thing',
-        //         '4 of some third thing',
-        //         'salt',
-        //         'pepper'
-        //       ]
-        //     }
-        //   },
-        //   {
-        //     onSuccess: res => console.log(res),
-        //     onFail: err => console.log(err)
-        //   }
-        // );
-
-        self.accessPointService.postRequest('/like_plate',
-          {plate: plate._id},
-          {
-            onSuccess: res => {
-              plate.likes = res.numberOfLikes === null ? plate.likes : res.numberOfLikes;
-              SharedService.setLikedPlates(res.likedPlates);
-            },
-            onFail: err => console.log(err)
-          }
-        );
-      };
-      plate['hasRecipe'] = plate.recipe || plate.ingredients;
-      self.plates.push(plate);
-      return plate;
-    });
+    return (plates || []).map(plate => this.platesService.createPlateEntity(plate));
   }
 
   private loadPlates () {
@@ -103,12 +56,38 @@ export class ProfilePageComponent implements OnInit {
         onSuccess: res => {
           let newPlates = self.refreshPlates(res);
           infiniteScrollAPI.setFinalized(newPlates.length < lim);
-          infiniteScrollAPI.addItems(newPlates);
+          infiniteScrollAPI.addItems(newPlates)
+            .then(platesInList => self.platesService.refreshPlatesList(platesInList));
         },
         onFail: err => console.log(err)
       }
     );
   }
+
+  public get actionsAvailable () {
+    let currentUser = this.authorizationService.getCurrentUser();
+    return currentUser && currentUser._id === this.profile['_id'];
+  }
+
+  public get showChangePasswordButton () {
+    return this.actionsAvailable && this.authorizationService.getCurrentUser()['provider'];
+  }
+
+  public editProfile () {
+    this.router.navigate([ROUTES.EDIT_PROFILE]);
+  }
+
+  public changePassword () {
+    this.router.navigate([ROUTES.CHANGE_PASSWORD]);
+  }
+
+  constructor (
+    private activatedRoute: ActivatedRoute,
+    private accessPointService: AccessPointService,
+    private authorizationService: AuthorizationService,
+    private platesService: PlatesService,
+    private router: Router
+  ) {}
 
   ngOnInit () {
 

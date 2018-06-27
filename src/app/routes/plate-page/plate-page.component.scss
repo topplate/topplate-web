@@ -80,14 +80,8 @@
 .plate-page_selectedOne_edit-button {
 
   button {
+    @include styled-button();
     display: block;
     width: 200px;
-    background: $transparent;
-    border: 1px solid $cyan;
-    color: $white;
-    font-size: 14px;
-    margin-top: $btn-margin;
-    line-height: $form-elem-height - 2;
-    cursor: pointer;
   }
 }

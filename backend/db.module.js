@@ -387,7 +387,11 @@ module.exports.getPlate = (id, lim = 3) => {
             .filter(plateId => plateId !== id)
             .map(plateId => mongoose.Types.ObjectId(plateId));
 
-          models.Plate.find({_id: {$in: relatedPlates}, environment: selectedPlate.environment})
+          models.Plate.find({
+            _id: {$in: relatedPlates},
+            environment: selectedPlate.environment,
+            isReady: true
+          })
             .limit(lim)
             .sort({createdAt: -1})
             .then(plates => {
@@ -1015,7 +1019,15 @@ function refreshUserSchema () {
     profile['name'] = profile['firstName'] + ' ' + profile['lastName'];
 
     models.User.collection.updateOne({_id: user._id}, {$set: {customProfile: profile}})
-      .then(() => deferred.resolve({message: 'User profile updated'}))
+      .then(() => models.User.findOne({_id: user._id})
+        .then(updatedUser => {
+          let normalized = updatedUser.getNormalized();
+          normalized['provider'] = provider;
+          normalized['token'] = updatedUser.lastLogged.token;
+          deferred.resolve(normalized);
+        })
+        .catch(err => deferred.reject(err))
+      )
       .catch(err => deferred.reject(err));
 
     return deferred.promise;

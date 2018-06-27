@@ -1,18 +1,14 @@
 <div class="contacts-page_content">
-  <form class="contacts-page_form" [formGroup]="contactForm">
+  <form class="contacts-page_form uppercase roboto-light" [formGroup]="contactForm">
     <fieldset>
-      <div class="contacts-page_formInput">
-        <input type="text" formControlName="name" placeholder="YOUR NAME">
-      </div>
-      <div class="contacts-page_formInput">
-        <input type="email" formControlName="email" placeholder="EMAIL ADDRESS*">
-      </div>
-      <div class="contacts-page_textInput">
-        <textarea formControlName="message" cols="30" rows="5" placeholder="YOUR MESSAGE" maxlength="140"></textarea>
-      </div>
-      <div class="contacts-page_button">
-        <button type="submit" (click)="sendRequest()">SEND</button>
-      </div>
+      <br>
+      <input type="text" class="uppercase roboto-light" formControlName="name" placeholder="YOUR NAME" maxlength="25">
+      <br>
+      <input type="email" class="uppercase roboto-light" formControlName="email" placeholder="EMAIL ADDRESS*" maxlength="25">
+      <br>
+      <textarea class="uppercase roboto-light" formControlName="message" cols="30" rows="5" placeholder="YOUR MESSAGE" maxlength="140"></textarea>
+      <br>
+      <button [ngClass]="{isReady: isReadyToBeSubmitted}" type="submit" (click)="sendRequest()">SEND</button>
     </fieldset>
   </form>
   <div class="contacts-page_details uppercase roboto-light">

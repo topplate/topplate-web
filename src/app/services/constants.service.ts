@@ -16,6 +16,9 @@ const CONSTANTS = {
     'PRIVACY_TERM': 'privacy-term',
     'SEARCH': 'search',
     'EMPTY': 'empty',
+    'SIGN_UP': 'sign-up',
+    'EDIT_PROFILE': 'edit-profile',
+    'CHANGE_PASSWORD': 'change-password',
     'OTHERWISE': '**'
   },
 
