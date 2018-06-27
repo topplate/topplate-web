@@ -1,12 +1,3 @@
-/**
- * - create 50 plates for each bot - plates should be marked as { test: true }
- * - loop through plates and change dates randomly and add random number of likes
- * - find winners
- *
- * */
-
-
-
 const
   Q = require('q'),
   https = require('https'),
@@ -327,6 +318,21 @@ function refreshBots () {
 }
 
 function setAppSchedules () {
+  let dbModels = global.dbModule.getModels();
+
+  dbModels.Plate.collection.find({week: undefined})
+    .then(plates => {
+      console.log(plates);
+    })
+    .catch(err => {
+      console.log(err);
+
+    });
+
+
+}
+
+function _setAppSchedules () {
 
   let
     dbModels = global.dbModule.getModels(),
