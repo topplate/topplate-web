@@ -320,14 +320,15 @@ function refreshBots () {
 function setAppSchedules () {
   let dbModels = global.dbModule.getModels();
 
-  dbModels.Plate.collection.find({week: undefined})
-    .then(plates => {
-      console.log(plates);
-    })
-    .catch(err => {
-      console.log(err);
-
-    });
+  // dbModels.Plate.find({week: {$ne: undefined}})
+  //   .then(res => console.log(res))
+  //   .catch(err => console.log(err));
+    // .then(plates => {
+    //   console.log(plates);
+    // })
+    // .catch(err => {
+    //   console.log(err);
+    // });
 
 
 }
