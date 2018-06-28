@@ -10,7 +10,7 @@ module.exports.disconnect = dbDisconnect;
 module.exports.getCollection = getCollection;
 
 function dbConnect () {
-  return mongoose.connect(process.env.MONGODB_URI);
+  return mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/top-plate-db');
 }
 
 function dbDisconnect () {
