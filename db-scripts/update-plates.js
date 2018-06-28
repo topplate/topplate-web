@@ -16,15 +16,13 @@ db.getCollection('plates')
 
 function cleanUp (collection, ids) {
 
-  collection.find({_id: {$in: ids}})
-    .toArray((err, res) => {
-      if (err) {
-        console.log(err);
-        db.disconnect();
-      } else {
-        console.log(res);
-        db.disconnect();
-      }
-    });
+  collection.updateMany(
+    {_id: {$in: ids}},
+    {$unset: {imageBinaryData: ''}},
+    (err, res) => {
+      console.log(err, res);
+      db.disconnect();
+    }
+  );
 }
 
