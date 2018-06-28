@@ -8,13 +8,23 @@ db.getCollection('plates')
         if (err) {
           console.log(err);
           db.disconnect();
-        } else cleanUp(res.map(plate => plate._id));
+        } else cleanUp(collection, res.map(plate => plate._id));
 
       });
   })
   .catch(err => console.log(err));
 
-function cleanUp (ids) {
-  console.log(ids);
+function cleanUp (collection, ids) {
+
+  collection.find({_id: {$in: ids}})
+    .toArray((err, res) => {
+      if (err) {
+        console.log(err);
+        db.disconnect();
+      } else {
+        console.log(res);
+        db.disconnect();
+      }
+    });
 }
 
