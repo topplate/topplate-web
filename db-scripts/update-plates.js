@@ -1,4 +1,6 @@
-let db = require('./db-connection');
+let
+  moment = require('moment'),
+  db = require('./db-connection');
 
 db.getCollection('plates')
   .then(collection => {
@@ -9,24 +11,49 @@ db.getCollection('plates')
           console.log(err);
           db.disconnect();
         } else {
-          console.log(res);
-          db.disconnect();
-          // cleanUp(collection, res.map(plate => plate._id));
+          cleanUp(collection, res.map(plate => {
+            return {
+              _id: plate._id,
+              week: getWeekName(plate.createdAt)
+            };
+          }));
         }
 
       });
   })
   .catch(err => console.log(err));
 
-function cleanUp (collection, ids) {
+function cleanUp (collection, itemsToUpdate) {
 
-  collection.updateMany(
-    {_id: {$in: ids}},
-    {$unset: {imageBinaryData: ''}},
-    (err, res) => {
-      console.log(err, res);
+  let i = 0;
+
+  updateItem();
+
+  function updateItem () {
+    let item = itemsToUpdate[i++];
+    if (!item) {
+      console.log('all plates were updated');
       db.disconnect();
+    } else {
+      collection.update(
+        {_id: item._id},
+        {$set: {week: item.week}},
+        (err, res) => {
+          if (err) {
+            console.log(err);
+            db.disconnect();
+          } else {
+            console.log(res);
+            updateItem();
+          }
+        }
+      );
     }
-  );
+  }
+}
+
+function getWeekName (dateStr) {
+  let date = moment(dateStr);
+  return date.year() + '_' + date.month() + '_' + date.week();
 }
 
