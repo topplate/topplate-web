@@ -3,7 +3,7 @@ let db = require('./db-connection');
 db.getCollection('plates')
   .then(collection => {
 
-    collection.find({imageBinaryData: {$exists: true}})
+    collection.find({week: {$exists: false}})
       .toArray((err, res) => {
         if (err) {
           console.log(err);
