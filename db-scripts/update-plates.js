@@ -8,7 +8,11 @@ db.getCollection('plates')
         if (err) {
           console.log(err);
           db.disconnect();
-        } else cleanUp(collection, res.map(plate => plate._id));
+        } else {
+          console.log(res);
+          db.disconnect();
+          // cleanUp(collection, res.map(plate => plate._id));
+        }
 
       });
   })
