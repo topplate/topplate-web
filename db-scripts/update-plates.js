@@ -5,10 +5,16 @@ db.getCollection('plates')
 
     collection.find({imageBinaryData: {$exists: true}})
       .toArray((err, res) => {
-        if (err) console.log(err);
-        else console.log(res);
-        db.disconnect();
+        if (err) {
+          console.log(err);
+          db.disconnect();
+        } else cleanUp(res.map(plate => plate._id));
+
       });
   })
   .catch(err => console.log(err));
+
+function cleanUp (ids) {
+  console.log(ids);
+}
 
