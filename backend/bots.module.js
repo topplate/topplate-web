@@ -4,6 +4,7 @@ const
   fs = require('fs'),
   jimp = require('jimp'),
   cron = require('node-cron'),
+  d3 = require('d3'),
   moment = require('moment'),
   mongoose = require('mongoose');
 
@@ -318,149 +319,92 @@ function refreshBots () {
 }
 
 function setAppSchedules () {
-  let dbModels = global.dbModule.getModels();
-
-  // dbModels.Plate.find({week: {$ne: undefined}})
-  //   .then(res => console.log(res))
-  //   .catch(err => console.log(err));
-    // .then(plates => {
-    //   console.log(plates);
-    // })
-    // .catch(err => {
-    //   console.log(err);
-    // });
-
-
-}
-
-function _setAppSchedules () {
-
   let
     dbModels = global.dbModule.getModels(),
-    baseData;
+    currentWeekName = getWeekName(),
+    cronTask = cron.schedule('0 0 0 * * Monday', () => {
+      console.log('***** DEFINING WINNERS *****');
+      currentWeekName = getWeekName();
+      doTask();
+    }, false);
 
-  return;
+  doTask();
 
-  dbModels.Base.findOne()
-    .then(data => {
-      baseData = data;
-      if (!baseData['hasWinners']) defineWinners();
-      else if (!baseData['platesRestored']) refreshIndexes();
-      else console.log('previous weeks winners are ready');
+  cronTask.start();
+
+  function doTask () {
+    getPlates()
+      .then(plates => defineWinners(plates))
+      .catch(err => console.log(err));
+  }
+
+  function getPlates () {
+    let deferred = Q.defer();
+
+    dbModels.Plate.find({
+      isReady: true,
+      canLike: true,
+      week: {$ne: currentWeekName},
     })
-    .catch(err => console.log(err));
+      .then(plates => deferred.resolve(plates))
+      .catch(err => deferred.reject(err));
 
-  function defineWinners () {
+    return deferred.promise;
+  }
 
+  function defineWinners (plates) {
+    if (!plates || !plates.length) return;
     let
-      currentWeek = moment().week(),
-      itemsToFix = [],
       weeks = {},
-      winners = {};
+      winners = [],
+      ids = plates.map(plate => plate._id);
 
-    dbModels.Plate.find({isReady: true}, {
-      _id: 1,
-      createdAt: 1,
-      likes: 1
-    })
-      .then(res => {
-        res.forEach(plate => {
-          let
-            date = moment(plate.createdAt),
-            year = date.year(),
-            month = date.month(),
-            week = date.week(),
-            name = year + '_' + month + '_' + week,
-            item = {
-              name: name,
-              year: year,
-              month: month,
-              week: week,
-              plate: plate._id,
-              likes: plate.likes.length
-            };
+    plates.forEach(plate => {
+      let weekName = plate.week + '#' + plate.environment;
+      weeks[weekName] = weeks[weekName] || {
+        max: 0,
+        environment: plate.environment,
+        plates: []
+      };
+      weeks[weekName].plates.push(plate);
+    });
 
-          if (week < currentWeek) {
-            weeks[name] = weeks[name] || [];
-            weeks[name].push(item);
-            itemsToFix.push(mongoose.Types.ObjectId(item.plate));
-          }
+    Object.keys(weeks).forEach(key => {
+      weeks[key].max = d3.max(
+        weeks[key].plates,
+        (d) => (d.likes && d.likes.length) || 0
+      );
+
+      weeks[key].max && weeks[key].plates
+        .filter(plate => plate.likes.length === weeks[key].max)
+        .forEach(plate => {
+          let date = plate.week.split('_').map(str => +str);
+          winners.push({
+            environment: plate.environment,
+            name: plate.week,
+            year: date[0],
+            month: date[1],
+            week: date[2],
+            likes: weeks[key].max,
+            plate: plate._id
+          });
         });
+    });
 
-        Object.keys(weeks).forEach(key => {
-          let
-            sorted = weeks[key].sort((a, b) => {
-              let wa = a.likes, wb = b.likes;
-              return wa < wb ? 1 : (wa > wb ? -1 : 0);
-            }),
-            weight = (sorted[0] && sorted[0].likes) || 0;
-
-          if (weight > 0) winners[key] = sorted.filter(item => item.likes === weight);
-        });
-
-        dbModels.Plate.collection
-          .updateMany({_id: {$in: itemsToFix}}, {$set: {isFixed: true, canLike: false}})
-          .then(() => {
-            let winnersArray = [];
-            Object.keys(winners).forEach(weekKey => winnersArray = winnersArray.concat(winners[weekKey]));
-
-            console.log('now preparing winners');
-
-            dbModels.Winner.collection.insertMany(winnersArray)
-              .then(() => {
-                dbModels.Base.findOne()
-                  .then(data => {
-                    data.hasWinners = true;
-                    data.save(err => {
-                      if (err) console.log(err);
-                      else console.log('now we have winners');
-                    });
-                  })
-                  .catch(err => console.log(err));
-              })
-              .catch(err => console.log(err));
-          })
-          .catch(err => console.log(err));
-      })
+    dbModels.Winner.collection.insertMany(winners)
+      .then(res => dbModels.Plate.collection.updateMany(
+          {_id: {$in: ids}},
+          {$set: {canLike: false}}
+        )
+        .then(platesRes => console.log(platesRes))
+        .catch(err => console.log(err))
+      )
       .catch(err => console.log(err));
   }
 }
 
-function refreshIndexes () {
-
-  let
-    authors = {},
-    platesToUpdate = [],
-    dbModels = global.dbModule.getModels();
-
-  dbModels.User.find({})
-    .then(users => {
-      users.forEach(user => {
-        if (user.isRobot) authors[user['google']['name']] = user['_id'];
-        else authors[user[user.lastLogged.provider]['name']] = user['_id'];
-      });
-
-      dbModels.Plate.find({})
-        .then(plates => {
-          let needToBeUpdated = plates.filter(plate => !plate.author.id && authors[plate.author.name]);
-          platesToUpdate = platesToUpdate.concat(needToBeUpdated);
-          updatePlate(0);
-        })
-        .catch(err => console.log(err));
-    })
-    .catch(err => console.log(err));
-
-  function updatePlate (i) {
-    let nextPlate = platesToUpdate[i];
-
-    if (!nextPlate) {console.log('plates up to date')}
-    else {
-      nextPlate.author['id'] = authors[nextPlate.author.name];
-      nextPlate.save(err => {
-        if (err) console.log(err);
-        else updatePlate(i + 1);
-      });
-    }
-  }
+function getWeekName () {
+  let date = moment();
+  return date.year() + '_' + date.month() + '_' + date.week();
 }
 

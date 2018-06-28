@@ -23,8 +23,7 @@ export class AccessPointService {
     private httpClient: HttpClient
   ) {}
 
-  private static prepareCallbacks (customCallbacks) {
-
+  private prepareCallbacks (customCallbacks) {
     customCallbacks.onSuccess = getNormalized(customCallbacks.onSuccess);
     customCallbacks.onFail = getNormalized(customCallbacks.onFail);
 
@@ -50,7 +49,7 @@ export class AccessPointService {
   public getRequest (apiUrl, params, customCallbacks = {}) {
     let
       reqParams = new HttpParams(),
-      reqCallbacks = AccessPointService.prepareCallbacks(customCallbacks);
+      reqCallbacks = this.prepareCallbacks(customCallbacks);
 
     typeof params === TYPES.OBJECT && Object.keys(params).forEach(
       key => reqParams = reqParams.append(key, params[key] + '')
@@ -61,18 +60,24 @@ export class AccessPointService {
       params: reqParams
     }).subscribe(
       reqCallbacks.onSuccess,
-      reqCallbacks.onFail
+      err => {
+        if (err && err.status === 401) this.authorizationService.setCurrentUser(null);
+        reqCallbacks.onFail(err);
+      }
     );
   }
 
   public postRequest (apiUrl, data, customCallbacks = {}) {
-    let reqCallbacks = AccessPointService.prepareCallbacks(customCallbacks);
+    let reqCallbacks = this.prepareCallbacks(customCallbacks);
 
     return this.httpClient.post(apiUrl, data, {
       headers: this.getHeaders()
     }).subscribe(
       reqCallbacks.onSuccess,
-      reqCallbacks.onFail
+      err => {
+        if (err && err.status === 401) this.authorizationService.setCurrentUser(null);
+        reqCallbacks.onFail(err);
+      }
     );
   }
 }
