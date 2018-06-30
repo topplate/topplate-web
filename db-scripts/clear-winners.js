@@ -5,11 +5,7 @@ let
 db.getCollection('winners')
   .then(collection => {
 
-    collection.updateMany(
-      {},
-      {$set: {name: '2018_1_1_' + (Math.random() * 100)}}
-    )
-    // collection.remove({week: '2018_1_1'})
+    collection.drop()
       .then(res => {
         console.log(res);
         db.disconnect();
@@ -18,6 +14,20 @@ db.getCollection('winners')
         console.log(err);
         db.disconnect();
       });
+
+    // collection.updateMany(
+    //   {},
+    //   {$set: {name: '2018_1_1_' + (Math.random() * 100)}}
+    // )
+    // // collection.remove({week: '2018_1_1'})
+    //   .then(res => {
+    //     console.log(res);
+    //     db.disconnect();
+    //   })
+    //   .catch(err => {
+    //     console.log(err);
+    //     db.disconnect();
+    //   });
 
     //   .toArray((err, res) => {
     //
