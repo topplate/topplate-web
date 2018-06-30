@@ -1,10 +1,14 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 import {AuthService, FacebookLoginProvider, GoogleLoginProvider} from 'angular5-social-login';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {SharedService} from './shared.service';
+import {ConstantsService} from './constants.service';
 
 const
+  CONSTANTS = ConstantsService.getConstants(),
+  ROUTES = CONSTANTS.ROUTES,
   ADMIN_KEY = 'admin-access-token',
   PROVIDER_KEY = 'last-login-provider',
   GOOGLE_USER = 'google-user',
@@ -19,6 +23,8 @@ export class AuthorizationService {
   private adminUser: Object | null = null;
 
   private currentUser: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+
+  private currentState: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   private static loadAdminAuthToken () {
     return localStorage.getItem(ADMIN_KEY);
@@ -77,6 +83,19 @@ export class AuthorizationService {
     });
   }
 
+  private checkState () {
+
+    let
+      currentState = this.currentState.getValue(),
+      currentUser = this.currentUser.getValue();
+
+    if (currentUser && currentState.unauthorizedOnly) this.router
+      .navigate([ROUTES.PROFILE + '/', currentUser['_id']]);
+
+    else if (!currentUser && currentState.authorizedOnly) this.router
+      .navigate([ROUTES.PLATES]);
+  }
+
   public restoreLocalSession () {
     let
       usedProviders = AuthorizationService.getUsedProviders(),
@@ -121,6 +140,7 @@ export class AuthorizationService {
   public setCurrentUser (userData) {
     if (userData && userData.token !== SharedService.getToken()) SharedService.setToken(userData.token);
     this.currentUser.next(userData);
+    this.checkState();
   }
 
   public getCurrentUser () {
@@ -157,6 +177,8 @@ export class AuthorizationService {
   }
 
   constructor (
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
     private socialAuthService: AuthService,
     private httpClient: HttpClient
   ) {
@@ -167,6 +189,10 @@ export class AuthorizationService {
     lastUsedProvider === LOCAL_PROVIDER && this.restoreLocalSession()
       .then(userData => this.signIn(LOCAL_PROVIDER, userData))
       .catch(err => err.status !== 401 && SharedService.getSharedComponent('growl').addItem(err));
+
+    this.router.events.subscribe( (event) => {
+      event instanceof NavigationEnd && this.currentState.next(this.activatedRoute.root.firstChild.snapshot.data);
+    });
   }
 }
 

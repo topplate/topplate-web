@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
+import { UnauthGuard } from './guards/unauth.guard';
 import { EnvironmentGuard } from './guards/environment.guard';
 import { AdminAuthGuard } from './guards/admin-auth.guard';
 import { AppCommonModule } from './app-common.module';
@@ -54,6 +55,7 @@ const
 
   providers: [
     AuthGuard,
+    UnauthGuard,
     EnvironmentGuard,
     AdminAuthGuard,
     AuthorizationService,
@@ -222,7 +224,9 @@ const appRoutes: Routes = [
   {
     path: ROUTES.SIGN_UP,
     component: SignUpPageComponent,
+    canActivate: [UnauthGuard],
     data: {
+      unauthorizedOnly: true,
       showHomeButton: true,
       label: 'Sign up'
     }
@@ -232,6 +236,7 @@ const appRoutes: Routes = [
     component: EditProfilePageComponent,
     canActivate: [AuthGuard],
     data: {
+      authorizedOnly: true,
       showHomeButton: true,
       label: 'Edit profile'
     }
@@ -241,6 +246,7 @@ const appRoutes: Routes = [
     component: ChangePasswordPageComponent,
     canActivate: [AuthGuard],
     data: {
+      authorizedOnly: true,
       showHomeButton: true,
       label: 'Change password'
     }
