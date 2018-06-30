@@ -12,6 +12,8 @@ db.getCollection('charities')
           votes = res.votes,
           votesOfJune = votes['2018_5'];
 
+        console.log(votesOfJune);
+
         votesOfJune.splice(votesOfJune.indexOf('5b30db87ff3a0d51b2fb7d40'), 1);
 
         console.log(votesOfJune);
