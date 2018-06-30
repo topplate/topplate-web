@@ -17,7 +17,7 @@
           <input type="password" formControlName="password" title="password" placeholder="PASSWORD" maxlength="25" />
           <br>
           <button type="button" class="isReady" (click)="onSignUpButtonClick()">SIGN UP</button>
-          <button type="button" [ngClass]="{isReady: loginLocalForm.valid}" (click)="onLoginLocalFormSubmit()">SIGN IN</button>
+          <button [ngClass]="{isReady: loginLocalForm.valid}" (click)="onLoginLocalFormSubmit()">SIGN IN</button>
         </fieldset>
         <div class="login-local-form-errors" *ngIf="loginLocalError"><br>{{loginLocalError}}</div>
       </form>

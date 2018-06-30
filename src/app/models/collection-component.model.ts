@@ -4,6 +4,8 @@ export class CollectionComponentModel {
 
   private _index: any = 0;
 
+  public newItem: any = '';
+
   private _addItem (item) {
     let index = this._index++;
     typeof item === 'object' && (item['_getIndex'] = () => index);
@@ -40,6 +42,7 @@ export class CollectionComponentModel {
 
   public clearList () {
     Object.keys(this._items).forEach(key => delete this._items[key]);
+    this.newItem = '';
   }
 
   constructor () {}

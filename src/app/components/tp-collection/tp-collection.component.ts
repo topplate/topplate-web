@@ -21,12 +21,10 @@ export class TpCollectionComponent implements OnInit {
 
   private rootElem: any;
 
-  public newItem: any = '';
-
   public addItem () {
     if (!this.isValid) return;
-    this.model.addItems({text: this.newItem});
-    this.newItem = '';
+    this.model.addItems({text: this.model.newItem});
+    this.model.newItem = '';
     this.rootElem.select('.tp-collection-list-addItem-input').node().focus();
   }
 
@@ -35,7 +33,7 @@ export class TpCollectionComponent implements OnInit {
   }
 
   public get isValid () {
-    return (this.newItem.replace(/\s/g, '')).length;
+    return (this.model.newItem.replace(/\s/g, '')).length;
   }
 
   constructor (
