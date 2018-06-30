@@ -105,6 +105,10 @@ export class TpSignInModalComponent implements OnInit {
     );
   }
 
+  public goToPrivacyPolicePage () {
+    this.router.navigate([ROUTES.PRIVACY_TERM]).then(() =>  this.toggleState(false));
+  }
+
   constructor (
     private authorizationService: AuthorizationService,
     private accessPointService: AccessPointService,
