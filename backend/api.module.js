@@ -114,7 +114,7 @@ function refreshRoutes () {
     let
       userModel = global.dbModule.getModels().User,
       authModule = global.authModule,
-      keys = ['firstName', 'lastName', 'email', 'password', 'gender', 'contentType', 'image'],
+      keys = ['firstName', 'lastName', 'email', 'password', 'gender', 'contentType', 'image', 'imageSource'],
       provider = 'local',
       parsedUserData;
 
@@ -142,7 +142,7 @@ function refreshRoutes () {
               user.local.firstName = userData.firstName;
               user.local.lastName = userData.lastName;
               user.local.gender = userData.gender;
-              user.local.image = imageSource;
+              user.local.image = imageSource || userData['imageSource'];
               user.local.hashedPassword = hashedPassword;
               user.save(err => {
                 if (err) sendError(res, err);
@@ -177,7 +177,7 @@ function refreshRoutes () {
             .then(imageSource => {
               userData.password = hashedPassword;
               userData.token = localToken;
-              userData.image = imageSource;
+              userData.image = imageSource || userData['imageSource'];
               userData.provider = provider;
 
               global.dbModule.createUser(userData)

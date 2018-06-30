@@ -45,46 +45,56 @@ export class SignUpPageComponent implements OnInit {
     }
   };
 
+  private sendRequest (data) {
+    this.accessPointService.postRequest('/create_local_user', data, {
+      onSuccess: (userData) => {
+        SharedService.getSharedComponent('globalOverlay').toggle(true);
+        this.authorizationService.signIn('local', userData);
+        this.router.navigate([ROUTES.PROFILE + '/', userData['_id']]);
+      },
+      onFail: err => {
+        SharedService.getSharedComponent('globalOverlay').toggle(true);
+        SharedService.getSharedComponent('growl').addItem(err);
+      }
+    });
+  }
+
   public get isReadyToBeSubmitted () {
     let form = this.signUpForm, value = form.value;
-    return form.valid && value.password === value.passwordRepeat && this.userAvatar['isUploaded'];
+    return form.valid && value.password === value.passwordRepeat &&
+      (this.userAvatar['defaultImage'] || this.userAvatar['isUploaded']);
   }
 
   public onSubmitForm () {
     if (!this.isReadyToBeSubmitted) return;
-
+    SharedService.getSharedComponent('globalOverlay').toggle(false);
     let
       self = this,
       form = this.signUpForm,
-      uploadedImage = this.userAvatar,
-      fReader = new FileReader();
-
-    fReader.onloadend = function (onReadyEvent) {
-      let formValue = form.value;
-      self.accessPointService.postRequest('/create_local_user', {
+      useNewImage = this.userAvatar['isUploaded'],
+      formValue = form.value,
+      requestData = {
         firstName: formValue.firstName,
         lastName: formValue.lastName,
         email: formValue.email,
         password: formValue.password,
         gender: self.genderSwitchItems.filter(item => item['isSelected'])[0].name,
-        image:  onReadyEvent.target['result'],
-        contentType: uploadedImage['contentType']
-      }, {
-        onSuccess: (userData) => {
-          SharedService.getSharedComponent('globalOverlay').toggle(true);
-          self.authorizationService.signIn('local', userData);
-          self.router.navigate([ROUTES.PROFILE + '/', userData['_id']]);
-        },
-        onFail: err => {
-          SharedService.getSharedComponent('globalOverlay').toggle(true);
-          SharedService.getSharedComponent('growl').addItem(err);
-        }
-      });
-    };
+      };
 
-    SharedService.getSharedComponent('globalOverlay').toggle(false);
+    if (useNewImage) {
+      let
+        fReader = new FileReader();
 
-    fReader.readAsBinaryString(this.userAvatar['originalImage']);
+      fReader.onloadend = function (onReadyEvent) {
+        requestData['image'] = onReadyEvent.target['result'];
+        requestData['contentType'] = self.userAvatar['contentType'];
+        self.sendRequest(requestData);
+      };
+      fReader.readAsBinaryString(this.userAvatar['originalImage']);
+    } else {
+      requestData['imageSource'] = this.userAvatar['defaultImage'];
+      this.sendRequest(requestData);
+    }
   }
 
   constructor (
@@ -93,6 +103,8 @@ export class SignUpPageComponent implements OnInit {
     private authorizationService: AuthorizationService
   ) {}
 
-  ngOnInit () {}
+  ngOnInit () {
+    this.userAvatar['defaultImage'] = 'assets/icons/default_user_icon.png';
+  }
 
 }

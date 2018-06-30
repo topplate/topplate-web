@@ -658,7 +658,7 @@ module.exports.getUserRequests = (filter) => {
     deferred = Q.defer(),
     query = {};
 
-  if (query !== 'all') query['isClosed'] = filter === 'old';
+  if (filter !== 'all') query['isClosed'] = filter === 'old';
 
   models.Request.find(query)
     .then(requests => deferred.resolve(requests))
@@ -965,6 +965,7 @@ function refreshUserSchema () {
 
     user.likedPlates.forEach(key => plates[key] = true);
     userData['email'] = user.email;
+    userData['image'] = userData['image'] || 'assets/icons/default_user_icon.png';
 
     return {
       _id: user._id,

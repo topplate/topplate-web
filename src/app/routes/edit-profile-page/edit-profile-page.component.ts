@@ -49,8 +49,6 @@ export class EditProfilePageComponent implements OnInit {
       data,
       {
         onSuccess: updatedUserData => {
-
-          console.log(updatedUserData);
           SharedService.getSharedComponent('globalOverlay').toggle(true);
           this.authorizationService.setCurrentUser(updatedUserData);
           this.router.navigate([ROUTES.PROFILE + '/', updatedUserData['_id']]);

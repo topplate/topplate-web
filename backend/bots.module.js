@@ -328,6 +328,10 @@ function setAppSchedules () {
       doTask();
     }, false);
 
+  let testCronTask = cron.schedule('*/5 * * * * *', () => {
+    console.log('TICK TACK!!!');
+  }, true);
+
   doTask();
 
   cronTask.start();
