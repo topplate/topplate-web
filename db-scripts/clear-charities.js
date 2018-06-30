@@ -13,26 +13,37 @@ db.getCollection('charities')
           votesOfJune = votes['2018_5'].map(item => item.toString()),
           indexInList = votesOfJune.indexOf('5b30db87ff3a0d51b2fb7d40');
 
-        console.log(indexInList, votesOfJune);
-
         votesOfJune.splice(indexInList, 1);
-
         votes['2018_5'] = votesOfJune.map(id => mongoose.Types.ObjectId(id));
 
-        console.log(votes['2018_5']);
+        collection.updateOne(
+          {_id: mongoose.Types.ObjectId('5af99a7738bc0e179ea03d12')},
+          {$set: {votes: votes}}
+        )
+          .then(updateRes => {
+            console.log(updateRes);
+            db.disconnect();
+          })
+          .catch(err => {
+            console.log(err);
+            db.disconnect();
+          });
 
-
-
-        // votes['2018_5'].splice()
-
-        // { '2018_5':
-        //   [ 5b315aaceb91f4546b4127a4,
-        //     5afd2a2e7a44913f75075fce,
-        //     5b028c0b08a7cb705d24c869,
-        //     5b30db87ff3a0d51b2fb7d40,
-        //     5b360b43cfbbe80348838541 ] },
-        // console.log(res);
-        db.disconnect();
+        // db.disconnect()
+        //
+        //
+        //
+        //
+        // // votes['2018_5'].splice()
+        //
+        // // { '2018_5':
+        // //   [ 5b315aaceb91f4546b4127a4,
+        // //     5afd2a2e7a44913f75075fce,
+        // //     5b028c0b08a7cb705d24c869,
+        // //     5b30db87ff3a0d51b2fb7d40,
+        // //     5b360b43cfbbe80348838541 ] },
+        // // console.log(res);
+        // db.disconnect();
       })
       .catch(err => {
         console.log(err);
