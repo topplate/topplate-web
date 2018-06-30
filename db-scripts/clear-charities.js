@@ -10,8 +10,8 @@ db.getCollection('charities')
       .then(res => {
         let
           votes = res.votes,
-          votesOfJune = votes['2018_5'],
-          indexInList = votesOfJune.indexOf(mongoose.Types.ObjectId('5b30db87ff3a0d51b2fb7d40'));
+          votesOfJune = votes['2018_5'].map(item => item.toString()),
+          indexInList = votesOfJune.indexOf('5b30db87ff3a0d51b2fb7d40');
 
         console.log(indexInList, votesOfJune);
 
