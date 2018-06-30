@@ -5,7 +5,11 @@ let
 db.getCollection('winners')
   .then(collection => {
 
-    collection.remove({week: '2018_1_1'})
+    collection.updateMany(
+      {},
+      {$set: {name: '2018_1_1'}}
+    )
+    // collection.remove({week: '2018_1_1'})
       .then(res => {
         console.log(res);
         db.disconnect();
@@ -27,7 +31,7 @@ db.getCollection('winners')
 
     // collection.updateMany(
     //   {},
-    //   {$set: {week: '2018_1_1'}}
+    //   {$set: {name: '2018_1_1'}}
     // )
     //   .then(res => db.disconnect())
     //   .catch(err => db.disconnect());
