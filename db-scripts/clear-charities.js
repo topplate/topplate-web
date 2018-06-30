@@ -4,7 +4,7 @@ let
 
 db.getCollection('registered-users')
   .then(collection => {
-    collection.findOne({_id: mongoose.Types.ObjectId('5b334a0de12b7502685dc933')})
+    collection.findOne({_id: mongoose.Types.ObjectId('5b30db87ff3a0d51b2fb7d40')})
       .then(res => {
         console.log(res);
         db.disconnect();
