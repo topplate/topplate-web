@@ -381,10 +381,10 @@ function setAppSchedules () {
           let date = plate.week.split('_').map(str => +str);
           winners.push({
             environment: plate.environment,
-            name: plate.week,
+            name: plate._id.toString(),
             year: date[0],
             month: date[1],
-            week: date[2],
+            week: plate.week,
             likes: weeks[key].max,
             plate: plate._id.toString()
           });

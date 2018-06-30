@@ -7,7 +7,7 @@ db.getCollection('winners')
 
     collection.updateMany(
       {},
-      {$set: {name: '2018_1_1'}}
+      {$set: {name: '2018_1_1_' + (Math.random() * 100)}}
     )
     // collection.remove({week: '2018_1_1'})
       .then(res => {
