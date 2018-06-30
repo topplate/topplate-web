@@ -353,6 +353,8 @@ function setAppSchedules () {
   }
 
   function defineWinners (plates) {
+    console.log(plates);
+
     if (!plates || !plates.length) return;
     let
       weeks = {},

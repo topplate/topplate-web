@@ -5,7 +5,7 @@ let
 db.getCollection('plates')
   .then(collection => {
 
-    collection.find({week: {$exists: false}})
+    collection.find({canLike: true})
       .toArray((err, res) => {
         if (err) {
           console.log(err);
