@@ -353,8 +353,6 @@ function setAppSchedules () {
   }
 
   function defineWinners (plates) {
-    console.log(plates);
-
     if (!plates || !plates.length) return;
     let
       weeks = {},
@@ -388,7 +386,7 @@ function setAppSchedules () {
             month: date[1],
             week: date[2],
             likes: weeks[key].max,
-            plate: plate._id
+            plate: plate._id.toString()
           });
         });
     });

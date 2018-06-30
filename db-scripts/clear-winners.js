@@ -5,15 +5,25 @@ let
 db.getCollection('winners')
   .then(collection => {
 
-    collection.find({}).toArray((err, res) => {
+    collection.remove({week: '2018_1_1'})
+      .then(res => {
+        console.log(res);
+        db.disconnect();
+      })
+      .catch(err => {
+        console.log(err);
+        db.disconnect();
+      });
 
-      console.log(err);
-
-      console.log(res);
-
-      db.disconnect();
-
-    });
+    //   .toArray((err, res) => {
+    //
+    //   console.log(err);
+    //
+    //   console.log(res);
+    //
+    //   db.disconnect();
+    //
+    // });
 
     // collection.updateMany(
     //   {},
