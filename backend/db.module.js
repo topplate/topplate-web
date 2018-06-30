@@ -328,10 +328,11 @@ module.exports.getPlatesAdmin = (statusFilter, periodFilter, envFilter, colName,
     query = {};
 
   if (statusFilter !== 'all') query['isReady'] = statusFilter === 'approved';
-  if (periodFilter !== 'all') query['isFixed'] = periodFilter === 'old';
+  if (periodFilter !== 'all') query['canLike'] = periodFilter !== 'old';
   if (envFilter !== 'all') query['environment'] = envFilter;
 
   models.Plate.find(query)
+    .sort({createdAt: -1})
     .then(plates => getPlatesAdminResponse(plates))
     .catch(err => deferred.reject(err));
 
@@ -1224,7 +1225,8 @@ function refreshPlateSchema () {
       environment: plate.environment,
       canLike: plate.canLike,
       status: plate.isReady,
-      createdAt: moment(plate.createdAt).format('YYYY-MM-DD hh:mm:ss')
+      createdAt: moment(plate.createdAt).format('YYYY-MM-DD hh:mm:ss'),
+      date: plate.createdAt
     }
   };
 

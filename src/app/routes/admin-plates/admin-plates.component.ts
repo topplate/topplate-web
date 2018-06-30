@@ -106,9 +106,14 @@ export class AdminPlatesComponent implements OnInit, OnDestroy {
       type: 'boolean'
     },
     {
-      name: 'status',
-      label: 'Status',
-      sortable: true
+      name: 'date',
+      label: 'Date',
+      type: 'date',
+      dateFormat: 'MM/DD/YYYY'
+
+      // name: 'status',
+      // label: 'Status',
+      // sortable: true
     }
   ], {
     onRowClick: row => {

@@ -22,7 +22,11 @@
   <tbody>
     <tr class="tp-grid-body-row" *ngFor="let row of model.rows"  (click)="model.emitEvent('onRowClick', row.data)">
       <td *ngFor="let cell of row.cells" class="tp-grid-type-{{cell.type}}">
-        <span class="tp-grid-cell-label" *ngIf="cell.type === 'string' || cell.type ==='boolean' || cell.type === 'number'">{{cell.value}}</span>
+        <span class="tp-grid-cell-label" *ngIf="
+          cell.type === 'string' ||
+          cell.type ==='boolean' ||
+          cell.type === 'number' ||
+          cell.type === 'date'">{{cell.value}}</span>
         <ul class="tp-grid-cell-list" *ngIf="cell.type === 'list' || cell.type === 'object'">
           <li class="tp-grid-cell-list-item" *ngFor="let item of cell.value">
             <span class="tp-grid-cell-label">{{item}}</span>

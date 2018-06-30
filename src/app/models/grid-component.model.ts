@@ -1,3 +1,5 @@
+import * as moment from 'moment';
+
 export class GridComponentModel {
 
   public events: any;
@@ -28,7 +30,8 @@ export class GridComponentModel {
       else if (type === 'list') cell.value = Array.isArray(datum) ? datum : [datum];
       else if (type === 'object') cell.value = col['keys'].map(key => (datum || {})[key]);
       else if (type === 'boolean') cell.value = !!datum;
-
+      else if (type === 'date') cell.value = moment(datum).format(col.dateFormat);
+      
       newRow.cells.push(cell);
     });
 
@@ -86,6 +89,7 @@ export class GridComponentModel {
       name: col.name,
       label: col.label || col.name,
       type: col.type || 'string',
+      dateFormat: col.dateFormat || 'MM/DD/YYYY',
       keys: col.keys || [],
       isSelected: false,
       isReversed: false,
