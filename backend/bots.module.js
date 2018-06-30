@@ -353,7 +353,10 @@ function setAppSchedules () {
   }
 
   function defineWinners (plates) {
-    if (!plates || !plates.length) return;
+    if (!plates || !plates.length) {
+      console.log('***** NO NEW WINNERS *****');
+      return;
+    }
     let
       weeks = {},
       winners = [],
@@ -396,7 +399,9 @@ function setAppSchedules () {
           {_id: {$in: ids}},
           {$set: {canLike: false}}
         )
-        .then(platesRes => console.log(platesRes))
+        .then(platesRes => {
+          console.log('***** WE HAVE WINNERS!!! *****');
+        })
         .catch(err => console.log(err))
       )
       .catch(err => console.log(err));
