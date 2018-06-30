@@ -1009,9 +1009,11 @@ function refreshUserSchema () {
       deferred = Q.defer(),
       provider = user.lastLogged.provider,
       userData = user[provider],
-      profile = user.customProfile || {};
+      profile = user.customProfile || {},
+      updatePlates = false;
 
     ['firstName', 'lastName', 'image', 'gender'].forEach(key => {
+      if (key !== 'gender') updatePlates = updatePlates || profileUpdateData.hasOwnProperty(key);
       profile[key] = profileUpdateData.hasOwnProperty(key) && profileUpdateData[key] !== null ?
         profileUpdateData[key] : (profile.hasOwnProperty(key) && profile[key] !== null ?
           profile[key] : (userData[key] || ''));
@@ -1025,7 +1027,23 @@ function refreshUserSchema () {
           let normalized = updatedUser.getNormalized();
           normalized['provider'] = provider;
           normalized['token'] = updatedUser.lastLogged.token;
-          deferred.resolve(normalized);
+
+          if (updatePlates) {
+
+            let plateAuthor = {
+              name: profile.name,
+              id: user._id.toString(),
+              image: profile.image
+            };
+
+            models.Plate.collection.updateMany(
+              {_id: {$in: user.uploadedPlates.map(id => mongoose.Types.ObjectId(id))}},
+              {$set: {author: plateAuthor}}
+            )
+              .then(updateRes => deferred.resolve(normalized))
+              .catch(err => deferred.reject(err));
+          }
+          else deferred.resolve(normalized);
         })
         .catch(err => deferred.reject(err))
       )
