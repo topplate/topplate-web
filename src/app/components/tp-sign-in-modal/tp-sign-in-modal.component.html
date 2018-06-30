@@ -2,8 +2,6 @@
 
   <div class="top-plate_signInModal_content roboto-light">
     <div class="welcome-banner"></div>
-    <p class="top-plate_signInModal_environmentSelectorLabel">Choose your environment</p>
-
     <div class="top-plate_signInModal_logInMethods">
       <div class="top-plate_signInModal_logInMethod btn-{{method.className}}"
            *ngFor="let method of logInMethods"
@@ -15,11 +13,12 @@
 
       <form [formGroup]="loginLocalForm" *ngIf="showLocalLoginForm">
         <fieldset class="login-local-form">
-          <input type="text" formControlName="email" title="email" placeholder="EMAIL" />
-          <input type="password" formControlName="password" title="password" placeholder="PASSWORD" />
-          <button class="isReady" (click)="onSignUpButtonClick()">SIGN UP</button>
-          <button [ngClass]="{isReady: loginLocalForm.valid}" (click)="onLoginLocalFormSubmit()">SIGN IN</button>
+          <input type="text" formControlName="email" title="email" placeholder="EMAIL" maxlength="25" />
+          <input type="password" formControlName="password" title="password" placeholder="PASSWORD" maxlength="25" />
+          <button type="button" class="isReady" (click)="onSignUpButtonClick()">SIGN UP</button>
+          <button type="button" [ngClass]="{isReady: loginLocalForm.valid}" (click)="onLoginLocalFormSubmit()">SIGN IN</button>
         </fieldset>
+        <div class="login-local-form-errors" *ngIf="loginLocalError"><br>{{loginLocalError}}</div>
       </form>
     </div>
 
@@ -34,7 +33,7 @@
                 [ngClass]="{'isChecked': wantToSubscribe}">
             <i class="fa fa-check"></i>
           </span>
-          <small class="roboto-light">Subscribe for updates</small>
+          <small class="roboto-light">&nbsp;&nbsp;Subscribe for updates</small>
         </label>
       </div>
 

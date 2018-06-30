@@ -32,6 +32,8 @@ export class TpSignInModalComponent implements OnInit {
     password: new FormControl('', Validators.required)
   });
 
+  public loginLocalError: any = null;
+
   public logInMethods: any[] = [
     {
       name: GoogleLoginProvider.PROVIDER_ID,
@@ -68,6 +70,7 @@ export class TpSignInModalComponent implements OnInit {
 
   public toggleState (state) {
     this.showLocalLoginForm = false;
+    this.loginLocalError = null;
     this.loginLocalForm.reset();
     this.state.next(state);
   }
@@ -79,7 +82,7 @@ export class TpSignInModalComponent implements OnInit {
 
   public onLoginLocalFormSubmit () {
     if (!this.loginLocalForm.valid) return;
-
+    this.loginLocalError = null;
     SharedService.getSharedComponent('globalOverlay').toggle(false);
 
     this.accessPointService.postRequest(
@@ -96,7 +99,7 @@ export class TpSignInModalComponent implements OnInit {
         },
         onFail: err => {
           SharedService.getSharedComponent('globalOverlay').toggle(true);
-          SharedService.getSharedComponent('growl').addItem(err);
+          this.loginLocalError = 'Wrong email and/or password';
         }
       }
     );

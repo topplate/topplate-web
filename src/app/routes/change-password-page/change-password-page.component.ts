@@ -22,6 +22,8 @@ export class ChangePasswordPageComponent implements OnInit {
     newPassword: new FormControl('', Validators.required)
   });
 
+  public changePasswordFormError: any = null;
+
   public get isReadyToBeSubmitted () {
     return this.changePasswordForm.valid;
   }
@@ -29,6 +31,7 @@ export class ChangePasswordPageComponent implements OnInit {
   public submitForm () {
     if (!this.isReadyToBeSubmitted) return;
     let value = this.changePasswordForm.value;
+    this.changePasswordFormError = null;
     SharedService.getSharedComponent('globalOverlay').toggle(false);
     this.accessPointService.postRequest(
       '/update_password',
@@ -43,7 +46,7 @@ export class ChangePasswordPageComponent implements OnInit {
           this.router.navigate([ROUTES.PROFILE + '/', this.authorizationService.getCurrentUser()['_id']]);
         },
         onFail: err => {
-          SharedService.getSharedComponent('growl').addItem(err);
+          this.changePasswordFormError = 'Wrong password';
           SharedService.getSharedComponent('globalOverlay').toggle(true);
         }
       }

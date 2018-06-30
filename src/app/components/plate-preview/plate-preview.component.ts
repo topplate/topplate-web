@@ -38,10 +38,8 @@ export class PlatePreviewComponent implements OnInit, DoCheck, OnDestroy {
       tooltip = this.rootElem.select('.plate-preview_contentGeo-full'),
       invisibleElem = this.rootElem.select('.plate-preview_contentGeo-invisible'),
       metaElem = this.rootElem.select('.plate-preview_contentMeta'),
-      metaElemSize = metaElem.node().getBoundingClientRect().width,
+      metaElemSize = metaElem.node().getBoundingClientRect().width - 20,
       invisibleElemSize = invisibleElem.node().getBoundingClientRect().width;
-
-    console.log(metaElemSize, invisibleElemSize);
 
     tooltip.classed('isVisible', invisibleElemSize > metaElemSize);
   }

@@ -10,9 +10,8 @@
         <span class="plate-preview_contentAuthor roboto-light"
           (click)="model.onProfileLinkClick && model.onProfileLinkClick()"
           *ngIf="settings.showAuthor">{{model.author.name}}</span>
-        <br>
-        <br>
         <span class="plate-preview_contentGeo" *ngIf="showGeo" (mouseover)="onMouseOver($event)" (mouseout)="onMouseOut()">
+          <br><br>
           <i class="fa fa-map-marker"></i>
           <span class="plate-preview_contentGeoLabel roboto-light">{{model.address}}</span>
         </span>

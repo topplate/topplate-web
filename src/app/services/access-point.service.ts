@@ -60,10 +60,11 @@ export class AccessPointService {
       params: reqParams
     }).subscribe(
       reqCallbacks.onSuccess,
-      err => {
-        if (err && err.status === 401) this.authorizationService.setCurrentUser(null);
-        reqCallbacks.onFail(err);
-      }
+      reqCallbacks.onFail
+      // err => {
+      //   if (err && err.status === 401) this.authorizationService.setCurrentUser(null);
+      //   reqCallbacks.onFail(err);
+      // }
     );
   }
 
@@ -74,10 +75,11 @@ export class AccessPointService {
       headers: this.getHeaders()
     }).subscribe(
       reqCallbacks.onSuccess,
-      err => {
-        if (err && err.status === 401) this.authorizationService.setCurrentUser(null);
-        reqCallbacks.onFail(err);
-      }
+      reqCallbacks.onFail
+      // err => {
+      //   if (err && err.status === 401) this.authorizationService.setCurrentUser(null);
+      //   reqCallbacks.onFail(err);
+      // }
     );
   }
 }

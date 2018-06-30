@@ -235,9 +235,7 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
   }
 
   public onSignOutButtonClick () {
-    this.authorizationService.signOut().catch(err =>
-      SharedService.getSharedComponent('growl').addItem(err)
-    );
+    return this.authorizationService.signOut();
   }
 
   public onProfileButtonClick () {
