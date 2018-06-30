@@ -17,7 +17,9 @@ db.getCollection('charities')
 
         votesOfJune.splice(indexInList, 1);
 
-        console.log(votesOfJune);
+        votes['2018_5'] = votesOfJune.map(id => mongoose.Types.ObjectId(id));
+
+        console.log(votes['2018_5']);
 
 
 
