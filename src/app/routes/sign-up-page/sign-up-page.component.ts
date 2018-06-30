@@ -27,6 +27,8 @@ export class SignUpPageComponent implements OnInit {
     passwordRepeat: new FormControl('', Validators.required)
   });
 
+  public signUpFormErrors: any = null;
+
   public genderSwitchItems: any[] = ['male', 'female'].map((str, i) => {
     return {
       label: str.toUpperCase(),
@@ -46,6 +48,7 @@ export class SignUpPageComponent implements OnInit {
   };
 
   private sendRequest (data) {
+    this.signUpFormErrors = null;
     this.accessPointService.postRequest('/create_local_user', data, {
       onSuccess: (userData) => {
         SharedService.getSharedComponent('globalOverlay').toggle(true);
@@ -54,25 +57,29 @@ export class SignUpPageComponent implements OnInit {
       },
       onFail: err => {
         SharedService.getSharedComponent('globalOverlay').toggle(true);
-        SharedService.getSharedComponent('growl').addItem(err);
+        this.signUpFormErrors = err.error ? err.error.message : err.message;
       }
     });
   }
 
   public get isReadyToBeSubmitted () {
-    let form = this.signUpForm, value = form.value;
-    return form.valid && value.password === value.passwordRepeat &&
-      (this.userAvatar['defaultImage'] || this.userAvatar['isUploaded']);
+    return this.signUpForm.valid && (this.userAvatar['defaultImage'] || this.userAvatar['isUploaded']);
   }
 
   public onSubmitForm () {
+    let
+      form = this.signUpForm,
+      formValue = form.value;
+
     if (!this.isReadyToBeSubmitted) return;
+    else if (formValue.password !== formValue.passwordRepeat) {
+      this.signUpFormErrors = 'Password & password repeat should be equal';
+      return;
+    }
     SharedService.getSharedComponent('globalOverlay').toggle(false);
     let
       self = this,
-      form = this.signUpForm,
       useNewImage = this.userAvatar['isUploaded'],
-      formValue = form.value,
       requestData = {
         firstName: formValue.firstName,
         lastName: formValue.lastName,
@@ -82,9 +89,7 @@ export class SignUpPageComponent implements OnInit {
       };
 
     if (useNewImage) {
-      let
-        fReader = new FileReader();
-
+      let fReader = new FileReader();
       fReader.onloadend = function (onReadyEvent) {
         requestData['image'] = onReadyEvent.target['result'];
         requestData['contentType'] = self.userAvatar['contentType'];

@@ -33,6 +33,11 @@
     border: 1px solid $cyan-darkest;
   }
 
+  .sign-up-form-errors {
+    text-align: center;
+    color: $google-red;
+  }
+
   input {
     @include styled-input();
   }
