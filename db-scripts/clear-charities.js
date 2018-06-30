@@ -4,9 +4,9 @@ let
 
 db.getCollection('registered-users')
   .then(collection => {
-    collection.updateOne(
+    collection.findOne(
       {_id: mongoose.Types.ObjectId('5b30db87ff3a0d51b2fb7d40')},
-      {$set: { charityVotes: {}}}
+      // {$set: { charityVotes: {}}}
     )
     .then(res => {
       console.log(res);
