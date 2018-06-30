@@ -1125,7 +1125,8 @@ function refreshPlateSchema () {
     timestamps: true
   });
 
-  plateSchema.index({environment: 1});
+
+
   plateSchema.index({createdAt: 1});
   plateSchema.index({week: 1});
 
@@ -1345,6 +1346,9 @@ function refreshWinnerSchema () {
     collection: 'winners',
     timestamp: true
   });
+
+  winnerSchema.index({week: 1});
+  winnerSchema.index({plate: 1});
 
   models.Winner = mongoose.model('Winner', winnerSchema);
 }
