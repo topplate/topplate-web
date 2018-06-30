@@ -210,8 +210,7 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
 
   public onLinkClick (link) {
     let self = this;
-    if (link['navigateTo']) self.router.navigate([ROUTES.EMPTY])
-      .then(() => self.router.navigate(link['navigateTo']));
+    if (link['navigateTo']) self.router.navigate(link['navigateTo']);
     else if (link['onClick']) link['onClick']();
   }
 
@@ -239,13 +238,8 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
   }
 
   public onProfileButtonClick () {
-    let
-      self = this,
-      router = self.router,
-      currentUser = self.authorizationService.getCurrentUser();
-
-    router.navigate([ROUTES.EMPTY])
-      .then(() => router.navigate([ROUTES.PROFILE + '/', currentUser['_id']]));
+    let currentUser = this.authorizationService.getCurrentUser();
+    this.router.navigate([ROUTES.PROFILE + '/', currentUser['_id']]);
   }
 
   ngOnInit () {

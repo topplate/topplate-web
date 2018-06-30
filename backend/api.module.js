@@ -350,18 +350,30 @@ function refreshRoutes () {
       registeredUser,
       image,
       fields,
-      form;
+      form,
+      ingredients;
 
     checkAuthorization(req, true)
       .then(user => {
         registeredUser = user;
         getFormData(req)
           .then(formData => {
+            let ingredientRegExp = /^ingredient/;
+
             image = formData.files && formData.files.image;
             fields = formData.fields;
             form = {};
+            ingredients = [];
 
-            console.log(formData.fields);
+            if (fields['environment'] === ENVIRONMENTS.HOMEMADE) {
+              Object.keys(fields).forEach(key => {
+                if ((ingredientRegExp).test(key)){
+                  ingredients.push(fields[key]);
+                  delete fields[key];
+                }
+              });
+              fields['ingredients'] = ingredients;
+            }
 
             if (!image) sendError(res, {message: 'image should be an ImageFile, BinaryString or Buffer'});
             else if (typeof fields !== 'object') sendError(res, {message: 'bad form data'});
