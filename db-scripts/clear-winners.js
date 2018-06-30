@@ -9,10 +9,7 @@ db.getCollection('winners')
       {},
       {$set: {week: '2018_1_1'}}
     )
-      .then(res => console.log(res))
-      .catch(err => console.log(err));
-
-
-
+      .then(res => db.disconnect())
+      .catch(err => db.disconnect());
   })
   .catch(err => console.log(err));
