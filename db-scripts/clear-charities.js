@@ -8,7 +8,25 @@ db.getCollection('charities')
 
     collection.findOne({_id: mongoose.Types.ObjectId('5af99a7738bc0e179ea03d12')})
       .then(res => {
-        console.log(res);
+        let
+          votes = res.votes,
+          votesOfJune = votes['2018_5'];
+
+        votesOfJune.splice(votesOfJune.indexOf('5b30db87ff3a0d51b2fb7d40'), 1);
+
+        console.log(votesOfJune);
+
+
+
+        // votes['2018_5'].splice()
+
+        // { '2018_5':
+        //   [ 5b315aaceb91f4546b4127a4,
+        //     5afd2a2e7a44913f75075fce,
+        //     5b028c0b08a7cb705d24c869,
+        //     5b30db87ff3a0d51b2fb7d40,
+        //     5b360b43cfbbe80348838541 ] },
+        // console.log(res);
         db.disconnect();
       })
       .catch(err => {
