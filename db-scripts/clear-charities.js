@@ -10,11 +10,12 @@ db.getCollection('charities')
       .then(res => {
         let
           votes = res.votes,
-          votesOfJune = votes['2018_5'];
+          votesOfJune = votes['2018_5'],
+          indexInList = votesOfJune.indexOf('5b30db87ff3a0d51b2fb7d40');
 
-        console.log(votesOfJune);
+        console.log(indexInList, votesOfJune);
 
-        votesOfJune.splice(votesOfJune.indexOf('5b30db87ff3a0d51b2fb7d40'), 1);
+        votesOfJune.splice(indexInList, 1);
 
         console.log(votesOfJune);
 
