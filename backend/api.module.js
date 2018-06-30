@@ -360,6 +360,9 @@ function refreshRoutes () {
             image = formData.files && formData.files.image;
             fields = formData.fields;
             form = {};
+
+            console.log(formData.fields);
+
             if (!image) sendError(res, {message: 'image should be an ImageFile, BinaryString or Buffer'});
             else if (typeof fields !== 'object') sendError(res, {message: 'bad form data'});
             else {
