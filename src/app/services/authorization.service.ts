@@ -92,7 +92,7 @@ export class AuthorizationService {
     if (currentUser && currentState.unauthorizedOnly) this.router
       .navigate([ROUTES.PROFILE + '/', currentUser['_id']]);
 
-    else if (!currentUser && currentState.authorizedOnly) this.router
+    else if (!currentUser && (currentState && currentState.authorizedOnly)) this.router
       .navigate([ROUTES.PLATES]);
   }
 
