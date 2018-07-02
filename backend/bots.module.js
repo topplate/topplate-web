@@ -398,7 +398,7 @@ function setAppSchedules () {
         });
     });
 
-    dbModels.Winner.collection.insertMany(winners)
+    if (winners && winners.length) dbModels.Winner.collection.insertMany(winners)
       .then(res => dbModels.Plate.collection.updateMany(
           {_id: {$in: ids}},
           {$set: {canLike: false}}
@@ -409,6 +409,8 @@ function setAppSchedules () {
         .catch(err => console.log(err))
       )
       .catch(err => console.log(err));
+
+    else console.log('***** NOT ENOUGH LIKES TO DEFINE WINNERS *****');
   }
 }
 
