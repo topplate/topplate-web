@@ -610,7 +610,8 @@ module.exports.getWinners = (env) => {
           .then(plate => {
             let normalizedPlate = plate.getNormalized('big');
             normalizedPlate['prizeWeek'] = moment(plate.createdAt)
-              .startOf('week').add(1, 'week').format('YYYY-MM-DD hh:mm:ss');
+              .add(1, 'week').startOf('isoWeek')
+              .format('YYYY-MM-DD HH:mm:ss');
 
             plates.push(normalizedPlate);
 
@@ -1250,7 +1251,7 @@ function refreshPlateSchema () {
       environment: plate.environment,
       canLike: plate.canLike,
       status: plate.isReady,
-      createdAt: moment(plate.createdAt).format('YYYY-MM-DD hh:mm:ss'),
+      createdAt: moment(plate.createdAt).format('YYYY-MM-DD HH:mm:ss'),
       date: plate.createdAt
     }
   };
