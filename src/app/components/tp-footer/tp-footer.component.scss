@@ -62,6 +62,7 @@ $banner-size: 70px;
     margin: 0 auto;
     width: max-content;
     padding: 65px 30px;
+    text-align: center;
 
     .tp-footer_navLinks {
       padding: 0 40px 0 0;
@@ -70,6 +71,11 @@ $banner-size: 70px;
 
       .tp-footer_navLink {
         list-style: none;
+        cursor: pointer;
+
+        &:hover {
+          text-decoration: underline;
+        }
       }
 
       &.with-opacity {

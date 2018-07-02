@@ -22,7 +22,8 @@ const
 export class TpFooterComponent implements OnInit {
 
   constructor (
-    private reference: ElementRef
+    private reference: ElementRef,
+    private router: Router
   ) {}
 
   @Input() public banner: any;
@@ -33,36 +34,36 @@ export class TpFooterComponent implements OnInit {
 
   public linksA: Object[] = [
     {
-      label: 'sponsored plate'
+      label: 'home',
+      link: [ROUTES.PLATES]
     },
     {
-      label: 'contact us'
+      label: 'plate of the week',
+      link: [ROUTES.WINNERS]
+    },
+    {
+      label: 'charity choice',
+      link: [ROUTES.CHARITY_CHOICE]
     }
   ];
 
   public linksB: Object[] = [
     {
-      label: 'plate of the week'
+      label: 'contact us',
+      link: [ROUTES.CONTACTS]
     },
     {
-      label: 'monthly prize'
-    }
-  ];
-
-  public linksC: Object[] = [
-    {
-      label: 'privacy'
+      label: 'copyright',
+      link: [ROUTES.COPYRIGHT]
     },
     {
-      label: 'term'
-    },
-    {
-      label: 'copyright'
+      label: 'privacy term',
+      link: [ROUTES.PRIVACY_TERM]
     }
   ];
 
   public onLinkClick (clickedOne) {
-    console.log(clickedOne);
+    clickedOne.link && this.router.navigate(clickedOne.link);
   }
 
   private refreshDOM () {

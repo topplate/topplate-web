@@ -122,7 +122,10 @@ function refreshRoutes () {
       .then(userData => {
         parsedUserData = userData;
         userModel.findOne({email: userData.email})
-          .then(user => user ? updateExistingUser(user, parsedUserData) : createNewUser(parsedUserData))
+          .then(user => user ? sendError(res, {
+            message: 'User with same email already registered',
+            status: 409
+          }) : createNewUser(parsedUserData))
           .catch(err => sendError(res, err))
       })
       .catch(err => sendError(res, err));
