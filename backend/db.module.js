@@ -608,8 +608,13 @@ module.exports.getWinners = (env) => {
       else winnersList.forEach(item => {
         models.Plate.findOne({_id: item.plate})
           .then(plate => {
+            let normalizedPlate = plate.getNormalized('big');
+            normalizedPlate['prizeWeek'] = moment(plate.createdAt)
+              .startOf('week').add(1, 'week').format('YYYY-MM-DD hh:mm:ss');
+
+            plates.push(normalizedPlate);
+
             lenB += 1;
-            plates.push(plate.getNormalized('big'));
             lenA === lenB && deferred.resolve(plates.sort((a, b) => {
               let propA = a.createdAt, propB = b.createdAt;
               return propA > propB ? -1 : (propB > propA ? 1 : 0);
