@@ -76,7 +76,8 @@ export class PlatesPageComponent implements OnInit, OnDestroy {
       lastOne = infiniteScrollAPI.getLastOne(),
       params = {
         environment: self.environmentService.getCurrent(),
-        lim: infiniteScrollAPI.getRequiredNumberOfItems()
+        lim: infiniteScrollAPI.getRequiredNumberOfItems(),
+        loadAdvertisementBanners: true
       };
 
     if (lastOne) params['lastId'] = lastOne._id;

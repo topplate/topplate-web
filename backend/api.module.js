@@ -439,9 +439,10 @@ function refreshRoutes () {
         dbModule = global.dbModule,
         env = query.environment || 'restaurant',
         lastId = query.lastId,
-        lim = +query.lim;
+        lim = +query.lim,
+        loadAdvBanners = query.loadAdvertisementBanners === 'true';
 
-      dbModule.getPlates(env, lastId, isNaN(lim) ? 11 : lim, query.size)
+      dbModule.getPlates(env, lastId, isNaN(lim) ? 11 : lim, query.size, loadAdvBanners)
         .then(plates => {
           plates.forEach(plate => {
             plate.liked = likedPlates[plate._id] || false;

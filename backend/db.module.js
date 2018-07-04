@@ -275,7 +275,7 @@ module.exports.getPlatesByEnvironments = () => {
   return deferred.promise;
 };
 
-module.exports.getPlates = (env, lastId, lim = 11, size = 'medium') => {
+module.exports.getPlates = (env, lastId, lim = 11, size = 'medium', loadAdvBanners = false) => {
   let
     deferred = Q.defer(),
     platesModel = models.Plate,
@@ -307,7 +307,7 @@ module.exports.getPlates = (env, lastId, lim = 11, size = 'medium') => {
             bannersLength = normalizedBanners.length;
 
           if (normalizedPlates.length) normalizedPlates.forEach((plate, i) => {
-            if (i && !(i % 2)) response.push(normalizedBanners[Math.floor(Math.random() * bannersLength)]);
+            if (loadAdvBanners && i && !(i % 2)) response.push(normalizedBanners[Math.floor(Math.random() * bannersLength)]);
             response.push(plate);
           });
 
@@ -1473,6 +1473,11 @@ function refreshAdvertisementSchema () {
           name: 'Mivina',
           link: 'https://www.nestle.ua/brands/culinary/mivina',
           image: 'assets/advertising/adv_test_1.jpg'
+        },
+        {
+          name: 'Dimmu Borgir',
+          link: 'https://www.dimmu-borgir.com/',
+          image: 'assets/advertising/adv_test_2.jpg'
         }
       ])
         .then(res => console.log('New advertisements banners added'))
