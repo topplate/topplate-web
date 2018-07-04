@@ -1,6 +1,7 @@
 <div class="charity-choice-page_content">
-  <div class="charity-choice-page_advertisingBanners"></div>
-  <div class="charity-choice-page_charityItems">
+  <h1 class="disabled-page-banner">This page is not available for beta version</h1>
+  <div class="charity-choice-page_advertisingBanners" [hidden]="true"></div>
+  <div class="charity-choice-page_charityItems" [hidden]="true">
     <div class="charity-choice-page_charityItem" *ngFor="let item of charityItems">
       <div class="charity-choice-page_charityItem_bg" [ngStyle]="{'background-image': 'url(' + item['image'] +')'}"></div>
       <div class="charity-choice-page_charityItem_content roboto-light uppercase">

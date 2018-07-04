@@ -1,5 +1,6 @@
 <div class="top-plate_winnersPageContent">
-  <div class="top-plate_winner" *ngFor="let winner of winners">
+  <h1 class="disabled-page-banner">This page is not available for beta version</h1>
+  <div class="top-plate_winner" *ngFor="let winner of winners" [hidden]="true">
     <app-plate-preview [model]="winner" [settings]="winnersSettings"></app-plate-preview>
   </div>
 </div>

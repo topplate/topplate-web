@@ -1,0 +1,17 @@
+@import "../../app.component";
+
+.tp-advertisement-banner {
+  width: $full-size;
+  height: $full-size;
+  display: block;
+  border: 2px solid $black;
+
+  .tp-advertisement-banner-link {
+    width: $full-size;
+    height: $full-size;
+    display: block;
+    background-size: cover;
+    background-position: center center;
+  }
+}
+

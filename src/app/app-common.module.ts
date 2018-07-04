@@ -23,6 +23,7 @@ import { TpSignInModalComponent } from './components/tp-sign-in-modal/tp-sign-in
 import { TpPlateUploadModalComponent } from './components/tp-plate-upload-modal/tp-plate-upload-modal.component';
 import { TpCollectionComponent } from './components/tp-collection/tp-collection.component';
 import { TpPlateEditModalComponent } from './components/tp-plate-edit-modal/tp-plate-edit-modal.component';
+import { TpAdvertisementBannerComponent } from './components/tp-advertisement-banner/tp-advertisement-banner.component';
 
 @NgModule({
   imports: [
@@ -55,7 +56,8 @@ import { TpPlateEditModalComponent } from './components/tp-plate-edit-modal/tp-p
     TpSignInModalComponent,
     TpPlateUploadModalComponent,
     TpCollectionComponent,
-    TpPlateEditModalComponent
+    TpPlateEditModalComponent,
+    TpAdvertisementBannerComponent
   ],
 
   schemas: [
@@ -83,7 +85,8 @@ import { TpPlateEditModalComponent } from './components/tp-plate-edit-modal/tp-p
     TpSignInModalComponent,
     TpPlateUploadModalComponent,
     TpCollectionComponent,
-    TpPlateEditModalComponent
+    TpPlateEditModalComponent,
+    TpAdvertisementBannerComponent
   ]
 })
 

@@ -31,6 +31,7 @@ module.exports.refreshSchemas = () => {
   refreshCharitySchema();
   refreshWinnerSchema();
   refreshRequestsSchema();
+  refreshAdvertisementSchema();
 };
 
 module.exports.createUser = userData => {
@@ -297,7 +298,22 @@ module.exports.getPlates = (env, lastId, lim = 11, size = 'medium') => {
     models.Plate.find(query)
       .limit(lim)
       .sort({createdAt: -1})
-      .then(plates => deferred.resolve(plates.map(plate => plate.getNormalized(size))))
+      .then(plates => models.Advertisement.find({})
+        .then(banners => {
+          let
+            normalizedPlates = plates.map(plate => plate.getNormalized(size)),
+            normalizedBanners = banners.map(banner => banner.getNormalized()),
+            response = [],
+            bannersLength = normalizedBanners.length;
+
+          if (normalizedPlates.length) normalizedPlates.forEach((plate, i) => {
+            if (i && !(i % 2)) response.push(normalizedBanners[Math.floor(Math.random() * bannersLength)]);
+            response.push(plate);
+          });
+
+          deferred.resolve(response);
+        })
+        .catch(err => deferred.reject(err)))
       .catch(err => deferred.reject(err));
   }
 };
@@ -429,16 +445,24 @@ module.exports.searchPlates = (property = 'name', string = null, env, size = 'me
       isReady: true
     };
 
-  if (string === null) deferred.resolve([]);
+  if (string === null) models.Plate.find(query)
+    .limit(20)
+    .sort({createdAt: -1})
+    .then(plates => deferred.resolve(plates.map(plate => plate.getNormalized())))
+    .catch(err => deferred.reject(err));
 
   else {
     query[property] = new RegExp(string, 'ig');
     models.Plate.find(query)
-      .then(res => deferred.resolve(res.sort((a, b) => {
-        let propA = a.createdAt, propB = b.createdAt;
-        return propA > propB ? -1 : (propB > propA ? 1 : 0);
-      }).map(item => item.getNormalized())))
+      .sort({createdAt: -1})
+      .then(plates => deferred.resolve(plates.map(plate => plate.getNormalized())))
       .catch(err => deferred.reject(err));
+
+      // .then(res => deferred.resolve(res.sort((a, b) => {
+      //   let propA = a.createdAt, propB = b.createdAt;
+      //   return propA > propB ? -1 : (propB > propA ? 1 : 0);
+      // }).map(item => item.getNormalized())))
+
   }
 
   return deferred.promise;
@@ -1422,6 +1446,39 @@ function refreshRequestsSchema () {
   };
 
   models.Request = mongoose.model('Request', requestSchema);
+}
+
+function refreshAdvertisementSchema () {
+
+  let advertisementSchema = new mongoose.Schema({
+    name: String,
+    link: String,
+    image: String
+  });
+
+  advertisementSchema.methods.getNormalized = function () {
+    let replica = {};
+    ['name', 'link', 'image'].forEach(key => replica[key] = this[key]);
+    replica['isAdvertisementBanner'] = true;
+    return replica;
+  };
+
+  models.Advertisement = mongoose.model('Advertisement', advertisementSchema);
+
+  models.Advertisement.find({})
+    .then(res => {
+      if (res.length) console.log('Advertisements banners ready');
+      else models.Advertisement.collection.insertMany([
+        {
+          name: 'Mivina',
+          link: 'https://www.nestle.ua/brands/culinary/mivina',
+          image: 'assets/advertising/adv_test_1.jpg'
+        }
+      ])
+        .then(res => console.log('New advertisements banners added'))
+        .catch(err => console.log(err));
+    })
+    .catch(err => console.log(err));
 }
 
 function getFileExtension (contentType) {

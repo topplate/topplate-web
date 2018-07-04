@@ -2,11 +2,12 @@
   <div class="tp-infinite-list_item"
        *ngFor="let item of list"
        [ngClass]="{'isNewOne': item['isNewOne']}"
-       [ngStyle]="{'width': settings['width'] + 'px', 'height': settings['height'] + 'px'}">
-    <app-plate-preview [model]="item" [settings]="settings"></app-plate-preview>
+       [ngStyle]="{'width': itemWidth + '%', 'height': itemHeight + 'px'}">
+    <app-plate-preview [model]="item" [settings]="settings" *ngIf="!item['isAdvertisementBanner']"></app-plate-preview>
+    <app-tp-advertisement-banner [model]="item" *ngIf="item['isAdvertisementBanner']"></app-tp-advertisement-banner>
   </div>
-  <div class="tp-infinite-list_scrollMarker"></div>
 </div>
+<div class="tp-infinite-list_scrollMarker"></div>
 <div class="tp-infinite-list_preload" [ngClass]="{'isVisible': !isFinalized && endOfListReachedEventEmitted}">
   <i class="fa fa-circle-o-notch fa-spin"></i>
   <div class="tp-infinite-list_preloadImages"></div>

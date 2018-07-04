@@ -37,15 +37,32 @@ export class PlatesPageComponent implements OnInit, OnDestroy {
 
   public plates: PlateModel[] = [];
 
-  public settings: any;
+  public settings: any = {
+    showLabel: true,
+    showGeo: true,
+    showAuthor: true,
+    showRecipeBanner: true
+  };
 
-  public infiniteScrollEvents: any;
+  public infiniteScrollEvents: any = {
+    onReady: (componentAPI) => {
+      this.infiniteScrollAPI = componentAPI;
+      this.environmentWatcher = this.environmentService.getSubscription(env => {
+        this.infiniteScrollAPI.clearList();
+        this.loadPlates();
+      });
+    },
+    onEndOfListReached: () => {
+      console.log('onEndOfListReached triggered');
+      this.loadPlates();
+    }
+  };
 
   public infiniteScrollAPI: any;
 
-  private refreshPlates (plates) {
+  private refreshItems (items) {
     let self = this;
-    return plates.map(plate => self.platesService.createPlateEntity(plate));
+    return items.map(item => item.isAdvertisementBanner ? item : self.platesService.createPlateEntity(item));
   }
 
   private loadPlates () {
@@ -69,44 +86,22 @@ export class PlatesPageComponent implements OnInit, OnDestroy {
       params,
       {
         onSuccess: res => {
-          let newPlates = self.refreshPlates(res);
+          let
+            totalItems = self.refreshItems(res),
+            newPlates = totalItems.filter(item => !item.isAdvertisementBanner);
+
           infiniteScrollAPI.setFinalized(newPlates.length < lim);
-          infiniteScrollAPI.addItems(newPlates)
-            .then(platesInList => self.platesService.refreshPlatesList(platesInList));
+          infiniteScrollAPI.addItems(totalItems)
+            .then(() => self.platesService.refreshPlatesList(newPlates));
         },
         onFail: err => SharedService.getSharedComponent('growl').addItem(err)
       }
     );
   }
 
-  ngOnInit () {
-    let self = this;
-
-    self.settings = {
-      showLabel: true,
-      showGeo: true,
-      showAuthor: true,
-      showRecipeBanner: true
-    };
-
-    self.infiniteScrollEvents = {
-      onReady: (componentAPI) => {
-        self.infiniteScrollAPI = componentAPI;
-        self.environmentWatcher = self.environmentService.getSubscription(env => {
-          self.infiniteScrollAPI.clearList();
-          self.loadPlates();
-        });
-      },
-      onEndOfListReached: () => {
-        console.log('onEndOfListReached triggered');
-        self.loadPlates();
-      }
-    };
-  }
+  ngOnInit () {}
 
   ngOnDestroy () {
-    let self = this;
-    // self.changesObserver.timer.stop();
-    self.environmentWatcher.unsubscribe();
+    this.environmentWatcher.unsubscribe();
   }
 }

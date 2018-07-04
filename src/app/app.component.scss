@@ -219,3 +219,9 @@ body {
 .tp-header_spacer {
   height: $nav-height;
 }
+
+.disabled-page-banner {
+  padding: 100px;
+  color: $white;
+  text-align: center;
+}

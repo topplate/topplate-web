@@ -1,11 +1,7 @@
 import { Component, OnInit, DoCheck, OnDestroy, AfterViewInit, Input, ElementRef, ViewEncapsulation } from '@angular/core';
-import {Route, ActivatedRoute, ActivationEnd, NavigationEnd, Router} from '@angular/router';
 import 'rxjs/add/operator/filter';
 import { AppD3Service } from '../../services/d3.service';
 import { ConstantsService } from '../../services/constants.service';
-import { AuthorizationService } from '../../services/authorization.service';
-import { SharedService } from '../../services/shared.service';
-import { AccessPointService } from '../../services/access-point.service';
 
 const
   CONSTANTS = ConstantsService.getConstants(),
@@ -37,6 +33,10 @@ export class TpInfiniteListComponent implements OnInit, OnDestroy {
 
   public endOfListReachedEventEmitted: Boolean = true;
 
+  public itemWidth: any = 0;
+
+  public itemHeight: any = 0;
+
   private isFinalized: Boolean = false;
 
   private elements: Object;
@@ -60,6 +60,7 @@ export class TpInfiniteListComponent implements OnInit, OnDestroy {
       rootElem = d3.select(self.reference.nativeElement).classed(ROOT_ELEM_CLASS, true);
 
     self.elements = {
+      wnd: d3.select(window),
       root: rootElem,
       content: rootElem.select('.tp-infinite-list_content'),
       overlay: rootElem.select('.tp-infinite-list_overlay'),
@@ -79,6 +80,16 @@ export class TpInfiniteListComponent implements OnInit, OnDestroy {
     });
   }
 
+  private refreshSizes () {
+    let
+      windowWidth = window.innerWidth,
+      itemsInRow = Math.floor(windowWidth / this.settings['width']) || 1,
+      itemWidth = windowWidth / itemsInRow;
+
+    this.itemWidth = 100 / itemsInRow;
+    this.itemHeight = itemWidth * (this.settings['height'] / this.settings['width']);
+  }
+
   private refreshScrollWatcher () {
     let
       self = this,
@@ -88,17 +99,15 @@ export class TpInfiniteListComponent implements OnInit, OnDestroy {
 
     scrollWatcher['curr'] = 0;
     scrollWatcher['prev'] = 0;
-    scrollWatcher['delay'] = 1000;
+    scrollWatcher['delay'] = 24;
     scrollWatcher['timer'] = null;
     scrollWatcher['refresh'] = () => {
-
       if (
         !self.list ||
         !self.list.length ||
         self.isFinalized ||  /** For test only, need to remove comment */
         self.endOfListReachedEventEmitted
       ) return;
-
       let
         windowHeight = window.innerHeight,
         currentMarkerPosition = scrollMarker.getBoundingClientRect().top,
@@ -110,7 +119,7 @@ export class TpInfiniteListComponent implements OnInit, OnDestroy {
       }
     };
 
-    scrollWatcher['timer'] = d3.timer(val => scrollWatcher['refresh'].call(), scrollWatcher['delay']);
+    scrollWatcher['timer'] = setInterval(() => scrollWatcher['refresh'](), scrollWatcher['delay']);
   }
 
   private loadImages (newImages) {
@@ -156,6 +165,7 @@ export class TpInfiniteListComponent implements OnInit, OnDestroy {
 
     self.refreshDOM();
     self.refreshSettings();
+    self.refreshSizes();
     self.refreshScrollWatcher();
 
     typeof events['onReady'] === 'function' && events['onReady']({
@@ -165,7 +175,7 @@ export class TpInfiniteListComponent implements OnInit, OnDestroy {
         return new Promise((resolve, reject) => {
           items.forEach(item => {
             item['isNewOne'] = true;
-            images = images.concat(item.images);
+            images = images.concat(item.isAdvertisementBanner ? [item.image] : item.images);
           });
           self.loadImages(images)
             .then(res => {
@@ -202,10 +212,13 @@ export class TpInfiniteListComponent implements OnInit, OnDestroy {
       getFinalized: () => self.isFinalized,
       getLastOne: () => self.list[self.list.length - 1]
     });
+
+    this.elements['wnd'].on('resize', () => this.refreshSizes());
   }
 
   ngOnDestroy () {
-    this.scrollWatcher['timer'].stop();
+    this.elements['wnd'].on('resize', null);
+    clearInterval(this.scrollWatcher['timer']);
   }
 }
 

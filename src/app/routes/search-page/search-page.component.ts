@@ -25,7 +25,7 @@ const
   styleUrls: ['./search-page.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class SearchPageComponent implements OnInit {
+export class SearchPageComponent implements OnInit, OnDestroy {
 
   constructor (
     private accessPointService: AccessPointService,
@@ -37,13 +37,42 @@ export class SearchPageComponent implements OnInit {
   public items: PlateModel[] = [];
 
   public itemSettings: Object = {
-    width: 300,
-    height: 250,
     showLabel: true,
     showGeo: true,
     showAuthor: true,
     showRecipeBanner: true
   };
+
+  public infiniteScrollEvents: any = {
+    onReady: (componentAPI) => {
+      let
+        currentVal = '',
+        currentEnv = this.environmentService.getCurrent();
+
+      this.infiniteScrollAPI = componentAPI;
+
+      this.infiniteScrollAPI.setFinalized(true);
+
+      this.searchTerm
+        .debounceTime(400)
+        .distinctUntilChanged()
+        .subscribe(val => {
+          currentVal = val;
+          this.doSearch(val, currentEnv);
+        });
+
+      this.environmentChangeWatcher = this.environmentService.getSubscription(env => {
+        if (env !== currentEnv) {
+          currentEnv = env;
+          this.doSearch(currentVal, currentEnv);
+        }
+      });
+
+      this.doSearch(currentVal, currentEnv);
+    }
+  };
+
+  public infiniteScrollAPI: any;
 
   private rootElement: any;
 
@@ -66,6 +95,8 @@ export class SearchPageComponent implements OnInit {
   private doSearch (term, env) {
     let self = this;
 
+    this.infiniteScrollAPI && this.infiniteScrollAPI.clearList();
+
     self.accessPointService.getRequest(
       'search_plates',
       {
@@ -74,37 +105,21 @@ export class SearchPageComponent implements OnInit {
       },
       {
         onSuccess: (res) => {
-          self.items = res.map(item => self.platesService.createPlateEntity(item));
-          self.platesService.refreshPlatesList(self.items);
+          this.items = res.map(item => this.platesService.createPlateEntity(item));
+          this.platesService.refreshPlatesList(this.items);
+          this.infiniteScrollAPI.addItems(this.items).then(() => self.platesService.refreshPlatesList(this.items));
         },
-        onFail: (err) => console.log(err)
+        onFail: (err) => SharedService.getSharedComponent('growl').addItem(err)
       });
   }
 
   ngOnInit () {
+    this.rootElement = d3.select(this.ref.nativeElement);
+    this.focus();
+  }
 
-    let
-      self = this,
-      currentVal = '',
-      currentEnv = self.environmentService.getCurrent();
-
-    self.searchTerm
-      .debounceTime(400)
-      .distinctUntilChanged()
-      .subscribe(val => {
-        currentVal = val;
-        self.doSearch(val, currentEnv);
-      });
-
-    self.environmentChangeWatcher = self.environmentService.getSubscription(env => {
-      if (env !== currentEnv) {
-        currentEnv = env;
-        self.doSearch(currentVal, currentEnv);
-      }
-    });
-
-    self.rootElement = d3.select(this.ref.nativeElement);
-
-    self.focus();
+  ngOnDestroy () {
+    this.searchTerm.unsubscribe();
+    this.environmentChangeWatcher.unsubscribe();
   }
 }

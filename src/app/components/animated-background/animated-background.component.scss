@@ -23,6 +23,7 @@
 
   .animated-background_image {
     background-size: cover;
+    background-position: center center;
     @include transformed(scale(1.1));
     &.animationEnabled {
       @include use-transition($very-slow);
