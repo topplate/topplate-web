@@ -303,10 +303,12 @@ module.exports.getPlates = (env, lastId, lim = 11, size = 'medium', loadAdvBanne
             normalizedPlates = plates.map(plate => plate.getNormalized(size)),
             normalizedBanners = banners.map(banner => banner.getNormalized()),
             response = [],
-            bannersLength = normalizedBanners.length;
+            bannersLength = normalizedBanners.length,
+            bannersIterator = 0;
 
           if (normalizedPlates.length) normalizedPlates.forEach((plate, i) => {
-            if (loadAdvBanners && i && !(i % 2)) response.push(normalizedBanners[Math.floor(Math.random() * bannersLength)]);
+            if (loadAdvBanners && bannersLength&& i && !((i + 1) % 3)) response
+              .push(normalizedBanners[bannersIterator++ % bannersLength]);
             response.push(plate);
           });
 
@@ -1453,6 +1455,9 @@ function refreshAdvertisementSchema () {
     name: String,
     link: String,
     image: String
+  }, {
+    collection: 'advertisements',
+    timestamp: true
   });
 
   advertisementSchema.methods.getNormalized = function () {
@@ -1464,25 +1469,25 @@ function refreshAdvertisementSchema () {
 
   models.Advertisement = mongoose.model('Advertisement', advertisementSchema);
 
-  models.Advertisement.find({})
-    .then(res => {
-      if (res.length) console.log('Advertisements banners ready');
-      else models.Advertisement.collection.insertMany([
-        {
-          name: 'Mivina',
-          link: 'https://www.nestle.ua/brands/culinary/mivina',
-          image: 'assets/advertising/adv_test_1.jpg'
-        },
-        {
-          name: 'Dimmu Borgir',
-          link: 'https://www.dimmu-borgir.com/',
-          image: 'assets/advertising/adv_test_2.jpg'
-        }
-      ])
-        .then(res => console.log('New advertisements banners added'))
-        .catch(err => console.log(err));
-    })
-    .catch(err => console.log(err));
+  // models.Advertisement.find({})
+  //   .then(res => {
+  //     if (res.length) console.log('Advertisements banners ready');
+  //     else models.Advertisement.collection.insertMany([
+  //       {
+  //         name: 'Mivina',
+  //         link: 'https://www.nestle.ua/brands/culinary/mivina',
+  //         image: 'assets/advertising/adv_test_1.jpg'
+  //       },
+  //       {
+  //         name: 'Dimmu Borgir',
+  //         link: 'https://www.dimmu-borgir.com/',
+  //         image: 'assets/advertising/adv_test_2.jpg'
+  //       }
+  //     ])
+  //       .then(res => console.log('New advertisements banners added'))
+  //       .catch(err => console.log(err));
+  //   })
+  //   .catch(err => console.log(err));
 }
 
 function getFileExtension (contentType) {
