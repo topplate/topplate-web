@@ -138,6 +138,10 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
     return !!this.authorizationService.getAdminUser();
   }
 
+  public get isThinScreen () {
+    return window.innerWidth < 1300;
+  }
+
   private refreshDOM () {
 
     let
@@ -153,12 +157,9 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
   }
 
   private refreshView () {
+    let links = this.links = [];
 
-    let
-      self = this,
-      links = self.links = [];
-
-    self.items.forEach(item => {
+    this.items.forEach(item => {
       item['_label'] = getSplittedString(item['label'], 2);
       links.push(item);
     });
@@ -180,26 +181,24 @@ export class TpHeaderComponent implements OnInit, OnDestroy {
   }
 
   private refreshWatchers () {
-    let
-      self = this,
-      linksToObserve = self.items.filter(item => item.hasOwnProperty('showWhen'));
+    let linksToObserve = this.items.filter(item => item.hasOwnProperty('showWhen'));
 
     this.authorizationService.getCurrentUserSubscription(currentUser => {
       this.currentUser = currentUser;
       this.isAuthorized = !!currentUser;
     });
 
-    self.switchObserver = self.environmentService.getSubscription(env => {
-      self.switchItems.forEach(item => item['isSelected'] = item['name'] === env);
+    this.switchObserver = this.environmentService.getSubscription(env => {
+      this.switchItems.forEach(item => item['isSelected'] = item['name'] === env);
     });
 
-    self.router.events.subscribe( (event) => {
+    this.router.events.subscribe( (event) => {
       if (event instanceof NavigationEnd) {
-        self.currentStateData = self.activatedRoute.root.firstChild.snapshot.data;
-        self.isAdminRoute = self.currentStateData['isAdminRoute'];
-        SharedService.isAdminRoute = self.isAdminRoute;
-        linksToObserve.forEach(link => link['isHidden'] = !self.currentStateData['showHomeButton']);
-        self.showSwitch = self.currentStateData['showEnvironmentSwitch'] === true;
+        this.currentStateData = this.activatedRoute.root.firstChild.snapshot.data;
+        this.isAdminRoute = this.currentStateData['isAdminRoute'];
+        SharedService.isAdminRoute = this.isAdminRoute;
+        linksToObserve.forEach(link => link['isHidden'] = !this.currentStateData['showHomeButton']);
+        this.showSwitch = this.currentStateData['showEnvironmentSwitch'] === true;
       }
     });
   }

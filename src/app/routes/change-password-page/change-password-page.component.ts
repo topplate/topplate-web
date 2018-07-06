@@ -29,8 +29,14 @@ export class ChangePasswordPageComponent implements OnInit {
   }
 
   public submitForm () {
-    if (!this.isReadyToBeSubmitted) return;
     let value = this.changePasswordForm.value;
+
+    if (!this.isReadyToBeSubmitted) return;
+    if (value.password === value.newPassword) {
+      this.changePasswordFormError = 'New password should differ from old one';
+      return;
+    }
+
     this.changePasswordFormError = null;
     SharedService.getSharedComponent('globalOverlay').toggle(false);
     this.accessPointService.postRequest(

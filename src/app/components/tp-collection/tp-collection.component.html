@@ -1,9 +1,9 @@
 <div class="tp-collection-list-header roboto-light uppercase">Ingredients</div>
 
 <ul class="tp-collection-list roboto-light uppercase" *ngIf="model.length">
-  <li class="tp-collection-item" *ngFor="let item of model.getItems()" (click)="model.removeItem(item)">
-    <span class="tp-collection-item-label">{{item.text}}</span>
-    <i class="tp-collection-item-remove-btn"></i>
+  <li class="tp-collection-item" *ngFor="let item of model.getItems()">
+    <input class="tp-collection-item-label roboto-light uppercase" [(ngModel)]="item.text" placeholder="EDIT INGREDIENT" maxlength="25" />
+    <i class="tp-collection-item-remove-btn" (click)="model.removeItem(item)"></i>
   </li>
 </ul>
 

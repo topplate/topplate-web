@@ -20,6 +20,7 @@ $nav-aside-block-width: 400px;
     position: relative;
     height: inherit;
     text-align: right;
+    white-space: nowrap;
 
     .tp-header_envSwitch {
       position: fixed;
@@ -197,6 +198,10 @@ $nav-aside-block-width: 400px;
       font-size: 12px;
       min-width: $full-size;
       @include use-transition($normal);
+
+      .tp-header_menuItems-list {
+        padding: 0;
+      }
 
       .tp-header_menuItem {
         list-style: none;

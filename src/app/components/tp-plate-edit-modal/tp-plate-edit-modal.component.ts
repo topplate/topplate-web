@@ -39,9 +39,13 @@ export class TpPlateEditModalComponent implements OnInit {
   }
 
   public onPlateSubmit () {
+    if (!this.isReadyToBeSubmitted) return;
+
     let
       recipe = this.homemadePlateForm.value.recipe || '',
-      ingredients = this.ingredientsCollection.getItems().map(item => item.text);
+      ingredients = this.ingredientsCollection.getItems()
+        .map(item => item.text)
+        .filter(text => text && text.replace(/\s/g, '').length);
 
     SharedService.getSharedComponent('globalOverlay').toggle(false);
     this.accessPointService.postRequest(

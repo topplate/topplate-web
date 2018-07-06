@@ -82,7 +82,9 @@ export class TpPlateUploadModalComponent implements OnInit {
         contentType: plateUploadedImage['contentType'],
         address: formValue.address || '',
         recipe: formValue.recipe || '',
-        ingredients: self.ingredientsCollection.getItems().map(item => item.text),
+        ingredients: self.ingredientsCollection.getItems()
+          .map(item => item.text)
+          .filter(text => text && text.replace(/\s/g, '').length),
         restaurantName: formValue.restaurantName || '',
         author: currentUser['_id']
       }, {

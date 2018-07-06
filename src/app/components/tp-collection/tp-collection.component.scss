@@ -11,11 +11,15 @@
     padding: 0;
 
     .tp-collection-item {
-      @include styled-input();
       position: relative;
       list-style: none;
       text-align: left;
       margin-top: 10px;
+
+      .tp-collection-item-label {
+        @include styled-input();
+        padding-right: 40px;
+      }
 
       .tp-collection-item-remove-btn {
         display: block;
@@ -28,6 +32,7 @@
         cursor: pointer;
         background-color: rgba(255, 255, 255, .5);
         background-size: cover;
+        background-position: center center;
         background-image: url(../../../assets/icons/close_icon.png);
       }
     }
@@ -53,6 +58,7 @@
       cursor: pointer;
       background-color: rgba(255, 255, 255, .5);
       background-size: cover;
+      background-position: center center;
       background-image: url(../../../assets/icons/add_icon.png);
     }
   }

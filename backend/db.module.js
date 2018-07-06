@@ -211,14 +211,13 @@ module.exports.createPlate = (plateData, authorId) => {
     .then(plateAuthor => {
 
       let
-        lastLoggedProvider = plateAuthor.lastLogged.provider,
-        profileData = plateAuthor[lastLoggedProvider],
+        plateAuthorData = plateAuthor.getNormalized().user,
         newPlate = new Plate(creationData);
 
       newPlate.author = {
         id: authorId,
-        name: profileData.name,
-        image: profileData.image
+        name: plateAuthorData.name,
+        image: plateAuthorData.image
       };
 
       newPlate.save(err => {
@@ -883,7 +882,7 @@ function refreshUserSchema () {
         Object.keys(fieldsThatCouldBeUpdated).forEach(key => fields.hasOwnProperty(key) && (plate[key] = fields[key]));
         plate.save(err => {
           if (err) deferred.reject(err);
-          else deferred.resolve({message: 'plate ' + plateId + ' was updated'});
+          else deferred.resolve({message: 'plate was updated'});
         });
       })
       .catch(err => deferred.reject(err));

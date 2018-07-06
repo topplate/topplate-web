@@ -5,7 +5,7 @@ $chevron-width: 210px;
 .top-plate_mainHeader {
   position: relative;
   z-index: $nav-z-index;
-  min-width: $page-width;
+  //min-width: $page-width;
   width: $full-size;
   margin: 0 auto;
   height: $nav-height;
@@ -15,7 +15,7 @@ $chevron-width: 210px;
 
   .top-plate_mainHeaderContent {
     position: relative;
-    width: $page-width;
+    //width: $page-width;
     margin: 0 auto;
     padding-right: $chevron-width;
   }
@@ -151,7 +151,7 @@ $chevron-width: 210px;
 .top-plate_secondaryHeader {
   position: relative;
   z-index: $nav-z-index;
-  min-width: $page-width;
+  //min-width: $page-width;
   width: $full-size;
   margin: 0 auto;
   height: $secondary-nav-height;
@@ -160,7 +160,7 @@ $chevron-width: 210px;
 
   .top-plate_secondaryHeaderContent {
     position: relative;
-    width: $page-width;
+    //width: $page-width;
     margin: 0 auto;
     padding-right: $chevron-width;
   }

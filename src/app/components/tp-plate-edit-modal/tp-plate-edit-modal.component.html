@@ -10,6 +10,7 @@
         </div>
         <app-tp-collection [model]="ingredientsCollection"></app-tp-collection>
       </fieldset>
+      <br>
       <div class="plate-edit_buttons">
         <button class="plate-edit_button isReady" type="button" (click)="onCancel()">CANCEL</button>
         <button type="button" class="plate-edit_button" [ngClass]="{'isReady': isReadyToBeSubmitted}" (click)="onPlateSubmit()">SUBMIT</button>

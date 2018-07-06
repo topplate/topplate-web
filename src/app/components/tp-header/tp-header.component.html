@@ -6,7 +6,7 @@
       <app-tp-switch [items]="switchItems" [events]="switchEvents"></app-tp-switch>
     </div>
 
-    <div class="tp-header_links" *ngIf="!isAdminRoute">
+    <div class="tp-header_links" *ngIf="!isAdminRoute && !isThinScreen">
       <div class="tp-header_link"
            *ngFor="let link of links"
            (click)="onLinkClick(link)"
@@ -30,14 +30,27 @@
 
     <div class="tp-header_menu">
       <i class="fa fa-bars"></i>
-      <ul class="tp-header_menuItems">
-        <li class="tp-header_menuItem roboto-light uppercase"
-            *ngFor="let menuItem of menuItems"
-            [hidden]="!isAuthorized && menuItem['authorizedUsersOnly']"
-            (click)="onMenuItemClick(menuItem)">
-          <span>{{menuItem['label']}}</span>
-        </li>
-      </ul>
+      <div class="tp-header_menuItems">
+
+        <ul class="tp-header_menuItems-list" *ngIf="isThinScreen">
+          <li class="tp-header_menuItem roboto-light uppercase"
+              *ngFor="let link of links"
+              (click)="onLinkClick(link)"
+              [hidden]="link['isHidden']">
+            <span>{{link['label']}}</span>
+          </li>
+        </ul>
+
+        <ul class="tp-header_menuItems-list">
+          <li class="tp-header_menuItem roboto-light uppercase"
+              *ngFor="let menuItem of menuItems"
+              [hidden]="!isAuthorized && menuItem['authorizedUsersOnly']"
+              (click)="onMenuItemClick(menuItem)">
+            <span>{{menuItem['label']}}</span>
+          </li>
+        </ul>
+
+      </div>
     </div>
   </div>
 

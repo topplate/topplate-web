@@ -28,11 +28,11 @@
   .top-plate_modal_sliderRail {
     display: none;
     position: fixed;
-    right: 2px;
+    right: 0;
     top: 0;
     background: #253b39;
     width: 12px;
-    border-radius: 6px;
+    //border-radius: 6px;
     height: $full-size;
 
     .top-plate_modal_sliderCaret {
@@ -40,7 +40,7 @@
       height: 300px;
       min-height: 12px;
       background: #385553;
-      border-radius: 8px;
+      //border-radius: 8px;
       border: 1px solid #253b39;
       cursor: ns-resize;
     }
