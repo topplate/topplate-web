@@ -294,27 +294,73 @@ module.exports.getPlates = (env, lastId, lim = 11, size = 'medium', loadAdvBanne
   return deferred.promise;
 
   function _getPlates () {
+
     models.Plate.find(query)
       .limit(lim)
       .sort({createdAt: -1})
-      .then(plates => models.Advertisement.find({})
-        .then(banners => {
-          let
-            normalizedPlates = plates.map(plate => plate.getNormalized(size)),
-            normalizedBanners = banners.map(banner => banner.getNormalized()),
-            response = [],
-            bannersLength = normalizedBanners.length,
-            bannersIterator = 0;
+      .then(plates => {
+        let normalizedPlates = plates.map(plate => plate.getNormalized(size));
+        if (!loadAdvBanners) deferred.resolve(normalizedPlates);
+        else mergeWithAdvBanners(normalizedPlates)
+          .then(mergedResponse => deferred.resolve(mergedResponse))
+          .catch(err => deferred.reject(err))
+      })
+      .catch(err => deferred.reject(err));
+    // models.Plate.find(query)
+    //   .limit(lim)
+    //   .sort({createdAt: -1})
+    //   .then(plates => models.Advertisement.find({})
+    //     .then(banners => {
+    //       let
+    //         normalizedPlates = plates.map(plate => plate.getNormalized(size)),
+    //         normalizedBanners = banners.map(banner => banner.getNormalized()),
+    //         response = [],
+    //         bannersLength = normalizedBanners.length,
+    //         bannersIterator = 0;
+    //
+    //       if (normalizedPlates.length) normalizedPlates.forEach((plate, i) => {
+    //         if (loadAdvBanners && bannersLength&& i && !((i + 1) % 3)) response
+    //           .push(normalizedBanners[bannersIterator++ % bannersLength]);
+    //         response.push(plate);
+    //       });
+    //
+    //       deferred.resolve(response);
+    //     })
+    //     .catch(err => deferred.reject(err)))
+    //   .catch(err => deferred.reject(err));
+  }
+};
 
-          if (normalizedPlates.length) normalizedPlates.forEach((plate, i) => {
-            if (loadAdvBanners && bannersLength&& i && !((i + 1) % 3)) response
-              .push(normalizedBanners[bannersIterator++ % bannersLength]);
-            response.push(plate);
-          });
+module.exports.getNewPlates = (env, firstId, lim = 11, size = 'medium', loadAdvBanners = false) => {
+  let
+    deferred = Q.defer(),
+    platesModel = models.Plate,
+    query = {isReady: true};
 
-          deferred.resolve(response);
-        })
-        .catch(err => deferred.reject(err)))
+  if (env) query['environment'] = env;
+
+  if (firstId) platesModel.findOne({_id: firstId})
+    .then(lastOne => {
+      query['createdAt'] = {$gt: lastOne.createdAt};
+      _getPlates();
+    })
+    .catch(err => deferred.reject(err));
+
+  else _getPlates();
+
+  return deferred.promise;
+
+  function _getPlates () {
+    models.Plate.find(query)
+      .limit(lim)
+      .sort({createdAt: -1})
+      .then(plates => {
+        let normalizedPlates = plates.map(plate => plate.getNormalized(size));
+        if (!loadAdvBanners) deferred.resolve(normalizedPlates);
+        else mergeWithAdvBanners(normalizedPlates)
+          .then(mergedResponse => deferred.resolve(mergedResponse))
+          .catch(err => deferred.reject(err))
+      })
       .catch(err => deferred.reject(err));
   }
 };
@@ -364,12 +410,10 @@ module.exports.getPlatesAdmin = (statusFilter, periodFilter, envFilter, colName,
         isReversed = colReversed === 'true',
         sortedItems = normalizedItems.sort((a, b) => {
           let propA = a[colName], propB = b[colName];
-
           if (colType === 'string') {
             propA = (propA + '').toLowerCase();
             propB = (propB + '').toLowerCase();
           }
-
           return propA < propB ? 1 : (propA > propB ? -1 : 0);
         });
 
@@ -1506,6 +1550,28 @@ function getWeekName () {
 function getMonthName () {
   let date = moment();
   return date.year() + '_' + date.month();
+}
+
+function mergeWithAdvBanners (normalizedPlates) {
+  let deferred = Q.defer();
+
+  models.Advertisement.find({})
+    .then(banners => {
+      let
+        normalizedBanners = banners.map(banner => banner.getNormalized()),
+        response = [],
+        bannersLength = normalizedBanners.length,
+        bannersIterator = 0;
+
+      if (normalizedPlates.length) normalizedPlates.forEach((plate, i) => {
+        if (bannersLength && i && !((i + 1) % 3)) response.push(normalizedBanners[bannersIterator++ % bannersLength]);
+        response.push(plate);
+      });
+      deferred.resolve(response);
+    })
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
 }
 
 

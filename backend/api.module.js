@@ -429,7 +429,7 @@ function refreshRoutes () {
   });
 
   app.get('/get_plates', (req, res) => {
-    checkAuthorization(req)
+    checkAuthorization(req, true)
       .then(user => getPlates(user.getLikedPlates()))
       .catch(err => err.status === 401 ? getPlates() : sendError(res, err));
 
@@ -443,6 +443,31 @@ function refreshRoutes () {
         loadAdvBanners = query.loadAdvertisementBanners === 'true';
 
       dbModule.getPlates(env, lastId, isNaN(lim) ? 11 : lim, query.size, loadAdvBanners)
+        .then(plates => {
+          plates.forEach(plate => {
+            plate.liked = likedPlates[plate._id] || false;
+          });
+          res.send(plates);
+        })
+        .catch(err => sendError(res, err));
+    }
+  });
+
+  app.get('/get_new_plates', (req, res) => {
+    checkAuthorization(req, true)
+      .then(user => getPlates(user.getLikedPlates()))
+      .catch(err => err.status === 401 ? getPlates() : sendError(res, err));
+
+    function getPlates (likedPlates = {}) {
+      let
+        query = req.query,
+        dbModule = global.dbModule,
+        env = query.environment || 'restaurant',
+        firstId = query.firstId,
+        lim = +query.lim,
+        loadAdvBanners = query.loadAdvertisementBanners === 'true';
+
+      dbModule.getPlates(env, firstId, isNaN(lim) ? 11 : lim, query.size, loadAdvBanners, true)
         .then(plates => {
           plates.forEach(plate => {
             plate.liked = likedPlates[plate._id] || false;
@@ -527,11 +552,14 @@ function refreshRoutes () {
   });
 
   app.get('/get_winners', (req, res) => {
-    let env = req.query.environment;
-    global.dbModule.getWinners(env)
-      .then(winners => res.send(winners))
-      .catch(err => sendError(res,err))
-    });
+    res.send([]); /** No winners for beta version */
+    // let env = req.query.environment;
+    //
+    //
+    // global.dbModule.getWinners(env)
+    //   .then(winners => res.send(winners))
+    //   .catch(err => sendError(res,err))
+  });
 
   app.post('/create_request', (req, res) => {
     global.dbModule.createRequest(req.body)
