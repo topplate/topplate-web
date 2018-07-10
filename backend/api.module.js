@@ -467,7 +467,7 @@ function refreshRoutes () {
         lim = +query.lim,
         loadAdvBanners = query.loadAdvertisementBanners === 'true';
 
-      dbModule.getPlates(env, firstId, isNaN(lim) ? 11 : lim, query.size, loadAdvBanners, true)
+      dbModule.getNewPlates(env, firstId, isNaN(lim) ? 11 : lim, query.size, loadAdvBanners, true)
         .then(plates => {
           plates.forEach(plate => {
             plate.liked = likedPlates[plate._id] || false;

@@ -306,28 +306,6 @@ module.exports.getPlates = (env, lastId, lim = 11, size = 'medium', loadAdvBanne
           .catch(err => deferred.reject(err))
       })
       .catch(err => deferred.reject(err));
-    // models.Plate.find(query)
-    //   .limit(lim)
-    //   .sort({createdAt: -1})
-    //   .then(plates => models.Advertisement.find({})
-    //     .then(banners => {
-    //       let
-    //         normalizedPlates = plates.map(plate => plate.getNormalized(size)),
-    //         normalizedBanners = banners.map(banner => banner.getNormalized()),
-    //         response = [],
-    //         bannersLength = normalizedBanners.length,
-    //         bannersIterator = 0;
-    //
-    //       if (normalizedPlates.length) normalizedPlates.forEach((plate, i) => {
-    //         if (loadAdvBanners && bannersLength&& i && !((i + 1) % 3)) response
-    //           .push(normalizedBanners[bannersIterator++ % bannersLength]);
-    //         response.push(plate);
-    //       });
-    //
-    //       deferred.resolve(response);
-    //     })
-    //     .catch(err => deferred.reject(err)))
-    //   .catch(err => deferred.reject(err));
   }
 };
 
