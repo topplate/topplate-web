@@ -1,3 +1,5 @@
-<a class="tp-advertisement-banner-link" target="_blank" [attr.href]="model.link" [ngStyle]="bannerStyle">
-  <ng-content></ng-content>
-</a>
+<div class="tp-advertisement-banner-link" [ngStyle]="bannerStyle">
+  <a class="tp-advertisement-banner-link-clickable" target="_blank" [attr.href]="model.link">
+    <ng-content></ng-content>
+  </a>
+</div>

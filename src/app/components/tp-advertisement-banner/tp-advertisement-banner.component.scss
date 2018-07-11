@@ -12,6 +12,12 @@
     display: block;
     background-size: cover;
     background-position: center center;
+
+    .tp-advertisement-banner-link-clickable {
+      width: $full-size;
+      height: $full-size;
+      display: block;
+    }
   }
 }
 
