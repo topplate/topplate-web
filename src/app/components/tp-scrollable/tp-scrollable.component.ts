@@ -149,40 +149,6 @@ export class TpScrollableComponent implements OnInit, OnDestroy {
       });
 
     rootElem
-      .on('mousedown', () => {
-        let
-          touchStartPosition = d3.event.clientY,
-          doc = d3.select(document),
-          body = d3.select('body');
-
-        body
-          .classed('no-select', true)
-          .classed('ns-resize', true);
-
-        doc
-          .on('mousemove', () => {
-            let
-              touchMovePosition = d3.event.clientY,
-              delta = touchStartPosition - touchMovePosition;
-
-            content.node().scrollTop = content.node().scrollTop + delta;
-
-            touchStartPosition = touchMovePosition;
-            caretPosition = (content.node().scrollTop / scrollLimit) * railSize;
-
-            caret
-              .transition().duration(100).ease(d3.easeCubicOut)
-              .style('transform', 'translate(0, ' + caretPosition + 'px)');
-          })
-          .on('mouseup', () => {
-            body
-              .classed('no-select', false)
-              .classed('ns-resize', false);
-            doc
-              .on('mousemove', null)
-              .on('mouseup', null);
-          });
-      })
       .on('wheel', () => {
         let
           wheelEvent = d3.event,
