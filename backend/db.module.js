@@ -348,13 +348,15 @@ module.exports.getPlatesByAuthor = (userId, env, skip = 0, lim = 11, size = 'med
 
   models.User.findOne({_id: userId})
     .then(user => {
-
       let
         relatedPlates = user.uploadedPlates.map(plateId => mongoose.Types.ObjectId(plateId)),
         query = {_id: {$in: relatedPlates}, isReady: true};
       if (env) query['environment'] = env;
 
-      models.Plate.find(query).limit(lim).skip(skip)
+      models.Plate.find(query)
+        .limit(lim)
+        .skip(skip)
+        .sort({createdAt: -1})
         .then(plates => deferred.resolve(plates.map(plate => plate.getNormalized(size))))
         .catch(err => deferred.reject(err));
     })
