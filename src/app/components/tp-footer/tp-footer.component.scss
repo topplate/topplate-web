@@ -30,7 +30,11 @@ $banner-size: 70px;
         width: 145px;
         height: 35px;
         background-size: cover;
-        background-image: url(../../../assets/top_plate_approved.png);
+        background-image: url(../../../assets/Logo_Top_plate_approved-03-01.png);
+      }
+
+      .tp-footer_copyright {
+        margin-left: 10px;
       }
     }
 
@@ -41,6 +45,7 @@ $banner-size: 70px;
       top: 0;
       right: 0;
       padding: 55px 30px;
+      margin-right: 20px;
 
       .tp-footer_appleBtn {
         width: 135px;
