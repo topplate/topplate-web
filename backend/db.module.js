@@ -840,8 +840,8 @@ function refreshUserSchema () {
     models.Plate.findOne({_id: plateId})
       .then(plate => {
 
-        if (!plate.canLike) deferred.resolve({message: 'can not like ' + plateId, status: 406});
-        else {
+        // if (!plate.canLike) deferred.resolve({message: 'can not like ' + plateId, status: 406});
+        // else {
           plate.likes = plate.likes || [];
           plate.likes.indexOf(user._id) < 0 && plate.likes.push(user._id);
           user.likedPlates.indexOf(plateId) < 0 && user.likedPlates.push(plateId);
@@ -856,7 +856,7 @@ function refreshUserSchema () {
               }
             });
           });
-        }
+        // }
       })
       .catch(err => deferred.reject(err));
 
@@ -1298,7 +1298,8 @@ function refreshPlateSchema () {
       ingredients: (plate.ingredients.length && plate.ingredients) || null,
       hasRecipe: !!plate.recipe,
       environment: plate.environment,
-      canLike: plate.canLike,
+      // canLike: plate.canLike,
+      canLike: true,
       status: plate.isReady,
       createdAt: moment(plate.createdAt).format('YYYY-MM-DD HH:mm:ss'),
       date: plate.createdAt
