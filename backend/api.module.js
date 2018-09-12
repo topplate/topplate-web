@@ -552,13 +552,11 @@ function refreshRoutes () {
   });
 
   app.get('/get_winners', (req, res) => {
-    res.send([]); /** No winners for beta version */
-    // let env = req.query.environment;
-    //
-    //
-    // global.dbModule.getWinners(env)
-    //   .then(winners => res.send(winners))
-    //   .catch(err => sendError(res,err))
+    //res.send([]); /** No winners for beta version */
+    let env = req.query.environment;
+    global.dbModule.getWinners(env)
+      .then(winners => res.send(winners))
+      .catch(err => sendError(res,err))
   });
 
   app.post('/create_request', (req, res) => {
