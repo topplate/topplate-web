@@ -11,10 +11,6 @@
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
-  "engines": {
-    "node": "~8.9.4",
-    "npm": "~5.6.0"
-  },
   "private": true,
   "dependencies": {
     "@angular/animations": "6.0.3",
@@ -88,5 +84,6 @@
     "ts-node": "~3.2.0",
     "tslint": "~5.7.0",
     "typescript": "~2.7.2"
-  }
+  },
+  "proxy": "localhost:8081"
 }
